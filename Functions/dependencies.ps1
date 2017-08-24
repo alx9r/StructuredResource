@@ -27,26 +27,6 @@ $tests = @{
     }
 }
 
-function Get-Test
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyname = $true,
-                   Mandatory = $true)]
-        [string]
-        $ID,
-
-        [hashtable]
-        $Dependencies = $tests
-    )
-    process
-    {
-    }
-}
-
 function ConvertTo-DependencyGraph
 {
     [CmdletBinding()]
@@ -65,7 +45,7 @@ function ConvertTo-DependencyGraph
     return $output
 }
 
-function Get-SortedTestIds
+function Get-OrderedTestIds
 {
     [CmdletBinding()]
     param
@@ -76,4 +56,21 @@ function Get-SortedTestIds
     )
 
     ConvertTo-DependencyGraph $Dependencies | Invoke-SortGraph
+}
+
+function Get-OrderedSteps
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(position = 1)]
+        [hashtable]
+        $Tests = $tests
+    )
+    Get-OrderedTestIds $Tests |
+        % { 
+            $step = New-Object TestStep -Property $Tests.get_Item($_)
+            $step.ID = $_
+            $step
+        }
 }
