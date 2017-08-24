@@ -26,6 +26,27 @@ $tests = @{
         Prerequisites = 'T001'
         Scriptblock = { $_ | Assert-DscResourceAttribute }
     }
+    'PI.2' = @{
+        Message = 'Each public resource is accessible using Get-DscResource.'
+        Prerequisites = 'T005'
+    }
+    T005 = @{
+        Message = 'Get resource using Get-DscResource.'
+        Scriptblock = { $_ | Assert-DscResource }
+    }
+    'PI.3' = @{
+        Message = 'Each public resource has a corresponding public function.'
+        Prerequisites = 'T006'
+    }
+    'PI.5' = @{
+        Message = 'The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName.'
+        Prerequisites = 'T006'
+    }
+    T006 = @{
+        Message = 'Get public resource function.'
+        Scriptblock = { $_ | Assert-PublicResourceFunction }
+        Prerequisites = 'T003'
+    }
 }
 
 function ConvertTo-DependencyGraph

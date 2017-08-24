@@ -273,4 +273,52 @@ Describe Assert-DscResourceAttribute {
         }
     }
 }
+
+Describe Get-PublicResourceFunctionCommandName {
+    It 'returns correct name' {
+        $r = Get-PublicResourceFunctionCommandName 'ResourceName'
+        $r | Should be 'Invoke-ProcessResourceName'
+    }
+}
+
+Describe Get-PublicResourceFunction {
+    Mock Get-PublicResourceFunctionCommandName { 'CommandName' } -Verifiable
+    Mock Get-Command { 'command' } -Verifiable
+    It 'returns command' {
+        $r = Get-PublicResourceFunction 'ResourceName' 'ModuleName'
+        $r | Should be 'command'
+    }
+    It 'invokes command' {
+        Assert-MockCalled Get-PublicResourceFunctionCommandName 1 {
+            $ResourceName -eq 'ResourceName'
+        }
+        Assert-MockCalled Get-Command 1 {
+            $Name -eq 'commandName' -and
+            $Module -eq 'ModuleName'
+        }
+    }
+}
+
+Describe Assert-PublicResourceFunction {
+    Mock Get-PublicResourceFunction
+    Context 'success' {
+        Mock Get-PublicResourceFunction { 'function' } -Verifiable
+        It 'returns nothing' {
+            $r = Assert-PublicResourceFunction 'ResourceName' 'ModuleName'
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Get-PublicResourceFunction 1 {
+                $ResourceName -eq 'ResourceName' -and
+                $ModuleName -eq 'ModuleName'
+            }
+        }
+    }
+    Context 'Get-PublicResourceFunction returns nothing' {
+        It 'throws' {
+            { Assert-PublicResourceFunction 'ResourceName' 'ModuleName' } |
+                Should throw 'not found'
+        }
+    }
+}
 }

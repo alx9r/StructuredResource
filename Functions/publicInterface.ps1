@@ -319,3 +319,72 @@ function Assert-DscResourceAttribute
         }
     }
 }
+
+function Get-PublicResourceFunctionCommandName
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Position = 1,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true,
+                   Mandatory = $true)]
+        [string]
+        $ResourceName
+    )
+    process
+    {
+        "Invoke-Process$ResourceName"
+    }
+}
+
+function Get-PublicResourceFunction
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Position = 1,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true,
+                   Mandatory = $true)]
+        [string]
+        $ResourceName,
+
+        [Parameter(Position = 2,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true)]
+        [string]
+        $ModuleName
+    )
+    process
+    {
+        Get-Command (Get-PublicResourceFunctionCommandName $ResourceName) -Module $ModuleName -ea SilentlyContinue
+    }
+}
+
+function Assert-PublicResourceFunction
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Position = 1,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true,
+                   Mandatory = $true)]
+        [string]
+        $ResourceName,
+
+        [Parameter(Position = 2,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true)]
+        [string]
+        $ModuleName
+    )
+    process
+    {
+        if ( -not (Get-PublicResourceFunction @PSBoundParameters) )
+        {
+            throw "Public resource function $(Get-PublicResourceFunctionCommandName $ResourceName) not found in module $ModuleName."
+        }
+    }    
+}

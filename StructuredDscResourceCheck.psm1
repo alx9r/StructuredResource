@@ -4,7 +4,8 @@ $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
 . "$moduleRoot\Functions\LoadTypes.ps1"
 
 # ...and then the remaining .ps1 files
-"$moduleRoot\Functions\*.ps1" |
+"$moduleRoot\Functions\*.ps1",
+"$moduleRoot\TestResourceFunctions\*.ps1" |
     Get-Item |
     ? {
         $_.Name -notmatch 'Tests\.ps1$' -and
