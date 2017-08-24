@@ -27,8 +27,8 @@ function Get-TestEnumerator
         [TestInstructions]
         $Enumerable
     )
-    $underlyingEnumerable = Get-OrderedSteps |
-        % { $_.Params = $Enumerable.Params; $_ }
-    
-    [TestInstructionEnumerator]::new($underlyingEnumerable)
+    ,(
+        Get-OrderedSteps |
+            % { $_.Params = $Enumerable.Params; $_ }
+    ).GetEnumerator()
 }

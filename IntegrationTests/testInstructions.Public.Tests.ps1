@@ -8,7 +8,7 @@ Describe 'Public API: New-TestInstructions' {
 
 Describe 'Public API: Invoke-TestStep' {
     It 'invoke' {
-        New-TestInstructions TestResource1 StructuredDscResourceCheck |
-            Invoke-TestStep
+        $i = New-TestInstructions TestResource1 StructuredDscResourceCheck
+        $i | Invoke-TestStep
     }
 }
