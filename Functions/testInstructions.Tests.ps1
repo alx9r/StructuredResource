@@ -34,8 +34,13 @@ Describe Get-TestEnumerator {
         ResourceName = 'resource_name'
     }
     Mock Get-OrderedSteps { 
-        New-Object TestStep -Property @{ ID = 1 }
-        New-Object TestStep -Property @{ ID = 2 } 
+        1,2 |
+            % { 
+                New-Object TestStep -Property @{ 
+                    ID = $_
+                    Scriptblock = {}
+                }
+            }
     } -Verifiable
     It 'returns enumerator' {
         $ti = [TestInstructions]::new($p)

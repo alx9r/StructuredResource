@@ -7,6 +7,7 @@ function Assert-ModuleExists
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ModuleName')]
         [string]
         $Name
     )
@@ -30,6 +31,7 @@ function Assert-ModuleImported
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ModuleName')]
         [string]
         $Name
     )
@@ -52,6 +54,7 @@ function Get-NestedModule
         [Parameter(Position = 1,
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true)]
+        [Alias('ResourceName')]
         [string]
         $NestedName,
 
@@ -59,7 +62,7 @@ function Get-NestedModule
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
-        [Alias('ParentName')]
+        [Alias('ModuleName','ParentName')]
         [string]
         $Name
     )
@@ -85,6 +88,7 @@ function Assert-NestedModule
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ResourceName')]
         [string]
         $NestedName,
 
@@ -92,7 +96,7 @@ function Assert-NestedModule
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
-        [Alias('ParentName')]
+        [Alias('ModuleName','ParentName')]
         [string]
         $Name
     )
@@ -116,6 +120,7 @@ function Get-NestedModuleType
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ResourceName')]
         [string]
         $NestedName,
 
@@ -123,7 +128,7 @@ function Get-NestedModuleType
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
-        [Alias('ParentName')]
+        [Alias('ModuleName','ParentName')]
         [string]
         $Name
     )
@@ -143,6 +148,7 @@ function Assert-NestedModuleType
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ResourceName')]
         [string]
         $NestedName,
 
@@ -150,7 +156,7 @@ function Assert-NestedModuleType
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
-        [Alias('ParentName')]
+        [Alias('ModuleName','ParentName')]
         [string]
         $Name
     )
@@ -174,6 +180,7 @@ function New-NestedModuleInstance
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ResourceName')]
         [string]
         $NestedName,
 
@@ -181,7 +188,7 @@ function New-NestedModuleInstance
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
-        [Alias('ParentName')]
+        [Alias('ModuleName','ParentName')]
         [string]
         $Name
     )
@@ -201,6 +208,7 @@ function Assert-NestedModuleInstance
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ResourceName')]
         [string]
         $NestedName,
 
@@ -208,7 +216,7 @@ function Assert-NestedModuleInstance
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
-        [Alias('ParentName')]
+        [Alias('ModuleName','ParentName')]
         [string]
         $Name
     )
@@ -232,12 +240,15 @@ function Assert-DscResource
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
+        [Alias('ResourceName')]
         [string]
         $Name,
 
         [Parameter(Position = 2,
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true)]
+        [Alias('ModuleName')]
+        [string]
         $Module
     )
     process
@@ -252,5 +263,59 @@ function Assert-DscResource
             throw "DSC Resource $Name not found."
         }
         throw "DSC Resource $Name not found in module $Module."
+    }
+}
+
+function Get-DscResourceAttribute
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Position = 1,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true,
+                   Mandatory = $true)]
+        [string]
+        $ResourceName,
+
+        [Parameter(Position = 2,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true)]
+        [string]
+        $ModuleName
+    )
+    process
+    {
+        Get-NestedModule @PSBoundParameters |
+            Get-TypeFromModule $ResourceName |
+            % CustomAttributes | 
+            ? {$_.AttributeType.Name -eq 'DscResourceAttribute' }
+    }    
+}
+
+function Assert-DscResourceAttribute
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Position = 1,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true,
+                   Mandatory = $true)]
+        [string]
+        $ResourceName,
+
+        [Parameter(Position = 2,
+                   ValueFromPipeline = $true,
+                   ValueFromPipelineByPropertyName = $true)]
+        [string]
+        $ModuleName
+    )
+    process
+    {
+        if ( -not (Get-DscResourceAttribute @PSBoundParameters) )
+        {
+            throw "[DscResource()] attribute not found on type $ResourceName in module $ModuleName."
+        }
     }
 }

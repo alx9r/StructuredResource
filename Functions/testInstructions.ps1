@@ -29,6 +29,7 @@ function Get-TestEnumerator
     )
     ,(
         Get-OrderedSteps |
+            ? { $_.Scriptblock } |
             % { $_.Params = $Enumerable.Params; $_ }
     ).GetEnumerator()
 }

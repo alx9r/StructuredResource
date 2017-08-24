@@ -23,6 +23,7 @@ $tests = @{
     }
     T004 = @{
         Message = 'Check for [DscResource()] attribute.'
+        Prerequisites = 'T001'
         Scriptblock = { $_ | Assert-DscResourceAttribute }
     }
 }

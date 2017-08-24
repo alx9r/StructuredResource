@@ -217,4 +217,60 @@ Describe Assert-DscResource {
         }
     }
 }
+
+Describe Get-DscResourceAttribute {
+    Mock Get-NestedModule { New-Module m {} } -Verifiable
+    Mock Get-TypeFromModule {
+        [DscResource()]
+        class f0743ed1
+        {
+            [DscProperty(Key)]
+            [string]
+            $Key
+
+            [void] Set() {}
+            [bool] Test() {return $true}
+            [f0743ed1] Get() { return $this }
+        }
+        return [f0743ed1]
+    } -Verifiable
+    It 'returns [DscResource()] attributes' {
+        $r = Get-DscResourceAttribute 'ResourceName' 'ModuleName'
+        $r.Count | Should be 1
+        $r.AttributeType.Name | Should be 'DscResourceAttribute'
+    }
+    It 'invokes commands' {
+        Assert-MockCalled Get-NestedModule 1 {
+            $NestedName -eq 'ResourceName' -and
+            $Name -eq 'ModuleName'
+        }
+        Assert-MockCalled Get-TypeFromModule 1 {
+            $Name -eq 'ResourceName' -and
+            $ModuleInfo
+        }
+    }
+}
+
+Describe Assert-DscResourceAttribute {
+    Mock Get-DscResourceAttribute
+    Context 'success' {
+        Mock Get-DscResourceAttribute { 'attribute' } -Verifiable
+        It 'returns nothing' {
+            $r = Assert-DscResourceAttribute 'ResourceName' 'ModuleName'
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Get-DscResourceAttribute 1 {
+                $ResourceName -eq 'ResourceName' -and
+                $ModuleName -eq 'ModuleName'
+            }
+        }
+    }
+    Context 'Get-DscResourceAttribute returns nothing' {
+        It 'throws' {
+            {Assert-DscResourceAttribute 'ResourceName' 'ModuleName'} |
+                Should throw 'not found'
+        }
+    }
+}
 }
