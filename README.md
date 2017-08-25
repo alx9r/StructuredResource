@@ -6,9 +6,9 @@
 
 **public resource function** - a function that is invoked by `Set()` and `Test()` of a corresponding public resource class and is also exported as a public interface to the module
 
-## P: Publishing
+## PB: Publishing
 
-### [x] PI.1: Each resource is published using a class with a `[DscResource()]` attribute
+### [x] PB.1: Each resource is published using a class with a `[DscResource()]` attribute
 
 This is as opposed to using MOF files to publish resources.
 
@@ -16,23 +16,29 @@ This is as opposed to using MOF files to publish resources.
 
 The particulars of the class can easily be tested using PowerShell.  Testing the same information in a MOF-based resource would require a parser for MOF files.
 
-### [x] PI.2: Each public resource is accessible using `Get-DscResource`
+### [x] PB.2: Each public resource is accessible using `Get-DscResource`
 
 **Reason**
 
 There might be subtle differences between the public resource class and the resultant object produced by PowerShell/WMF. Accessing the resultant object from `Get-DscResource` enables testing properties of the resource as interpreted by PowerShell/WMF.
 
-### [x] PI.3: Each public resource has a corresponding public function
+### [x] PB.3: Each public resource has a corresponding public function
 
 **Reason**
 
 Functions are more easily tested than classes.  Exposing a public function that is also invoked by the resource facilitates isolated testing.
 
-### [x] PI.4: The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName
+### [x] PB.4: The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName
 
 **Reason**
 
 This is to simplify discovery of the public function from the public resource class and vice versa.
+
+### [ ] PB.5: The module is output by `Get-Module -ListAvailable`
+
+**Reason**
+
+This simplifies testing because the module and its DSC resources are accessed by name alone.
 
 ## L: Layout
 
@@ -59,4 +65,57 @@ Invoke `Get-DscResource` for each of the related public resources and confirm th
 Complexity is easier to test in functions than classes.  The least amount of complexity that can be in the `Set()` and `Test()` methods of a public resource class is to simply invoke their corresponding public resource function. 
 
 
-## P: Parameters
+## PR: Parameters
+
+### [ ] PR.1: Each public resource class has member variables with the [DscProperty()] attibute.
+
+**Reason**
+
+Parameters are passed to class-based resources via member variables with the `[DscProperty()]` attribute.  A resource must have at least one parameter.
+
+### [ ] PR.2: Public resource class's `Ensure` member variable.
+
+A public resource class has an optional `Ensure` member.  It is of type `[Ensure]` and has no default value. 
+
+**Reason**
+
+The name `Ensure` is only used to specify whether a resource is present or absent. `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` has a default value of `Present` because omitting `Ensure` should cause the resource to ensure presence.
+
+### [ ] PR.3: Other member variables of public resource classes have no default value.
+
+**Reason**
+
+Omitting optional parameters means the configuration affected by the parameter should remain unchanged.  Omitting the default value ensures this.
+
+### [ ] PR.4: Public resource function `Mode` parameter.
+
+Each public resource function has a mandatory `Mode` parameter.  The `Mode` parameter is of type `[Ensure]`.  `Mode` is the first positional argument and does not have a default value.
+
+**Reason**
+The mode parameter is required to select between `Test` and `Set`.  It is of type `[Mode]` to restrict its values to `Set` and `Test`. Because it is mandatory, a default value has no use.  `Mode` is the first positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test`).
+
+## I: Integration
+
+### [ ] I.1: The module can be imported.
+
+**Reason**
+
+A module can be available using `Get-Module` but fails on import.
+
+### [ ] I.2: The module imported is the one under test.
+
+**Reason**
+
+Confusion can result during testing if PowerShell unexpectedly loads another available module (perhaps with a different version) with the same name.
+
+### [ ] I.3: Each nested module containing a resource class can be imported.
+
+**Reason**
+
+The nested module must be imported to test the class inside it.
+
+### [ ] I.4: Each imported nested module can be accessed using `Get-Module`.
+
+**Reason**
+
+This simplifies testing because the nested module can be accessed by name alone.
