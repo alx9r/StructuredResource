@@ -1,9 +1,9 @@
 $tests = @{
-    'PI.0' = @{
+    'PI.1' = @{
         Message = 'Each resource is published using a class with a [DscResource()] attribute.'
         Prerequisites = 'T004'
     }
-    'PI.1' = @{
+    'L.1' = @{
         Message = 'Each public resource class is accessible in a nested module of its parent.'
         Prerequisites = 'T001'
     }
@@ -38,7 +38,7 @@ $tests = @{
         Message = 'Each public resource has a corresponding public function.'
         Prerequisites = 'T006'
     }
-    'PI.5' = @{
+    'PI.4' = @{
         Message = 'The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName.'
         Prerequisites = 'T006'
     }
