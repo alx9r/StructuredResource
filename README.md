@@ -34,7 +34,7 @@ Functions are more easily tested than classes.  Exposing a public function that 
 
 This is to simplify discovery of the public function from the public resource class and vice versa.
 
-### [ ] PB.5: The module is output by `Get-Module -ListAvailable`
+### [x] PB.5: The module is output by `Get-Module -ListAvailable`
 
 **Reason**
 
@@ -67,7 +67,7 @@ Complexity is easier to test in functions than classes.  The least amount of com
 
 ## PR: Parameters
 
-### [ ] PR.1: Each public resource class has member variables with the [DscProperty()] attibute.
+### [x] PR.1: Each public resource class has member variables with the [DscProperty()] attibute.
 
 **Reason**
 

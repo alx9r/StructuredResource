@@ -58,6 +58,15 @@ $tests = @{
         Prerequisites = 'T007'
         Scriptblock = { Import-Module $_.ModuleName }
     }
+    'PR.1' = @{
+        Message = '$TypeInfo | Get-MemberProperties | Test-DscProperty'
+        Prerequisites = 'T009'
+    }
+    T009 = @{
+        Message = 'Check for properties with [DscProperty()] attribute.'
+        Prerequisites = 'T001'
+        Scriptblock = { $_ | Get-NestedModuleType | Assert-DscProperties }
+    }
 }
 
 function ConvertTo-DependencyGraph
