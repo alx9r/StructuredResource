@@ -175,6 +175,31 @@ function Assert-PropertyDefault
             return
         }
 
-        throw "Default value $actualValue does not match expected value $Value for property $PropertyName of [$TypeInfo]."
+        $printValue = $Value
+        if ( $null -eq $Value ) { $printValue = '$null' }
+
+        throw "Default value $actualValue does not match expected value $printValue for property $PropertyName of [$TypeInfo]."
+    }
+}
+
+function Assert-NullDscPropertyDefaults
+{
+    param
+    (
+        [string[]]
+        $Exclude,
+
+        [Parameter(ValueFromPipeline = $true,
+                   Mandatory = $true)]
+        [System.Reflection.TypeInfo]
+        $TypeInfo
+    )
+    process
+    {
+        $TypeInfo | 
+            Get-MemberProperty |
+            ? { $_.Name -notin $Exclude } |
+            ? { $_ | Test-DscProperty } |
+            % { $TypeInfo | Assert-PropertyDefault $_.Name $null }
     }
 }

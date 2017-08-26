@@ -150,4 +150,33 @@ Describe Assert-PropertyDefault {
         }
     }
 }
+
+Describe Assert-NullDscPropertyDefaults {
+    Context 'returns nothing' {
+        It 'empty class' {
+            class c {}
+            $r = [c] | Assert-NullDscPropertyDefaults
+            $r | Should beNullOrEmpty
+        }
+    }
+    Context 'does not throw' {
+        It 'no DSC properties' {
+            class c {$a = 'default'}
+            [c] | Assert-NullDscPropertyDefaults
+        }
+        It 'null default DSC properties' {
+            class c { [DscProperty()] $a; [DscProperty()] $b }
+            [c] | Assert-NullDscPropertyDefaults
+        }
+        It 'excluded non-null DSC property' {
+            class c { [DscProperty()] $a = 'default' }
+            [c] | Assert-NullDscPropertyDefaults -Exclude 'a'
+        }
+    }
+    It 'throws' {
+        class c { [DscProperty()] $a = 'default' }
+        { [c] | Assert-NullDscPropertyDefaults } |
+            Should throw 'does not match'
+    }
+}
 }

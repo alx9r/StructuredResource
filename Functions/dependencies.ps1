@@ -86,6 +86,15 @@ $tests = @{
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
     }
+    'PR.3' = @{
+        Message = 'Other member variables of public resource classes have no default value.'
+        Prerequisites = 'T013'
+    }
+    T013 = @{
+        Message = 'DSC properties other than "Ensure" have no default value.'
+        Prerequisites = 'T001'
+        Scriptblock = { $_ | Get-NestedModuleType | Assert-NullDscPropertyDefaults -Exclude 'Ensure' }
+    }
 }
 
 function ConvertTo-DependencyGraph
