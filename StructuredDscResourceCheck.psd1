@@ -4,9 +4,7 @@
 RootModule = 'StructuredDscResourceCheck.psm1'
 NestedModules = 'TestResource1.psm1'
 ScriptsToProcess = @(
-#    '.\bin\loadLibGit2Sharp.ps1'
-#    '.\External\nullSafeString.ps1'
-#    '.\dotNetTypes\ensure.ps1'
+    '.\dotNetTypes\ensure.ps1'
 #    '.\dotNetTypes\mode.ps1'
 )
 

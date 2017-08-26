@@ -4,7 +4,7 @@ Describe "Public API: Pester Integration" {
     $h = @{}
 
     It 'create instructions' {
-        $h.i = New-TestInstructions Repo DscGit
+        $h.i = New-TestInstructions TestResource1 StructuredDscResourceCheck
     }
     foreach ( $step in $h.i )
     {

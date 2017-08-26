@@ -73,7 +73,7 @@ Complexity is easier to test in functions than classes.  The least amount of com
 
 Parameters are passed to class-based resources via member variables with the `[DscProperty()]` attribute.  A resource must have at least one parameter.
 
-### [ ] PR.2: Public resource class's `Ensure` member variable.
+### [x] PR.2: Public resource class's `Ensure` member variable.
 
 A public resource class has an optional `Ensure` member.  It is of type `[Ensure]` and has no default value. 
 

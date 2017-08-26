@@ -65,7 +65,26 @@ $tests = @{
     T009 = @{
         Message = 'Check for properties with [DscProperty()] attribute.'
         Prerequisites = 'T001'
-        Scriptblock = { $_ | Get-NestedModuleType | Assert-DscProperties }
+        Scriptblock = { $_ | Get-NestedModuleType | Assert-HasDscProperty }
+    }
+    'PR.2' = @{
+        Message = 'Public resource class''s Ensure member variable'
+        Prerequisites = 'T010','T011','T012'
+    }
+    T010 = @{
+        Message = 'Member variable "Ensure" has [DscProperty()] attribute.'
+        Prerequisites = 'T001'
+        Scriptblock = { $_ | Get-NestedModuleType | Assert-DscProperty 'Ensure' }
+    }
+    T011 = @{
+        Message = 'Optional member variable "Ensure" is of type [Ensure].'
+        Prerequisites = 'T001'
+        Scriptblock = { $_ | Get-NestedModuleType | Get-MemberProperty 'Ensure' | Assert-PropertyType ([Ensure]) }
+    }
+    T012 = @{
+        Message = 'Optional member variable "Ensure" has default value "Present"'
+        Prerequisites = 'T001'
+        Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
     }
 }
 

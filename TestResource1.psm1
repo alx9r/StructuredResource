@@ -9,6 +9,10 @@ class TestResource1
     [string]
     $Value
 
+    [DscProperty()]
+    [Ensure]
+    $Ensure
+
     [void] Set() { $this | Invoke-ProcessTestResource1 Set }
     [bool] Test() { return $this | Invoke-ProcessTestResource1 Test }
 
