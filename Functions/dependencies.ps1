@@ -1,5 +1,5 @@
 $tests = @{
-    'PI.1' = @{
+    'PB.1' = @{
         Message = 'Each resource is published using a class with a [DscResource()] attribute.'
         Prerequisites = 'T004'
     }
@@ -19,26 +19,28 @@ $tests = @{
     }
     T003 = @{
         Message = 'Get module.'
-        Scriptblock = { $_ | Assert-ModuleExists }
+        Prerequisites = 'T008'
+        Scriptblock = { $_ | Assert-ModuleImported }
     }
     T004 = @{
         Message = 'Check for [DscResource()] attribute.'
         Prerequisites = 'T001'
         Scriptblock = { $_ | Assert-DscResourceAttribute }
     }
-    'PI.2' = @{
+    'PB.2' = @{
         Message = 'Each public resource is accessible using Get-DscResource.'
         Prerequisites = 'T005'
     }
     T005 = @{
         Message = 'Get resource using Get-DscResource.'
+        Prerequisites = 'T003'
         Scriptblock = { $_ | Assert-DscResource }
     }
-    'PI.3' = @{
+    'PB.3' = @{
         Message = 'Each public resource has a corresponding public function.'
         Prerequisites = 'T006'
     }
-    'PI.4' = @{
+    'PB.4' = @{
         Message = 'The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName.'
         Prerequisites = 'T006'
     }
@@ -46,6 +48,15 @@ $tests = @{
         Message = 'Get public resource function.'
         Scriptblock = { $_ | Assert-PublicResourceFunction }
         Prerequisites = 'T003'
+    }
+    T007 = @{
+        Message = 'Confirm module exists.'
+        Scriptblock = { $_ | Assert-ModuleExists }
+    }
+    T008 = @{
+        Message = 'Import module.'
+        Prerequisites = 'T007'
+        Scriptblock = { Import-Module $_.ModuleName }
     }
 }
 
