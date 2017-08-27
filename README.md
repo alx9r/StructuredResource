@@ -75,13 +75,13 @@ Parameters are passed to class-based resources via member variables with the `[D
 
 ### [x] PR.2: Public resource class's `Ensure` member variable.
 
-A public resource class has an optional `Ensure` member.  It is of type `[Ensure]` and has no default value. 
+A public resource class has an optional `Ensure` member.  It is of type `[Ensure]` and has default value `Present`. 
 
 **Reason**
 
-The name `Ensure` is only used to specify whether a resource is present or absent. `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` has a default value of `Present` because omitting `Ensure` should cause the resource to ensure presence.
+The name `Ensure` should only be used to specify whether a resource is present or absent because that is its customary meaning in PowerShell DSC. `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` has default value `Present` because omitting `Ensure` should cause the resource to ensure presence.
 
-### [ ] PR.3: Other member variables of public resource classes have no default value.
+### [x] PR.3: Other member variables of public resource classes have no default value.
 
 **Reason**
 
@@ -89,10 +89,81 @@ Omitting optional parameters means the configuration affected by the parameter s
 
 ### [ ] PR.4: Public resource function `Mode` parameter.
 
-Each public resource function has a mandatory `Mode` parameter.  The `Mode` parameter is of type `[Ensure]`.  `Mode` is the first positional argument and does not have a default value.
+Each public resource function has a mandatory `Mode` parameter.  The `Mode` parameter is of type `[Mode]`.  `Mode` is the first positional argument and does not have a default value.
 
 **Reason**
+
 The mode parameter is required to select between `Test` and `Set`.  It is of type `[Mode]` to restrict its values to `Set` and `Test`. Because it is mandatory, a default value has no use.  `Mode` is the first positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test`).
+
+### [ ] PR.5: Public resource function `Ensure` parameter.
+
+Each public resource function has an optional `Ensure` parameter.  The `Ensure` parameter is of type `[Ensure]`.  `Ensure` is the second positional argument and has default value `Present`.
+
+**Reason**
+
+The name `Ensure` should only be used to specify whether a resource is present or absent because that is its customary meaning in PowerShell DSC.  `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` is the second positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test Absent`).  `Ensure` has default value `Present` because omitting `Ensure` should cause the resource to ensure presence.
+
+### [ ] PR.6: No public resource function parameters bind to pipeline value.
+
+**Reason**
+
+This is to improve parameter binding predictability.  It is difficult to predict which, if any, parameter a pipeline value will bind to. 
+
+### [ ] PR.7: Public resource parameters bind to pipeline object property values.
+
+**Reason**
+
+This is to support binding of bulk parameters using objects.  In particular, it supports passing the values of member variables of a `[DscResource()]` object as arguments to the function (e.g. `$this | Invoke-ProcessResource Set`).
+
+### [ ] PR.8: A public resource class does not have member variable `Mode`
+
+**Reason**
+
+This is to avert confusion that might result when bulk-binding the values of a public resource object's member variables to a public resource function's parameters using the pipeline (e.g. `$this | Invoke-ProcessResource`).  The correct value for `Mode` must be explicitly passed to the public resource function (e.g. "`Test`" in `Invoke-ProcessResource Test`) on each invocation of the `Set()` and `Test()` methods.  The existence of a `Mode` member variable probably indicates an error (i.e. a resource author is probably incorrectly expecting `Mode` to be passed by the pipeline).
+
+### [ ] PR.8: Each public resource function parameter is statically-typed.
+
+**Reason**
+
+This is to help users understand what kind of object is expected for each parameter.
+
+### [ ] PR.9: Public resource function parameters cannot be `[string]`.
+
+**Reason**
+
+This is to support compliance with PR.11 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
+
+
+### [ ] PR.10: Public resource function value-type parameters must be `[Nullable[]]`.
+
+**Reason**
+
+This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
+
+### [ ] PR.11: The meaning of null for an optional default-less parameter is the same as omitting it.
+
+**Reason**
+
+Omission of an optional default-less argument A means "don't change" A.  Such an argument takes the value `$null` while it is embodied as the value of a `[DscProperty()]` member variable.  Accordingly, all callees interpreting such a parameter must consider `$null` to mean "don't change".
+
+### [ ] PR.12: Public resource class value-type member variables must be `[Nullable[]]`.
+
+**Reason**
+
+This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
+
+### [ ] PR.13: Public resource function parameters do not have the `[AllowNull()]` attribute.
+
+**Reason**
+
+This is to support compliance with PR.11.  Mandatory parameters of public resource functions cannot be `$null` because the meaning of `$null` is that same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates either or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.  
+
+### [ ] PR.14: Defaults values are the same for corresponding public resource class member variables and public resource function parameters.
+
+**Reason**
+
+This is to ensure the same behavior whether the resource is invoked using the public resource class or function.
+
 
 ## I: Integration
 
@@ -119,3 +190,5 @@ The nested module must be imported to test the class inside it.
 **Reason**
 
 This simplifies testing because the nested module can be accessed by name alone.
+
+### [ ] I.5: Passing `$null` to a public resource function parameter means "don't change".
