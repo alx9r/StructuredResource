@@ -95,6 +95,35 @@ $tests = @{
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-NullDscPropertyDefaults -Exclude 'Ensure' }
     }
+    'PR.4' = @{
+        Message = 'Public resource function Mode parameter.'
+        Prerequisites = 'T014','T015','T016','T017','T018'
+    }
+    T014 = @{
+        Message = 'Public resource function has Mode parameter.'
+        Prerequisites = 'T006'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Assert-Parameter 'Mode' }
+    }
+    T015 = @{
+        Message = 'Public resource function Mode parameter is mandatory.'
+        Prerequisites = 'T014'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-FunctionParameterMandatory }
+    }
+    T016 = @{
+        Message = 'Public resource function Mode parameter is of type [Mode].'
+        Prerequisites = 'T014'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-FunctionParameterType ([Mode]) }
+    }
+    #T017 = @{
+    #    Message = 'Public resource function Mode parameter is a positional argument.'
+    #    Prerequisites = 'T014'
+    #    Scriptblock = { throw 'not implemented' }
+    #}
+    #T018 = @{
+    #    Message = 'Public resource function Mode parameter is the first positional argument.'
+    #    Prerequisites = 'T014'
+    #    Scriptblock = { throw 'not implemented' }
+    #}
 }
 
 function ConvertTo-DependencyGraph

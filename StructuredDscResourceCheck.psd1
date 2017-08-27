@@ -5,7 +5,7 @@ RootModule = 'StructuredDscResourceCheck.psm1'
 NestedModules = 'TestResource1.psm1'
 ScriptsToProcess = @(
     '.\dotNetTypes\ensure.ps1'
-#    '.\dotNetTypes\mode.ps1'
+    '.\dotNetTypes\mode.ps1'
 )
 
 DscResourcesToExport = '*'
