@@ -97,16 +97,12 @@ function Assert-Parameter
     }
 }
 
-function Get-ParameterAttribute
+function Get-ParameterAttributeProper
 {
     param
     (
         [Parameter(Mandatory = $true,
                    Position = 1)]
-        [ValidateSet('DontShow','HelpMessage','HelpMessageBaseName',
-                     'HelpMessageResourceId','Mandatory','ParameterSetName',
-                     'Position','TypeId','ValueFromPipeline',
-                     'ValueFromPipelineByPropertyName','ValueFromRemainingArguments')]
         $AttributeName,
 
         [Parameter(Mandatory = $true,
@@ -116,7 +112,49 @@ function Get-ParameterAttribute
     )
     process
     {
-        $ParameterInfo.Attributes.$AttributeName
+        $ParameterInfo.Attributes.Where({$_.TypeId.Name -eq 'ParameterAttribute'}).$AttributeName
+    }
+}
+
+function Get-ParameterAttributeOther
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        $AttributeName,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        $ParameterInfo.Attributes.Where({$_.TypeId.Name -eq "$AttributeName`Attribute"})
+    }
+}
+
+function Get-ParameterAttribute
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        $AttributeName,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        if ( $result = $ParameterInfo | Get-ParameterAttributeOther $AttributeName )
+        {
+            return $result
+        }
+        return $ParameterInfo | Get-ParameterAttributeProper $AttributeName
     }
 }
 
@@ -126,10 +164,6 @@ function Test-ParameterAttribute
     (
         [Parameter(Mandatory = $true,
                    Position = 1)]
-        [ValidateSet('DontShow','HelpMessage','HelpMessageBaseName',
-                     'HelpMessageResourceId','Mandatory','ParameterSetName',
-                     'Position','TypeId','ValueFromPipeline',
-                     'ValueFromPipelineByPropertyName','ValueFromRemainingArguments')]
         $AttributeName,
 
         [Parameter(Mandatory = $true,
@@ -154,10 +188,6 @@ function Assert-ParameterAttribute
     (
         [Parameter(Mandatory = $true,
                    Position = 1)]
-        [ValidateSet('DontShow','HelpMessage','HelpMessageBaseName',
-                     'HelpMessageResourceId','Mandatory','ParameterSetName',
-                     'Position','TypeId','ValueFromPipeline',
-                     'ValueFromPipelineByPropertyName','ValueFromRemainingArguments')]
         $AttributeName,
 
         [Parameter(Mandatory = $true,

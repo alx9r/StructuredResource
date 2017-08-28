@@ -152,7 +152,7 @@ Omission of an optional default-less argument A means "don't change" A.  Such an
 
 This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
 
-### [ ] PR.14: Public resource function parameters do not have the `[AllowNull()]` attribute.
+### [x] PR.14: Public resource function parameters do not have the `[AllowNull()]` attribute.
 
 **Reason**
 

@@ -260,6 +260,16 @@ $tests = @{
                 Assert-NullableType
         }
     }
+    'PR.14' = @{
+        Message = 'Public resource function parameters do not have the [AllowNull()] attribute.'
+        Prerequisites = 'T006'
+        Scriptblock = { 
+            $_ |
+                Get-PublicResourceFunction |
+                Get-ParameterMetaData |
+                Assert-ParameterAttribute 'AllowNull' $null    
+        }
+    }
 }
 
 function ConvertTo-DependencyGraph

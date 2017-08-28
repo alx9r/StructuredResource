@@ -74,26 +74,59 @@ Describe Assert-Parameter {
     }
 }
 
-Describe Get-ParameterAttribute {
+Describe Get-ParameterAttributeProper {
     function f {
         param(
-        [Parameter(Position = 1,
-                   Mandatory = $true)]
-        $a
+            [Parameter(Position = 1,
+                       Mandatory = $true)]
+            [AllowNull()]
+            $a
         )
     }
     $p = Get-Command f | Get-ParameterMetaData 'a'
     It 'returns exactly one object' {
-        $r = $p | Get-ParameterAttribute 'Position'
+        $r = $p | Get-ParameterAttributeProper 'Position'
         $r.Count | Should be 1
     }
     It 'returns the attribute selected' {
-        $r = $p | Get-ParameterAttribute 'Position'
+        $r = $p | Get-ParameterAttributeProper 'Position'
         $r | Should beOfType ([int])
     }
     It 'returns another attribute selected' {
-        $r = $p | Get-ParameterAttribute 'Mandatory'
+        $r = $p | Get-ParameterAttributeProper 'Mandatory'
         $r | Should be $true
+    }
+    It 'returns nothing for non-existent attribute' {
+        $r = $p | Get-ParameterAttributeProper 'Non-existent'
+        $r | Should beNullOrEmpty
+    }
+}
+
+Describe Get-ParameterAttributeOther {
+    function f {
+        param( 
+            [Parameter(Position = 1)]
+            [AllowNull()]
+            [ValidateSet('a')]
+            $a
+        )
+    }
+    $p = Get-Command f | Get-ParameterMetaData 'a'
+    It 'returns exactly one object' {
+        $r = $p | Get-ParameterAttributeOther 'AllowNull'
+        $r.Count | Should be 1
+    }
+    It 'returns the attribute selected' {
+        $r = $p | Get-ParameterAttributeOther 'AllowNull'
+        $r | Should beOfType ([AllowNull])
+    }
+    It 'returns another attribute selected' {
+        $r = $p | Get-ParameterAttributeOther 'ValidateSet'
+        $r | Should beOfType ([ValidateSet])        
+    }
+    It 'returns nothing for non-existent attribute' {
+        $r = $p | Get-ParameterAttributeOther 'Non-existent'
+        $r | Should beNullOrEmpty
     }
 }
 
