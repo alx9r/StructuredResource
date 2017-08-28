@@ -97,11 +97,18 @@ function Assert-Parameter
     }
 }
 
-function Test-FunctionParameterMandatory
+function Get-ParameterAttribute
 {
-    [CmdletBinding()]
     param
     (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        [ValidateSet('DontShow','HelpMessage','HelpMessageBaseName',
+                     'HelpMessageResourceId','Mandatory','ParameterSetName',
+                     'Position','TypeId','ValueFromPipeline',
+                     'ValueFromPipelineByPropertyName','ValueFromRemainingArguments')]
+        $AttributeName,
+
         [Parameter(Mandatory = $true,
                    ValueFromPipeline = $true)]
         [System.Management.Automation.ParameterMetadata]
@@ -109,7 +116,68 @@ function Test-FunctionParameterMandatory
     )
     process
     {
-        [bool]($ParameterInfo.Attributes | ? { $_.Mandatory })
+        $ParameterInfo.Attributes.$AttributeName
+    }
+}
+
+function Test-ParameterAttribute
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        [ValidateSet('DontShow','HelpMessage','HelpMessageBaseName',
+                     'HelpMessageResourceId','Mandatory','ParameterSetName',
+                     'Position','TypeId','ValueFromPipeline',
+                     'ValueFromPipelineByPropertyName','ValueFromRemainingArguments')]
+        $AttributeName,
+
+        [Parameter(Mandatory = $true,
+                   Position = 2)]
+        [AllowNull()]
+        $Value,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        [bool]($Value -eq ($ParameterInfo | Get-ParameterAttribute $AttributeName))
+    }
+}
+
+function Assert-ParameterAttribute
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        [ValidateSet('DontShow','HelpMessage','HelpMessageBaseName',
+                     'HelpMessageResourceId','Mandatory','ParameterSetName',
+                     'Position','TypeId','ValueFromPipeline',
+                     'ValueFromPipelineByPropertyName','ValueFromRemainingArguments')]
+        $AttributeName,
+
+        [Parameter(Mandatory = $true,
+                   Position = 2)]
+        [AllowNull()]
+        $Value,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        if ( Test-ParameterAttribute @PSBoundParameters )
+        {
+            return
+        }
+        $actualValue = $ParameterInfo | Get-ParameterAttribute  $AttributeName
+        throw "Parameter $($ParameterInfo.Name) attribute $AttributeName was $actualValue not $Value."
     }
 }
 
@@ -125,7 +193,7 @@ function Assert-FunctionParameterMandatory
     )
     process
     {
-        if ( Test-FunctionParameterMandatory @PSBoundParameters )
+        if ( $ParameterInfo | Test-ParameterAttribute Mandatory $true )
         {
             return
         }
@@ -145,7 +213,7 @@ function Assert-FunctionParameterOptional
     )
     process
     {
-        if ( -not (Test-FunctionParameterMandatory @PSBoundParameters) )
+        if ( $ParameterInfo | Test-ParameterAttribute Mandatory $false )
         {
             return
         }
@@ -216,43 +284,6 @@ function Assert-FunctionParameterType
     }
 }
 
-function Get-ParameterPosition
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        $ParameterInfo.Attributes.Position
-    }
-}
-
-function Test-ParameterPosition
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [int]
-        $Position,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        [bool]($Position -eq ($ParameterInfo | Get-ParameterPosition))
-    }
-}
-
 function Assert-ParameterPosition
 {
     [CmdletBinding()]
@@ -270,11 +301,11 @@ function Assert-ParameterPosition
     )
     process
     {
-        if ( Test-ParameterPosition @PSBoundParameters )
+        if ( $ParameterInfo | Test-ParameterAttribute Position $Position )
         {
             return
         }
-        $actualPosition = $ParameterInfo | Get-ParameterPosition
+        $actualPosition = $ParameterInfo | Get-ParameterAttribute Position
         throw "Parameter $($ParameterInfo.Name) has position $actualPosition not position $Position."
     }
 }
@@ -291,7 +322,7 @@ function Test-ParameterPositional
     )
     process
     {
-        [int]::MinValue -ne ($ParameterInfo | Get-ParameterPosition)
+        [int]::MinValue -ne ($ParameterInfo | Get-ParameterAttribute Position)
     }
 }
 
@@ -546,3 +577,4 @@ function Assert-FunctionParameterDefault
         throw "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has default value $actualDefault.  Expected no default."
     }
 }
+

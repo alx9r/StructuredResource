@@ -74,25 +74,78 @@ Describe Assert-Parameter {
     }
 }
 
-Describe Test-FunctionParameterMandatory {
-    function f { 
+Describe Get-ParameterAttribute {
+    function f {
         param(
-            $a,
-
-            [Parameter(Mandatory = $true)]
-            $b
-    )}
-    It 'returns false for non-mandatory' {
-        $r = Get-Command f |
-            Get-ParameterMetaData 'a' |
-            Test-FunctionParameterMandatory
-        $r | Should be $false
+        [Parameter(Position = 1,
+                   Mandatory = $true)]
+        $a
+        )
     }
-    It 'returns true for mandatory' {
-        $r = Get-Command f |
-            Get-ParameterMetaData 'b' |
-            Test-FunctionParameterMandatory
+    $p = Get-Command f | Get-ParameterMetaData 'a'
+    It 'returns exactly one object' {
+        $r = $p | Get-ParameterAttribute 'Position'
+        $r.Count | Should be 1
+    }
+    It 'returns the attribute selected' {
+        $r = $p | Get-ParameterAttribute 'Position'
+        $r | Should beOfType ([int])
+    }
+    It 'returns another attribute selected' {
+        $r = $p | Get-ParameterAttribute 'Mandatory'
         $r | Should be $true
+    }
+}
+
+Describe Test-ParameterAttribute {
+    function f {param($a)}
+    $p = Get-Command f | Get-ParameterMetaData 'a'    
+    Context 'true' {
+        Mock Get-ParameterAttribute { 'value' } -Verifiable
+        It 'returns true for match' {
+            $r = $p | Test-ParameterAttribute Position 'value'
+            $r | Should beOfType ([bool])
+            $r | Should be $true
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Get-ParameterAttribute 1 {
+                $AttributeName -eq 'Position' -and
+                $ParameterInfo.Name -eq 'a'
+            }
+        }
+    }
+    Context 'false' {
+        Mock Get-ParameterAttribute { 'other value' }
+        It 'returns false for mismatch' {
+            $r = $p | Test-ParameterAttribute Position 'value'
+            $r | Should be $false
+        }
+    }
+}
+
+Describe Assert-ParameterAttribute {
+    function f {param($a)}
+    $p = Get-Command f | Get-ParameterMetaData 'a'
+    Context 'success' {
+        Mock Test-ParameterAttribute { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-ParameterAttribute Position 'value'
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-ParameterAttribute 1 {
+                $ParameterInfo.Name -eq 'a' -and
+                $Value -eq 'value' -and
+                $AttributeName -eq 'Position'
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-ParameterAttribute
+        It 'throws' {
+            { $p | Assert-ParameterAttribute Position 'value' } |
+                Should throw 'not'
+        }
     }
 }
 
@@ -100,19 +153,21 @@ Describe Assert-FunctionParameterMandatory {
     function f {param($x)}
     $p = Get-Command f | Get-ParameterMetaData 'x'
     Context 'success' {
-        Mock Test-FunctionParameterMandatory { $true } -Verifiable
+        Mock Test-ParameterAttribute { $true } -Verifiable
         It 'returns nothing' {
             $r = $p | Assert-FunctionParameterMandatory
             $r | Should beNullOrEmpty
         }
         It 'invokes command' {
-            Assert-MockCalled Test-FunctionParameterMandatory 1 {
-                $ParameterInfo.Name -eq 'x'
+            Assert-MockCalled Test-ParameterAttribute 1 {
+                $ParameterInfo.Name -eq 'x' -and 
+                $AttributeName -eq 'Mandatory' -and
+                $Value -eq $true
             }
         }
     }
     Context 'failure' {
-        Mock Test-FunctionParameterMandatory
+        Mock Test-ParameterAttribute
         It 'throws' {
             { $p | Assert-FunctionParameterMandatory } |
                 Should throw 'not mandatory'
@@ -124,19 +179,21 @@ Describe Assert-FunctionParameterOptional {
     function f {param($x)}
     $p = Get-Command f | Get-ParameterMetaData 'x'
     Context 'success' {
-        Mock Test-FunctionParameterMandatory { $false } -Verifiable
+        Mock Test-ParameterAttribute { $true } -Verifiable
         It 'returns nothing' {
             $r = $p | Assert-FunctionParameterOptional
             $r | Should beNullOrEmpty
         }
         It 'invokes command' {
-            Assert-MockCalled Test-FunctionParameterMandatory 1 {
-                $ParameterInfo.Name -eq 'x'
+            Assert-MockCalled Test-ParameterAttribute 1 {
+                $ParameterInfo.Name -eq 'x' -and
+                $Value -eq $false -and
+                $AttributeName -eq 'Mandatory'
             }
         }
     }
     Context 'failure' {
-        Mock Test-FunctionParameterMandatory { $true }
+        Mock Test-ParameterAttribute { $false }
         It 'throws' {
             { $p | Assert-FunctionParameterOptional } |
                 Should throw 'not optional'
@@ -193,52 +250,25 @@ Describe Assert-FunctionParameterType {
     }
 }
 
-Describe Get-ParameterPosition {
-    function f { param([Parameter(Position=1)]$x,$y) }
-    It 'returns exactly one integer' {
-        $r =  Get-Command f | Get-ParameterMetaData 'x' | 
-            Get-ParameterPosition
-        $r.Count | Should be 1
-        $r | Should be 1
-    }
-    It 'returns [int]::MinValue for non-positional' {
-        $r =  Get-Command f | Get-ParameterMetaData 'y' | 
-            Get-ParameterPosition
-        $r | Should be ([int]::MinValue)
-    }
-}
-
-Describe Test-ParameterPosition {
-    function f { param([Parameter(Position=1)]$x) }
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    It 'true' {
-        $r = $p | Test-ParameterPosition 1
-        $r | Should be $true
-    }
-    It 'false' {
-        $r = $p | Test-ParameterPosition 2
-        $r | Should be $false
-    }
-}
-
 Describe Assert-ParameterPosition {
     function f { param($x) }
     $p = Get-Command f | Get-ParameterMetaData 'x'
     Context 'success' {
-        Mock Test-ParameterPosition { $true } -Verifiable
+        Mock Test-ParameterAttribute { $true } -Verifiable
         It 'returns nothing' {
             $r = $p | Assert-ParameterPosition 1
             $r | Should beNullOrEmpty
         }
         It 'invokes command' {
-            Assert-MockCalled Test-ParameterPosition 1 {
+            Assert-MockCalled Test-ParameterAttribute 1 {
                 $ParameterInfo.Name -eq 'x' -and
-                $Position -eq 1
+                $Value -eq 1 -and
+                $AttributeName -eq 'Position'
             }
         }
     }
     Context 'failure' {
-        Mock Test-ParameterPosition
+        Mock Test-ParameterAttribute
         It 'throws' {
             { $p | Assert-ParameterPosition 1 } |
                 Should throw 'not position'
