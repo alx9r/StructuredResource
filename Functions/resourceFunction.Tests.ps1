@@ -3,30 +3,38 @@ Import-Module StructuredDscResourceCheck -Force
 InModuleScope StructuredDscResourceCheck {
 
 Describe Get-ParameterMetaData {
-    function f { param($x) }
-    It 'returns one parameter info object' {
+    function f { param($x,$y) }
+    It 'returns one parameter info object for existent parameter' {
         $r = Get-Command f | Get-ParameterMetaData 'x'
         $r.Count | Should be 1
         $r.Name | Should be 'x'
         $r | Should beOfType ([System.Management.Automation.ParameterMetadata])
     }
     It 'returns nothing for non-existent parameter' {
-        $r = Get-Command f | Get-ParameterMetaData 'y'
+        $r = Get-Command f | Get-ParameterMetaData 'z'
         $r | Should beNullOrEmpty
+    }
+    It 'returns all parameters for omitted parameter name' {
+        $r = Get-Command f | Get-ParameterMetaData
+        $r.Count | Should be 2
     }
 }
 
 Describe Get-ParameterAst {
-    function f { param($x) }
-    It 'returns parameter abstract syntax tree' {
+    function f { param($x,$y) }
+    It 'returns parameter abstract syntax tree for existent parameter' {
         $r = Get-Command f | Get-ParameterAst 'x'
         $r.Count | Should be 1
         $r.Name | Should be '$x'
         $r | Should beOfType ([System.Management.Automation.Language.ParameterAst])
     }
     It 'returns nothing for non-existent parameter' {
-        $r = Get-Command f | Get-ParameterAst 'y'
+        $r = Get-Command f | Get-ParameterAst 'z'
         $r | Should beNullOrEmpty
+    }
+    It 'returns all parameters for omitted parameter name' {
+        $r = Get-Command f | Get-ParameterAst
+        $r.Count | Should be 2
     }
 }
 
@@ -157,6 +165,276 @@ Describe Assert-FunctionParameterType {
         It 'throws' {
             { $p | Assert-FunctionParameterType ([int32]) } |
                 Should throw 'not of type'
+        }
+    }
+}
+
+Describe Get-ParameterPosition {
+    function f { param([Parameter(Position=1)]$x,$y) }
+    It 'returns exactly one integer' {
+        $r =  Get-Command f | Get-ParameterMetaData 'x' | 
+            Get-ParameterPosition
+        $r.Count | Should be 1
+        $r | Should be 1
+    }
+    It 'returns [int]::MinValue for non-positional' {
+        $r =  Get-Command f | Get-ParameterMetaData 'y' | 
+            Get-ParameterPosition
+        $r | Should be ([int]::MinValue)
+    }
+}
+
+Describe Test-ParameterPosition {
+    function f { param([Parameter(Position=1)]$x) }
+    $p = Get-Command f | Get-ParameterMetaData 'x'
+    It 'true' {
+        $r = $p | Test-ParameterPosition 1
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = $p | Test-ParameterPosition 2
+        $r | Should be $false
+    }
+}
+
+Describe Assert-ParameterPosition {
+    function f { param($x) }
+    $p = Get-Command f | Get-ParameterMetaData 'x'
+    Context 'success' {
+        Mock Test-ParameterPosition { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-ParameterPosition 1
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-ParameterPosition 1 {
+                $ParameterInfo.Name -eq 'x' -and
+                $Position -eq 1
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-ParameterPosition
+        It 'throws' {
+            { $p | Assert-ParameterPosition 1 } |
+                Should throw 'not position'
+        }
+    }    
+}
+
+Describe Test-ParameterPositional {
+    function f { param([Parameter(Position=1)]$x,$y) }
+    It 'true' {
+        $r = Get-Command f | Get-ParameterMetaData 'x' |
+            Test-ParameterPositional
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = Get-Command f | Get-ParameterMetaData 'y' |
+            Test-ParameterPositional
+        $r | Should be $false
+    }
+}
+
+Describe Assert-ParameterPositional {
+    function f { param($x) }
+    $p = Get-Command f | Get-ParameterMetaData 'x'
+    Context 'success' {
+        Mock Test-ParameterPositional { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-ParameterPositional
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Test-ParameterPositional 1 {
+                $ParameterInfo.Name -eq 'x'
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-ParameterPositional
+        It 'throws' {
+            { $p | Assert-ParameterPositional } |
+                Should throw 'not positional'
+        }
+    }
+}
+
+Describe Invoke-SortParametersByPosition {
+    function f { param(
+        [Parameter(Position = 2)]$a,
+        [Parameter(Position = 1)]$b,
+        $c
+    )}
+    It 'sorts' {
+        $r = Get-Command f | Get-ParameterMetaData |
+            Invoke-SortParametersByPosition
+        $r[0].Name | Should be 'c'
+        $r[-2].Name | Should be 'b'
+        $r[-1].Name | Should be 'a'
+    }
+}
+
+Describe Select-OrderedParameters {
+    function f { param(
+        [Parameter(Position = 2)]$a,
+        [Parameter(Position = 1)]$b,
+        $c
+    )}
+    $p = Get-Command f | Get-ParameterMetaData
+    It 'returns an array' {
+        $r = $p | Select-OrderedParameters
+        ,$r | Should beOfType ([array])
+    }
+    It 'includes only positional parameters' {
+        $r = $p | Select-OrderedParameters
+        $r.Count | Should be 2
+    }
+    It 'first' {
+        $r = $p | Select-OrderedParameters
+        $r[0].Name | Should be 'b'
+    }
+    It 'second' {
+        $r = $p | Select-OrderedParameters
+        $r[1].Name | Should be 'a'
+    }
+}
+
+Describe Get-ParameterOrdinality {
+    function f { param(
+        $a,
+        $b,
+        $c
+    )}
+    $p = Get-Command f | Get-ParameterMetaData
+    It 'returns exactly one integer' {
+        $r = $p | Get-ParameterOrdinality 'a'
+        $r.Count | Should be 1
+        $r | Should beOfType ([int])
+    }
+    It 'first returns 0' {
+        $r = $p | Get-ParameterOrdinality 'a'
+        $r | Should be 0
+    }
+    It 'second returns 1' {
+        $r = $p | Get-ParameterOrdinality 'b'
+        $r | Should be 1
+    }
+    It 'returns nothing for non-existent parameter' {
+        $r = $p | Get-ParameterOrdinality 'x'
+        $r | Should beNullOrEmpty
+    }
+}
+
+Describe Test-ParameterOrdinality {
+    function f { param(
+        $a,
+        $b,
+        $c
+    )}
+    $p = Get-Command f | Get-ParameterMetaData
+    It 'true' {
+        $r = $p | Test-ParameterOrdinality 'a' 0
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = $p | Test-ParameterOrdinality 'a' 1
+        $r | Should be $false
+    }
+}
+
+Describe Assert-ParameterOrdinality {
+    function f {param($a)}
+    $p = Get-Command f | Get-ParameterMetaData
+    Context 'success' {
+        Mock Test-ParameterOrdinality { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-ParameterOrdinality 'a' 0
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Test-ParameterOrdinality -Times 1 {
+                $ParameterInfo.Name -eq 'a'
+                $ParameterName -eq 'a' -and
+                $Ordinality -eq 0
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-ParameterOrdinality
+        It 'throws' {
+            { $p | Assert-ParameterOrdinality 'a' 0 } |
+                Should throw 'not position ordinality'
+        }
+    }
+}
+
+Describe Get-FunctionParameterDefault {
+    function f {param($a=1,$b)}
+    $p = Get-Command f | Get-ParameterAst 'a'
+    It 'returns exactly one object' {
+        $r = $p | Get-FunctionParameterDefault
+        $r.Count | Should be 1
+    }
+    It 'returns default value' {
+        $r = $p | Get-FunctionParameterDefault
+        $r | Should be 1
+    }
+    It 'returns nothing for no default value' {
+        $r = Get-Command F | Get-ParameterAst 'b' |
+            Get-FunctionParameterDefault
+        $r | Should beNullOrEmpty
+    }
+}
+
+Describe Test-FunctionParameterDefault {
+    function f {param($a=1,$b)}
+    Context 'default' {
+        $p = Get-Command f | Get-ParameterAst 'a'
+        It 'true' {
+            $r = $p | Test-FunctionParameterDefault 1
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $p | Test-FunctionParameterDefault 0
+            $r | Should be $false
+        }
+    }
+    Context 'no default' {
+        It 'true' {
+            $r = Get-Command f | Get-ParameterAst 'b' |
+                Test-FunctionParameterDefault -NoDefault
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = Get-Command f | Get-ParameterAst 'a' |
+                Test-FunctionParameterDefault -NoDefault
+            $r | Should be $false
+        }
+    }
+}
+
+Describe Assert-FunctionParameterDefault {
+    function f {param($a)}
+    $p = Get-Command f | Get-ParameterAst
+    Context 'success' {
+        Mock Test-FunctionParameterDefault { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-FunctionParameterDefault 1
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Test-FunctionParameterDefault 1 {
+                $ParameterInfo.Name.VariablePath.UserPath -eq 'a' -and
+                $Default -eq 1
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-FunctionParameterDefault
+        It 'throws' {
+            { $p | Assert-FunctionParameterDefault 1 } |
+                Should throw 'not default value'
         }
     }
 }

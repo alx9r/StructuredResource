@@ -87,7 +87,7 @@ The name `Ensure` should only be used to specify whether a resource is present o
 
 Omitting optional parameters means the configuration affected by the parameter should remain unchanged.  Omitting the default value ensures this.
 
-### [ ] PR.4: Public resource function `Mode` parameter.
+### [x] PR.4: Public resource function `Mode` parameter.
 
 Each public resource function has a mandatory `Mode` parameter.  The `Mode` parameter is of type `[Mode]`.  `Mode` is the first positional argument and does not have a default value.
 

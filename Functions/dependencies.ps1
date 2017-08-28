@@ -114,16 +114,31 @@ $tests = @{
         Prerequisites = 'T014'
         Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-FunctionParameterType ([Mode]) }
     }
-    #T017 = @{
-    #    Message = 'Public resource function Mode parameter is a positional argument.'
-    #    Prerequisites = 'T014'
-    #    Scriptblock = { throw 'not implemented' }
-    #}
-    #T018 = @{
-    #    Message = 'Public resource function Mode parameter is the first positional argument.'
-    #    Prerequisites = 'T014'
-    #    Scriptblock = { throw 'not implemented' }
-    #}
+    T017 = @{
+        Message = 'Public resource function Mode parameter is a positional argument.'
+        Prerequisites = 'T014'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-ParameterPositional }
+    }
+    T018 = @{
+        Message = 'Public resource function Mode parameter is in position 1.'
+        Prerequisites = 'T017'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-ParameterPosition 1 }
+    }
+    T019 = @{
+        Message = 'Public resource function Mode parameter is the first positional argument.'
+        Prerequisites = 'T017'
+        Scriptblock = { 
+            $_ | Get-PublicResourceFunction | 
+                Get-ParameterMetaData | 
+                Select-OrderedParameters | 
+                Assert-ParameterOrdinality 'Mode' 0 
+        }
+    }
+    T020 = @{
+        Message = 'Public resource function Mode parameter has no default value.'
+        Prerequisites = 'T014'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Mode' | Assert-FunctionParameterDefault -NoDefault }
+    }
 }
 
 function ConvertTo-DependencyGraph
