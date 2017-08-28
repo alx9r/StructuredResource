@@ -230,8 +230,19 @@ $tests = @{
     }
     'PR.11' = @{
         Message = 'Public resource value-type parameters must be nullable.'
+        Prerequisites = 'T028','T029'
+    }
+    T028 = @{
+        Message = 'Public resource parameters must be nullable.'
         Prerequisites = 'T006'
-
+        Scriptblock = { 
+            $_ | 
+                Get-PublicResourceFunction | 
+                Get-ParameterMetaData | 
+                Select-FunctionParameter -Not Common | 
+                ? { $_.Name -notin 'Ensure','Mode' } |
+                Get-FunctionParameterType | 
+                Assert-NullableType }
     }
 }
 

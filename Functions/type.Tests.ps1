@@ -43,4 +43,82 @@ Describe Assert-Type {
         }
     }
 }
+
+Describe Test-ValueType {
+    It 'true' {
+        $r = [int] | Test-ValueType
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = [string] | Test-ValueType
+        $r | Should be $false
+    }
+}
+
+Describe Assert-xValueType {
+    Context 'is value type' {
+        Mock Test-ValueType { $true } -Verifiable
+        It 'returns nothing' {
+            $r = [int] | Assert-ValueType
+            $r | Should beNullOrEmpty
+        }
+        It 'Not throws' {
+            { [int] | Assert-NotValueType } |
+                Should throw 'is a value type'
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Test-ValueType 2 {
+                $TypeInfo.Name -eq 'int32'
+            }
+        }
+    }
+    Context 'is not value type' {
+        Mock Test-ValueType { $false }
+        It 'throws' {
+            { [string] | Assert-ValueType } |
+                Should throw 'is not a value type'
+        }
+        It 'Not returns nothing' {
+            $r = [string] | Assert-NotValueType
+            $r | Should beNullOrEmpty
+        }
+    }
+}
+
+Describe Test-NullableType {
+    It 'true : string' {
+        $r = [string] | Test-NullableType
+        $r | Should be $true
+    }
+    It 'true : Nullable[int]' {
+        $r = [System.Nullable[int]] | Test-NullableType
+        $r | Should be $true
+    }
+    It 'false: int' {
+        $r = [int] | Test-NullableType
+        $r | Should be $false
+    }
+}
+
+Describe Assert-NullableType {
+    Context 'success' {
+        Mock Test-NullableType { $true } -Verifiable
+        It 'returns nothing' {
+            $r = [string] | Assert-NullableType
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-NullableType 1 {
+                $TypeInfo.Name -eq 'string'
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-NullableType { $false }
+        It 'throws' {
+            { [int] | Assert-NullableType } |
+                Should throw 'not nullable'
+        }
+    }
+}
 }
