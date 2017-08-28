@@ -3,11 +3,11 @@ class TestResource1
 {
     [DscProperty(Key,Mandatory)]
     [string]
-    $Key
+    $SomeKey
 
     [DscProperty()]
     [string]
-    $Value
+    $SomeValue
 
     [DscProperty()]
     [Ensure]

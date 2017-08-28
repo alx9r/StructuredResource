@@ -158,12 +158,23 @@ This is to support compliance with PR.11 when a user omits a value-type paramete
 
 This is to support compliance with PR.11.  Mandatory parameters of public resource functions cannot be `$null` because the meaning of `$null` is that same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates either or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.  
 
-### [ ] PR.15: Defaults values are the same for corresponding public resource class member variables and public resource function parameters.
+### [x] PR.15: Each public resource class member variable has a corresponding public resource function parameter.
+
+**Reason**
+
+This is to support parity between the interfaces published by the public resource class and public resource function.
+
+### [x] PR.16: Each public resource function parameter has a corresponding public resource class member variable.
+
+**Reason**
+
+This is to support parity between the interfaces published by the public resource class and public resource function.
+
+### [ ] PR.16: Defaults values are the same for corresponding public resource class member variables and public resource function parameters.
 
 **Reason**
 
 This is to ensure the same behavior whether the resource is invoked using the public resource class or function.
-
 
 ## I: Integration
 

@@ -270,6 +270,27 @@ $tests = @{
                 Assert-ParameterAttribute 'AllowNull' $null    
         }
     }
+    'PR.15' = @{
+        Message = 'Each public resource class member variable has a corresponding public resource function parameter.'
+        Prerequisites = 'T002'
+        Scriptblock = {
+            $function = $_ | Get-PublicResourceFunction
+            $_ | Get-NestedModuleType | Get-MemberProperty |
+                % { $function | Assert-Parameter $_.Name }
+            }
+    }
+    'PR.16' = @{
+        Message =  'Each public resource function parameter has a corresponding public resource class member variable.'
+        Prerequisites = 'T002'
+        Scriptblock = { 
+            $type = $_ | Get-NestedModuleType
+            $_ | Get-PublicResourceFunction | 
+                Get-ParameterMetaData |
+                Select-FunctionParameter -Not Common |
+                ? { $_.Name -ne 'Mode' } |
+                % { $type | Assert-MemberProperty $_.Name }        
+        }
+    }
 }
 
 function ConvertTo-DependencyGraph

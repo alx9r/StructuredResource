@@ -16,6 +16,10 @@ function Invoke-ProcessTestResource1
 
         [Parameter(ValueFromPipelineByPropertyname = $true)]
         [System.Nullable[int]]
-        $x
+        $SomeKey,
+
+        [Parameter(ValueFromPipelineByPropertyname = $true)]
+        [System.Nullable[int]]
+        $SomeValue
     )
 }
