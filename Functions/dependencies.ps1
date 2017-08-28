@@ -188,6 +188,17 @@ $tests = @{
         Prerequisites = 'T006'
         Scriptblock =  { $_ | Get-PublicResourceFunction | Get-ParameterMetaData | Assert-ParameterAttribute ValueFromPipeline $false }
     }
+    'PR.7' = @{
+        Message = 'Public resource parameters bind to pipeline object property values.'
+        Prerequisites = 'T006'
+        Scriptblock = { 
+            $_ | 
+                Get-PublicResourceFunction | 
+                Get-ParameterMetaData | 
+                Select-FunctionParameter -Not Common | 
+                Assert-ParameterAttribute ValueFromPipelineByPropertyName $true
+        }
+    }
 }
 
 function ConvertTo-DependencyGraph

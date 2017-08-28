@@ -109,7 +109,7 @@ The name `Ensure` should only be used to specify whether a resource is present o
 
 This is to improve parameter binding predictability.  It is difficult to predict which, if any, parameter a pipeline value will bind to. 
 
-### [ ] PR.7: Public resource parameters bind to pipeline object property values.
+### [x] PR.7: Public resource parameters bind to pipeline object property values.
 
 **Reason**
 

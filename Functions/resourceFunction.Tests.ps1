@@ -492,4 +492,57 @@ Describe Assert-FunctionParameterDefault {
         }
     }
 }
+
+Describe Test-FunctionParameter {
+    function f {[CmdletBinding()]param($a,$WhatIf)}
+    $f = Get-Command f
+    Context 'OptionalCommon' {
+        It 'true' {
+            $r = $f | Get-ParameterMetaData 'WhatIf' |
+                Test-FunctionParameter OptionalCommon
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $f | Get-ParameterMetaData 'Verbose' |
+                Test-FunctionParameter OptionalCommon
+            $r | Should be $false
+        }
+    }
+    Context 'MandatoryCommon' {
+        It 'true' {
+            $r = $f | Get-ParameterMetaData 'Verbose' |
+                Test-FunctionParameter MandatoryCommon
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $f | Get-ParameterMetaData 'WhatIf' |
+                Test-FunctionParameter MandatoryCommon
+            $r | Should be $false
+        }
+    }
+    Context 'Common' {
+        It 'true' {
+            $r = $f | Get-ParameterMetaData 'Verbose' |
+                Test-FunctionParameter Common
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $f | Get-ParameterMetaData 'a' |
+                Test-FunctionParameter Common
+            $r | Should be $false
+        }
+    }
+    Context '-Not Common' {
+        It 'true' {
+            $r = $f | Get-ParameterMetaData 'a' |
+                Test-FunctionParameter -Not Common
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $f | Get-ParameterMetaData 'Verbose' |
+                Test-FunctionParameter -Not Common
+            $r | Should be $false
+        }
+    }
+}
 }

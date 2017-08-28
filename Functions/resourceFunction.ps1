@@ -578,3 +578,67 @@ function Assert-FunctionParameterDefault
     }
 }
 
+function Test-FunctionParameter
+{
+    param
+    (
+        [Parameter(ParameterSetName = 'affirmative',
+                   Mandatory = $true,
+                   Position = 1)]
+        [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
+        $Kind,
+
+        [Parameter(ParameterSetName = 'negative',
+                   Position = 2)]
+        [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
+        $Not,
+                   
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        $selector = $Kind,$Not | ? {$_}
+        $nameList = @{
+            Common = [System.Management.Automation.PSCmdlet]::CommonParameters +
+                     [System.Management.Automation.PSCmdlet]::OptionalCommonParameters
+            OptionalCommon = [System.Management.Automation.PSCmdlet]::OptionalCommonParameters
+            MandatoryCommon = [System.Management.Automation.PSCmdlet]::CommonParameters
+
+        }.$selector
+
+        ( $nameList -contains $ParameterInfo.Name ) -xor
+        ( $PSCmdlet.ParameterSetName -eq 'negative' )
+    }
+}
+
+function Select-FunctionParameter
+{
+    param
+    (
+        [Parameter(ParameterSetName = 'affirmative',
+                   Mandatory = $true,
+                   Position = 1)]
+        [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
+        $Kind,
+
+        [Parameter(ParameterSetName = 'negative',
+                   Position = 2)]
+        [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
+        $Not,
+                   
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        if (Test-FunctionParameter @PSBoundParameters )
+        {
+            $ParameterInfo
+        }
+    }
+}

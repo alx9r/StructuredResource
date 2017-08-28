@@ -3,12 +3,14 @@ function Invoke-ProcessTestResource1
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory = $true,
+                   ValueFromPipelineByPropertyName = $true,
                    Position = 1)]
         [Mode]
         $Mode,
 
-        [Parameter(Position = 2)]
+        [Parameter(Position = 2,
+                   ValueFromPipelineByPropertyName = $true)]
         [Ensure]
         $Ensure = 'Present'
     )
