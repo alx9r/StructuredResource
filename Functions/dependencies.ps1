@@ -183,6 +183,11 @@ $tests = @{
         Prerequisites = 'T021'
         Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Ensure' | Assert-FunctionParameterDefault 'Present' }
     }
+    'PR.6' = @{
+        Message = 'No public resource function parameters bind to pipeline value.'
+        Prerequisites = 'T006'
+        Scriptblock =  { $_ | Get-PublicResourceFunction | Get-ParameterMetaData | Assert-ParameterAttribute ValueFromPipeline $false }
+    }
 }
 
 function ConvertTo-DependencyGraph

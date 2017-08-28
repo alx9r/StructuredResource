@@ -103,7 +103,7 @@ Each public resource function has an optional `Ensure` parameter.  The `Ensure` 
 
 The name `Ensure` should only be used to specify whether a resource is present or absent because that is its customary meaning in PowerShell DSC.  `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` is the second positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test Absent`).  `Ensure` has default value `Present` because omitting `Ensure` should cause the resource to ensure presence.
 
-### [ ] PR.6: No public resource function parameters bind to pipeline value.
+### [x] PR.6: No public resource function parameters bind to pipeline value.
 
 **Reason**
 
