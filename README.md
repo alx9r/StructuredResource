@@ -134,7 +134,7 @@ This is to help users understand what kind of object is expected for each parame
 This is to support compliance with PR.11 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
 
 
-### [x] PR.11: Public resource function value-type parameters must be `[Nullable[]]`.
+### [x] PR.11: Public resource function value-type parameters must be `[Nullable[T]]`.
 
 **Reason**
 
@@ -146,7 +146,7 @@ This is to support compliance with PR.11 when a user omits a value-type paramete
 
 Omission of an optional default-less argument A means "don't change" A.  Such an argument takes the value `$null` while it is embodied as the value of a `[DscProperty()]` member variable.  Accordingly, all callees interpreting such a parameter must consider `$null` to mean "don't change".
 
-### [ ] PR.13: Public resource class value-type member variables must be `[Nullable[]]`.
+### [ ] PR.13: Public resource class value-type member variables must be `[Nullable[T]]`.
 
 **Reason**
 

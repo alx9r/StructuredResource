@@ -72,17 +72,17 @@ $tests = @{
         Prerequisites = 'T010','T011','T012'
     }
     T010 = @{
-        Message = 'Member variable "Ensure" has [DscProperty()] attribute.'
+        Message = 'Public resource class''s Ensure property has [DscProperty()] attribute.'
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-DscProperty 'Ensure' }
     }
     T011 = @{
-        Message = 'Optional member variable "Ensure" is of type [Ensure].'
+        Message = 'Public resource class''s Ensure property is of type [Ensure].'
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Get-MemberProperty 'Ensure' | Get-PropertyType | Assert-Type ([Ensure]) }
     }
     T012 = @{
-        Message = 'Optional member variable "Ensure" has default value "Present"'
+        Message = 'Public resource class''s Ensure property has default value "Present"'
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
     }
@@ -229,11 +229,11 @@ $tests = @{
         }
     }
     'PR.11' = @{
-        Message = 'Public resource value-type parameters must be nullable.'
-        Prerequisites = 'T028','T029'
+        Message = 'Public resource value-type parameters must be [Nullable[T]].'
+        Prerequisites = 'T028'
     }
     T028 = @{
-        Message = 'Public resource parameters must be nullable.'
+        Message = 'Public resource function parameters must be nullable.'
         Prerequisites = 'T006'
         Scriptblock = { 
             $_ | 
@@ -243,6 +243,22 @@ $tests = @{
                 ? { $_.Name -notin 'Ensure','Mode' } |
                 Get-FunctionParameterType | 
                 Assert-NullableType }
+    }
+    'PR.13' = @{
+        Message = 'Public resource class value-type member variables must be [Nullable[T]]'
+        Prerequisites = 'T029'
+    }
+    T029 = @{
+        Message = 'Public resource class member variables must be nullable.'
+        Prerequisites = 'T002'
+        Scriptblock = {
+            $_ |
+                Get-NestedModuleType | 
+                Get-MemberProperty |
+                ? {$_.Name -ne 'Ensure' } |
+                Get-PropertyType | 
+                Assert-NullableType
+        }
     }
 }
 
