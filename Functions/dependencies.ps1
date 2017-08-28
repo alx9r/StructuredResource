@@ -207,7 +207,24 @@ $tests = @{
     'PR.9' = @{
         Message = 'Each public resource function parameter is statically-typed.'
         Prerequisites = 'T006'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData | Assert-FunctionParameterType -Not ([System.Object]) }
+        Scriptblock = { 
+            $_ | 
+                Get-PublicResourceFunction | 
+                Get-ParameterMetaData |
+                Select-FunctionParameter -Not Common |
+                Assert-FunctionParameterType -Not ([System.Object])
+        }
+    }
+    'PR.10' = @{
+        Message = 'Public resource function parameters cannot be [string]'
+        Prerequisites = 'T006'
+        Scriptblock = { 
+            $_ | 
+                Get-PublicResourceFunction | 
+                Get-ParameterMetaData | 
+                Select-FunctionParameter -Not Common |
+                Assert-FunctionParameterType -not ([string])
+        }
     }
 }
 
