@@ -115,7 +115,7 @@ This is to improve parameter binding predictability.  It is difficult to predict
 
 This is to support binding of bulk parameters using objects.  In particular, it supports passing the values of member variables of a `[DscResource()]` object as arguments to the function (e.g. `$this | Invoke-ProcessResource Set`).
 
-### [ ] PR.8: A public resource class does not have member variable `Mode`
+### [x] PR.8: A public resource class does not have member variable `Mode`
 
 **Reason**
 

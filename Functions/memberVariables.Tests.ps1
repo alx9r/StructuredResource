@@ -16,6 +16,55 @@ Describe Get-MemberProperty {
     }
 }
 
+Describe Test-MemberProperty {
+    class c { $a }
+    It 'true' {
+        $r = [c] | Test-MemberProperty 'a'
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = [c] | Test-MemberProperty 'b'
+        $r | Should be $false
+    }
+}
+
+Describe Assert-MemberProperty {
+    class c {}
+    Context 'exists' {
+        Mock Test-MemberProperty { $true } -Verifiable
+        It 'returns nothing' {
+            $r = [c] | Assert-MemberProperty 'a'
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-MemberProperty 1 {
+                $TypeInfo.Name -eq 'c' -and
+                $PropertyName -eq 'a'
+            }
+        }
+        It '-Not throws' {
+            { [c] | Assert-MemberProperty -Not 'a' } |
+                Should throw 'a found'
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-MemberProperty 1 {
+                $PropertyName -eq 'a'
+            }
+        }
+    }
+    Context 'not exists' {
+        Mock Test-MemberProperty -Verifiable
+        It 'throws' {
+            { [c] | Assert-MemberProperty 'a' } |
+                Should throw 'a not found'            
+        }
+        It '-Not returns nothing' {
+            $r = [c] | Assert-MemberProperty -Not 'a'
+            $r | Should beNullOrEmpty
+        }
+    }
+}
+
 [DscResource()]
 class c {
     [DscProperty(Key)]

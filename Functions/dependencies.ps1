@@ -59,7 +59,7 @@ $tests = @{
         Scriptblock = { Import-Module $_.ModuleName }
     }
     'PR.1' = @{
-        Message = '$TypeInfo | Get-MemberProperties | Test-DscProperty'
+        Message = 'Each public resource class has member variables with the [DscProperty()] attibute.'
         Prerequisites = 'T009'
     }
     T009 = @{
@@ -198,6 +198,11 @@ $tests = @{
                 Select-FunctionParameter -Not Common | 
                 Assert-ParameterAttribute ValueFromPipelineByPropertyName $true
         }
+    }
+    'PR.8' = @{
+        Message = 'A public resource class does not have have member variable Mode.'
+        Prerequisites = 'T002'
+        Scriptblock = { $_ | Get-NestedModuleType | Assert-MemberProperty -Not 'Mode' }
     }
 }
 

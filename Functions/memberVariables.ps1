@@ -19,6 +19,65 @@ function Get-MemberProperty
     }
 }
 
+function Test-MemberProperty
+{
+    param
+    (
+        [Parameter(Position = 1,
+                   Mandatory = $true)]
+        [string]
+        $PropertyName,
+
+        [Parameter(ValueFromPipeline = $true,
+                   Mandatory = $true)]
+        [System.Reflection.TypeInfo]
+        $TypeInfo    
+    )
+    process
+    {
+        [bool]($TypeInfo | Get-MemberProperty $PropertyName)
+    }
+}
+
+function Assert-MemberProperty
+{
+    param
+    (
+        [Parameter(ParameterSetName = 'affirmative',
+                   Position = 1,
+                   Mandatory = $true)]
+        [string]
+        $PropertyName,
+
+        [Parameter(ParameterSetName = 'negative')]
+        [string]
+        $Not,
+
+        [Parameter(ValueFromPipeline = $true,
+                   Mandatory = $true)]
+        [System.Reflection.TypeInfo]
+        $TypeInfo    
+    )
+    process
+    {
+        $_propertyName = $PropertyName,$Not | ? {$_}
+        if
+        ( 
+            ( $TypeInfo | Test-MemberProperty $_propertyName ) -xor
+            ( $PSCmdlet.ParameterSetName -eq 'negative' )
+        )
+        {
+            return
+        }
+        
+        if ( $PSCmdlet.ParameterSetName -eq 'affirmative' )
+        {
+            throw "Property $_propertyName not found on type $($TypeInfo.Name)."
+        }
+        throw "Property $_propertyName found on type $($TypeInfo.Name)."
+    }
+}
+
 function Test-DscProperty
 {
     param

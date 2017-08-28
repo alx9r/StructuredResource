@@ -624,8 +624,7 @@ function Select-FunctionParameter
         [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
         $Kind,
 
-        [Parameter(ParameterSetName = 'negative',
-                   Position = 2)]
+        [Parameter(ParameterSetName = 'negative')]
         [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
         $Not,
                    
