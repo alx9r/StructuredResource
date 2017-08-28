@@ -120,6 +120,30 @@ Describe Assert-FunctionParameterMandatory {
     }
 }
 
+Describe Assert-FunctionParameterOptional {
+    function f {param($x)}
+    $p = Get-Command f | Get-ParameterMetaData 'x'
+    Context 'success' {
+        Mock Test-FunctionParameterMandatory { $false } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-FunctionParameterOptional
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-FunctionParameterMandatory 1 {
+                $ParameterInfo.Name -eq 'x'
+            }
+        }
+    }
+    Context 'failure' {
+        Mock Test-FunctionParameterMandatory { $true }
+        It 'throws' {
+            { $p | Assert-FunctionParameterOptional } |
+                Should throw 'not optional'
+        }
+    }
+}
+
 Describe Get-FunctionParameterType {
     function f { param([Int32]$x) }
     It 'returns exactly one type info object' {

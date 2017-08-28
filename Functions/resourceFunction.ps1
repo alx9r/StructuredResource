@@ -129,8 +129,27 @@ function Assert-FunctionParameterMandatory
         {
             return
         }
-
         throw "Parameter $($ParameterInfo.Name) is not mandatory."
+    }
+}
+
+function Assert-FunctionParameterOptional
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        if ( -not (Test-FunctionParameterMandatory @PSBoundParameters) )
+        {
+            return
+        }
+        throw "Parameter $($ParameterInfo.Name) is not optional."
     }
 }
 

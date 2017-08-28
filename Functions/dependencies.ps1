@@ -97,7 +97,7 @@ $tests = @{
     }
     'PR.4' = @{
         Message = 'Public resource function Mode parameter.'
-        Prerequisites = 'T014','T015','T016','T017','T018'
+        Prerequisites = 'T014','T015','T016','T017','T018','T019','T020'
     }
     T014 = @{
         Message = 'Public resource function has Mode parameter.'
@@ -138,6 +138,50 @@ $tests = @{
         Message = 'Public resource function Mode parameter has no default value.'
         Prerequisites = 'T014'
         Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Mode' | Assert-FunctionParameterDefault -NoDefault }
+    }
+    'PR.5' = @{
+        Message = 'Public resource function Ensure parameter.'
+        Prerequisites = 'T021','T022','T023','T024','T025','T026','T027'
+    }
+    T021 = @{
+        Message = 'Public resource function has Ensure parameter.'
+        Prerequisites = 'T006'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Assert-Parameter 'Ensure' }
+    }
+    T022 = @{
+        Message = 'Public resource function Ensure Parameter is optional.'
+        Prerequisites = 'T021'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-FunctionParameterOptional}
+    }
+    T023 = @{
+        Message = 'Public resource function Ensure parameter is of type [Ensure]'
+        Prerequisites = 'T021'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-FunctionParameterType ([Ensure]) }
+    }
+    T024 = @{
+        Message = 'Public resource function Ensure parameter is a positional argument.'
+        Prerequisites = 'T021'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-ParameterPositional }
+    }
+    T025 = @{
+        Message = 'Public resource function Ensure parameter is in position 2.'
+        Prerequisites = 'T024'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-ParameterPosition 2 }
+    }
+    T026 = @{
+        Message = 'Public resource function Ensure parameter is the second positional argument.'
+        Prerequisites = 'T024'
+        Scriptblock = {
+            $_ | Get-PublicResourceFunction |
+                Get-ParameterMetaData |
+                Select-OrderedParameters |
+                Assert-ParameterOrdinality 'Ensure' 1
+        }
+    }
+    T027 = @{
+        Message = 'Public resource function Ensure parameter has default value "Present".'
+        Prerequisites = 'T021'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Ensure' | Assert-FunctionParameterDefault 'Present' }
     }
 }
 

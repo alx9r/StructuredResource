@@ -95,7 +95,7 @@ Each public resource function has a mandatory `Mode` parameter.  The `Mode` para
 
 The mode parameter is required to select between `Test` and `Set`.  It is of type `[Mode]` to restrict its values to `Set` and `Test`. Because it is mandatory, a default value has no use.  `Mode` is the first positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test`).
 
-### [ ] PR.5: Public resource function `Ensure` parameter.
+### [x] PR.5: Public resource function `Ensure` parameter.
 
 Each public resource function has an optional `Ensure` parameter.  The `Ensure` parameter is of type `[Ensure]`.  `Ensure` is the second positional argument and has default value `Present`.
 

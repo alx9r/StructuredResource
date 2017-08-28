@@ -6,6 +6,10 @@ function Invoke-ProcessTestResource1
         [Parameter(Mandatory=$true,
                    Position = 1)]
         [Mode]
-        $Mode
+        $Mode,
+
+        [Parameter(Position = 2)]
+        [Ensure]
+        $Ensure = 'Present'
     )
 }
