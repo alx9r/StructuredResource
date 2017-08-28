@@ -127,7 +127,7 @@ This is to avert confusion that might result when bulk-binding the values of a p
 
 This is to help users understand what kind of object is expected for each parameter.
 
-### [ ] PR.10: Public resource function parameters cannot be `[string]`.
+### [x] PR.10: Public resource function parameters cannot be `[string]`.
 
 **Reason**
 

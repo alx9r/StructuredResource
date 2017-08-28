@@ -217,57 +217,6 @@ Describe Get-FunctionParameterType {
     }
 }
 
-Describe Test-FunctionParameterType {
-    function f { param([Int32]$x) }
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    It 'true' {
-        $r = $p | Test-FunctionParameterType ([Int32])
-        $r | Should be $true
-    }
-    It 'false' {
-        $r = $p | Test-FunctionParameterType ([string])
-        $r | Should be $false
-    }    
-}
-
-Describe Assert-FunctionParameterType {
-    function f { param([Int32]$x) }
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    Context 'match' {
-        Mock Test-FunctionParameterType { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-FunctionParameterType ([int32])
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-FunctionParameterType 1 {
-                $ParameterInfo.Name -eq 'x' -and
-                $Type.Name -eq 'Int32'
-            }
-        }
-        It '-Not throws' {
-            { $p | Assert-FunctionParameterType -Not ([int32]) } |
-                Should throw 'is of type'
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-FunctionParameterType 1 {
-                $Type.Name -eq 'Int32'
-            }
-        }
-    }
-    Context 'not match' {
-        Mock Test-FunctionParameterType
-        It 'throws' {
-            { $p | Assert-FunctionParameterType ([int32]) } |
-                Should throw 'not of type'
-        }
-        It '-Not returns nothing' {
-            $r = $p | Assert-FunctionParameterType -Not ([int32])
-            $r | Should beNullOrEmpty
-        }
-    }
-}
-
 Describe Assert-ParameterPosition {
     function f { param($x) }
     $p = Get-Command f | Get-ParameterMetaData 'x'

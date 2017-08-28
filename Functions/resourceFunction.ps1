@@ -237,67 +237,6 @@ function Get-FunctionParameterType
     }
 }
 
-function Test-FunctionParameterType
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [System.Reflection.TypeInfo]
-        $Type,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        $Type -eq ($ParameterInfo | Get-FunctionParameterType)
-    }
-}
-
-function Assert-FunctionParameterType
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(ParameterSetName = 'affirmative',
-                   Mandatory = $true,
-                   Position = 1)]
-        [System.Reflection.TypeInfo]
-        $Type,
-
-        [Parameter(ParameterSetName = 'negative')]
-        $Not,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        $_type = $Type,$Not | ? {$_}
-        if ( 
-            ($ParameterInfo | Test-FunctionParameterType $_Type) -xor
-            ($PSCmdlet.ParameterSetName -eq 'negative')
-        )
-        {
-            return
-        }
-
-        if ( $PSCmdlet.ParameterSetName -eq 'affirmative' )
-        {
-            $actualType = $ParameterInfo | Get-FunctionParameterType
-            throw "Parameter $($ParameterInfo.Name) is of type `"$actualType`" not of type `"$_type`"."
-        }
-
-        throw "Parameter $($ParameterInfo.Name) is of type $_type."
-    }
-}
-
 function Assert-ParameterPosition
 {
     [CmdletBinding()]

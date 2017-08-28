@@ -158,30 +158,6 @@ function Get-PropertyType
     }
 }
 
-function Assert-PropertyType
-{
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [System.Reflection.TypeInfo]
-        $Type,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Reflection.PropertyInfo]
-        $PropertyInfo
-    )
-    process
-    {
-        if ( $PropertyInfo.PropertyType.IsEquivalentTo($Type) )
-        {
-            return
-        }
-        throw "Property $($PropertyInfo.Name) is of type [$($PropertyInfo.PropertyType)] not of type [$Type]."
-    }
-}
-
 function Get-PropertyDefault
 {
     param

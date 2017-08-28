@@ -134,23 +134,6 @@ Describe Get-PropertyType {
     }
 }
 
-Describe Assert-PropertyType {
-    class c { [string]$a }
-    It 'returns nothing' {
-        $r = [c] |
-            Get-MemberProperty |
-            Assert-PropertyType ([string])
-        $r | Should beNullOrEmpty
-    }
-    It 'throws' {
-        { [c] |
-            Get-MemberProperty |
-            Assert-PropertyType ([int])
-        } |
-            Should throw 'not of type'
-    }
-}
-
 Describe Get-PropertyDefault {
     class c { $a = 'default'; $b }
     It 'returns value' {

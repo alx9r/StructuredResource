@@ -79,7 +79,7 @@ $tests = @{
     T011 = @{
         Message = 'Optional member variable "Ensure" is of type [Ensure].'
         Prerequisites = 'T001'
-        Scriptblock = { $_ | Get-NestedModuleType | Get-MemberProperty 'Ensure' | Assert-PropertyType ([Ensure]) }
+        Scriptblock = { $_ | Get-NestedModuleType | Get-MemberProperty 'Ensure' | Get-PropertyType | Assert-Type ([Ensure]) }
     }
     T012 = @{
         Message = 'Optional member variable "Ensure" has default value "Present"'
@@ -112,7 +112,7 @@ $tests = @{
     T016 = @{
         Message = 'Public resource function Mode parameter is of type [Mode].'
         Prerequisites = 'T014'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-FunctionParameterType ([Mode]) }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Get-FunctionParameterType | Assert-Type ([Mode]) }
     }
     T017 = @{
         Message = 'Public resource function Mode parameter is a positional argument.'
@@ -156,7 +156,7 @@ $tests = @{
     T023 = @{
         Message = 'Public resource function Ensure parameter is of type [Ensure]'
         Prerequisites = 'T021'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-FunctionParameterType ([Ensure]) }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Get-FunctionParameterType | Assert-Type ([Ensure]) }
     }
     T024 = @{
         Message = 'Public resource function Ensure parameter is a positional argument.'
@@ -212,7 +212,8 @@ $tests = @{
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData |
                 Select-FunctionParameter -Not Common |
-                Assert-FunctionParameterType -Not ([System.Object])
+                Get-FunctionParameterType |
+                Assert-Type -Not ([System.Object])
         }
     }
     'PR.10' = @{
@@ -223,8 +224,14 @@ $tests = @{
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
                 Select-FunctionParameter -Not Common |
-                Assert-FunctionParameterType -not ([string])
+                Get-FunctionParameterType |
+                Assert-Type -not ([string])
         }
+    }
+    'PR.11' = @{
+        Message = 'Public resource value-type parameters must be nullable.'
+        Prerequisites = 'T006'
+
     }
 }
 
