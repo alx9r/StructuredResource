@@ -121,44 +121,44 @@ This is to support binding of bulk parameters using objects.  In particular, it 
 
 This is to avert confusion that might result when bulk-binding the values of a public resource object's member variables to a public resource function's parameters using the pipeline (e.g. `$this | Invoke-ProcessResource`).  The correct value for `Mode` must be explicitly passed to the public resource function (e.g. "`Test`" in `Invoke-ProcessResource Test`) on each invocation of the `Set()` and `Test()` methods.  The existence of a `Mode` member variable probably indicates an error (i.e. a resource author is probably incorrectly expecting `Mode` to be passed by the pipeline).
 
-### [ ] PR.8: Each public resource function parameter is statically-typed.
+### [x] PR.9: Each public resource function parameter is statically-typed.
 
 **Reason**
 
 This is to help users understand what kind of object is expected for each parameter.
 
-### [ ] PR.9: Public resource function parameters cannot be `[string]`.
+### [ ] PR.10: Public resource function parameters cannot be `[string]`.
 
 **Reason**
 
 This is to support compliance with PR.11 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
 
 
-### [ ] PR.10: Public resource function value-type parameters must be `[Nullable[]]`.
+### [ ] PR.11: Public resource function value-type parameters must be `[Nullable[]]`.
 
 **Reason**
 
 This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
 
-### [ ] PR.11: The meaning of null for an optional default-less parameter is the same as omitting it.
+### [ ] PR.12: The meaning of null for an optional default-less parameter is the same as omitting it.
 
 **Reason**
 
 Omission of an optional default-less argument A means "don't change" A.  Such an argument takes the value `$null` while it is embodied as the value of a `[DscProperty()]` member variable.  Accordingly, all callees interpreting such a parameter must consider `$null` to mean "don't change".
 
-### [ ] PR.12: Public resource class value-type member variables must be `[Nullable[]]`.
+### [ ] PR.13: Public resource class value-type member variables must be `[Nullable[]]`.
 
 **Reason**
 
 This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
 
-### [ ] PR.13: Public resource function parameters do not have the `[AllowNull()]` attribute.
+### [ ] PR.14: Public resource function parameters do not have the `[AllowNull()]` attribute.
 
 **Reason**
 
 This is to support compliance with PR.11.  Mandatory parameters of public resource functions cannot be `$null` because the meaning of `$null` is that same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates either or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.  
 
-### [ ] PR.14: Defaults values are the same for corresponding public resource class member variables and public resource function parameters.
+### [ ] PR.15: Defaults values are the same for corresponding public resource class member variables and public resource function parameters.
 
 **Reason**
 

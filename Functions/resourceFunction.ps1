@@ -263,10 +263,14 @@ function Assert-FunctionParameterType
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true,
+        [Parameter(ParameterSetName = 'affirmative',
+                   Mandatory = $true,
                    Position = 1)]
         [System.Reflection.TypeInfo]
         $Type,
+
+        [Parameter(ParameterSetName = 'negative')]
+        $Not,
 
         [Parameter(Mandatory = $true,
                    ValueFromPipeline = $true)]
@@ -275,12 +279,22 @@ function Assert-FunctionParameterType
     )
     process
     {
-        if ( Test-FunctionParameterType @PSBoundParameters )
+        $_type = $Type,$Not | ? {$_}
+        if ( 
+            ($ParameterInfo | Test-FunctionParameterType $_Type) -xor
+            ($PSCmdlet.ParameterSetName -eq 'negative')
+        )
         {
             return
         }
-        $actualType = $ParameterInfo | Get-FunctionParameterType
-        throw "Parameter $($ParameterInfo.Name) is of type `"$actualType`" not of type `"$Type`"."
+
+        if ( $PSCmdlet.ParameterSetName -eq 'affirmative' )
+        {
+            $actualType = $ParameterInfo | Get-FunctionParameterType
+            throw "Parameter $($ParameterInfo.Name) is of type `"$actualType`" not of type `"$_type`"."
+        }
+
+        throw "Parameter $($ParameterInfo.Name) is of type $_type."
     }
 }
 

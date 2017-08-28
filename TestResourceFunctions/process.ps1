@@ -12,6 +12,10 @@ function Invoke-ProcessTestResource1
         [Parameter(Position = 2,
                    ValueFromPipelineByPropertyName = $true)]
         [Ensure]
-        $Ensure = 'Present'
+        $Ensure = 'Present',
+
+        [Parameter(ValueFromPipelineByPropertyname = $true)]
+        [string]
+        $x
     )
 }

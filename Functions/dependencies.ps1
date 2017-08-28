@@ -204,6 +204,11 @@ $tests = @{
         Prerequisites = 'T002'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-MemberProperty -Not 'Mode' }
     }
+    'PR.9' = @{
+        Message = 'Each public resource function parameter is statically-typed.'
+        Prerequisites = 'T006'
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData | Assert-FunctionParameterType -Not ([System.Object]) }
+    }
 }
 
 function ConvertTo-DependencyGraph
