@@ -107,12 +107,12 @@ $tests = @{
     T015 = @{
         Message = 'Public resource function Mode parameter is mandatory.'
         Prerequisites = 'T014'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-FunctionParameterMandatory }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Assert-ParameterMandatory }
     }
     T016 = @{
         Message = 'Public resource function Mode parameter is of type [Mode].'
         Prerequisites = 'T014'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Get-FunctionParameterType | Assert-Type ([Mode]) }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Mode' | Get-ParameterType | Assert-Type ([Mode]) }
     }
     T017 = @{
         Message = 'Public resource function Mode parameter is a positional argument.'
@@ -137,7 +137,7 @@ $tests = @{
     T020 = @{
         Message = 'Public resource function Mode parameter has no default value.'
         Prerequisites = 'T014'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Mode' | Assert-FunctionParameterDefault -NoDefault }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Mode' | Assert-ParameterDefault -NoDefault }
     }
     'PR.5' = @{
         Message = 'Public resource function Ensure parameter.'
@@ -151,12 +151,12 @@ $tests = @{
     T022 = @{
         Message = 'Public resource function Ensure Parameter is optional.'
         Prerequisites = 'T021'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-FunctionParameterOptional}
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-ParameterOptional}
     }
     T023 = @{
         Message = 'Public resource function Ensure parameter is of type [Ensure]'
         Prerequisites = 'T021'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Get-FunctionParameterType | Assert-Type ([Ensure]) }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Get-ParameterType | Assert-Type ([Ensure]) }
     }
     T024 = @{
         Message = 'Public resource function Ensure parameter is a positional argument.'
@@ -181,7 +181,7 @@ $tests = @{
     T027 = @{
         Message = 'Public resource function Ensure parameter has default value "Present".'
         Prerequisites = 'T021'
-        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Ensure' | Assert-FunctionParameterDefault 'Present' }
+        Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Ensure' | Assert-ParameterDefault 'Present' }
     }
     'PR.6' = @{
         Message = 'No public resource function parameters bind to pipeline value.'
@@ -195,7 +195,7 @@ $tests = @{
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
-                Select-FunctionParameter -Not Common | 
+                Select-Parameter -Not Common | 
                 Assert-ParameterAttribute ValueFromPipelineByPropertyName $true
         }
     }
@@ -211,8 +211,8 @@ $tests = @{
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData |
-                Select-FunctionParameter -Not Common |
-                Get-FunctionParameterType |
+                Select-Parameter -Not Common |
+                Get-ParameterType |
                 Assert-Type -Not ([System.Object])
         }
     }
@@ -223,8 +223,8 @@ $tests = @{
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
-                Select-FunctionParameter -Not Common |
-                Get-FunctionParameterType |
+                Select-Parameter -Not Common |
+                Get-ParameterType |
                 Assert-Type -not ([string])
         }
     }
@@ -239,9 +239,9 @@ $tests = @{
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
-                Select-FunctionParameter -Not Common | 
+                Select-Parameter -Not Common | 
                 ? { $_.Name -notin 'Ensure','Mode' } |
-                Get-FunctionParameterType | 
+                Get-ParameterType | 
                 Assert-NullableType }
     }
     'PR.13' = @{
@@ -286,7 +286,7 @@ $tests = @{
             $type = $_ | Get-NestedModuleType
             $_ | Get-PublicResourceFunction | 
                 Get-ParameterMetaData |
-                Select-FunctionParameter -Not Common |
+                Select-Parameter -Not Common |
                 ? { $_.Name -ne 'Mode' } |
                 % { $type | Assert-MemberProperty $_.Name }        
         }

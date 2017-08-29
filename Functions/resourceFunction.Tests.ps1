@@ -182,13 +182,13 @@ Describe Assert-ParameterAttribute {
     }
 }
 
-Describe Assert-FunctionParameterMandatory {
+Describe Assert-ParameterMandatory {
     function f {param($x)}
     $p = Get-Command f | Get-ParameterMetaData 'x'
     Context 'success' {
         Mock Test-ParameterAttribute { $true } -Verifiable
         It 'returns nothing' {
-            $r = $p | Assert-FunctionParameterMandatory
+            $r = $p | Assert-ParameterMandatory
             $r | Should beNullOrEmpty
         }
         It 'invokes command' {
@@ -202,19 +202,19 @@ Describe Assert-FunctionParameterMandatory {
     Context 'failure' {
         Mock Test-ParameterAttribute
         It 'throws' {
-            { $p | Assert-FunctionParameterMandatory } |
+            { $p | Assert-ParameterMandatory } |
                 Should throw 'not mandatory'
         }
     }
 }
 
-Describe Assert-FunctionParameterOptional {
+Describe Assert-ParameterOptional {
     function f {param($x)}
     $p = Get-Command f | Get-ParameterMetaData 'x'
     Context 'success' {
         Mock Test-ParameterAttribute { $true } -Verifiable
         It 'returns nothing' {
-            $r = $p | Assert-FunctionParameterOptional
+            $r = $p | Assert-ParameterOptional
             $r | Should beNullOrEmpty
         }
         It 'invokes command' {
@@ -228,24 +228,24 @@ Describe Assert-FunctionParameterOptional {
     Context 'failure' {
         Mock Test-ParameterAttribute { $false }
         It 'throws' {
-            { $p | Assert-FunctionParameterOptional } |
+            { $p | Assert-ParameterOptional } |
                 Should throw 'not optional'
         }
     }
 }
 
-Describe Get-FunctionParameterType {
+Describe Get-ParameterType {
     function f { param([Int32]$x,$y) }
     It 'returns exactly one type info object' {
         $r = Get-Command f | Get-ParameterMetaData 'x' | 
-            Get-FunctionParameterType
+            Get-ParameterType
         $r.Count | Should be 1
         $r | Should beOfType ([System.Reflection.TypeInfo])
         $r.Name | Should be 'Int32'
     }
     It 'returns System.Object for a non-statically-typed parameter' {
         $r = Get-Command f | Get-ParameterMetaData 'y' |
-            Get-FunctionParameterType
+            Get-ParameterType
         $r.FullName | Should be 'System.Object'
     }
 }
@@ -423,124 +423,124 @@ Describe Assert-ParameterOrdinality {
     }
 }
 
-Describe Get-FunctionParameterDefault {
+Describe Get-ParameterDefault {
     function f {param($a=1,$b)}
     $p = Get-Command f | Get-ParameterAst 'a'
     It 'returns exactly one object' {
-        $r = $p | Get-FunctionParameterDefault
+        $r = $p | Get-ParameterDefault
         $r.Count | Should be 1
     }
     It 'returns default value' {
-        $r = $p | Get-FunctionParameterDefault
+        $r = $p | Get-ParameterDefault
         $r | Should be 1
     }
     It 'returns nothing for no default value' {
         $r = Get-Command F | Get-ParameterAst 'b' |
-            Get-FunctionParameterDefault
+            Get-ParameterDefault
         $r | Should beNullOrEmpty
     }
 }
 
-Describe Test-FunctionParameterDefault {
+Describe Test-ParameterDefault {
     function f {param($a=1,$b)}
     Context 'default' {
         $p = Get-Command f | Get-ParameterAst 'a'
         It 'true' {
-            $r = $p | Test-FunctionParameterDefault 1
+            $r = $p | Test-ParameterDefault 1
             $r | Should be $true
         }
         It 'false' {
-            $r = $p | Test-FunctionParameterDefault 0
+            $r = $p | Test-ParameterDefault 0
             $r | Should be $false
         }
     }
     Context 'no default' {
         It 'true' {
             $r = Get-Command f | Get-ParameterAst 'b' |
-                Test-FunctionParameterDefault -NoDefault
+                Test-ParameterDefault -NoDefault
             $r | Should be $true
         }
         It 'false' {
             $r = Get-Command f | Get-ParameterAst 'a' |
-                Test-FunctionParameterDefault -NoDefault
+                Test-ParameterDefault -NoDefault
             $r | Should be $false
         }
     }
 }
 
-Describe Assert-FunctionParameterDefault {
+Describe Assert-ParameterDefault {
     function f {param($a)}
     $p = Get-Command f | Get-ParameterAst
     Context 'success' {
-        Mock Test-FunctionParameterDefault { $true } -Verifiable
+        Mock Test-ParameterDefault { $true } -Verifiable
         It 'returns nothing' {
-            $r = $p | Assert-FunctionParameterDefault 1
+            $r = $p | Assert-ParameterDefault 1
             $r | Should beNullOrEmpty
         }
         It 'invokes commands' {
-            Assert-MockCalled Test-FunctionParameterDefault 1 {
+            Assert-MockCalled Test-ParameterDefault 1 {
                 $ParameterInfo.Name.VariablePath.UserPath -eq 'a' -and
                 $Default -eq 1
             }
         }
     }
     Context 'failure' {
-        Mock Test-FunctionParameterDefault
+        Mock Test-ParameterDefault
         It 'throws' {
-            { $p | Assert-FunctionParameterDefault 1 } |
+            { $p | Assert-ParameterDefault 1 } |
                 Should throw 'not default value'
         }
     }
 }
 
-Describe Test-FunctionParameter {
+Describe Test-ParameterKind {
     function f {[CmdletBinding()]param($a,$WhatIf)}
     $f = Get-Command f
     Context 'OptionalCommon' {
         It 'true' {
             $r = $f | Get-ParameterMetaData 'WhatIf' |
-                Test-FunctionParameter OptionalCommon
+                Test-ParameterKind OptionalCommon
             $r | Should be $true
         }
         It 'false' {
             $r = $f | Get-ParameterMetaData 'Verbose' |
-                Test-FunctionParameter OptionalCommon
+                Test-ParameterKind OptionalCommon
             $r | Should be $false
         }
     }
     Context 'MandatoryCommon' {
         It 'true' {
             $r = $f | Get-ParameterMetaData 'Verbose' |
-                Test-FunctionParameter MandatoryCommon
+                Test-ParameterKind MandatoryCommon
             $r | Should be $true
         }
         It 'false' {
             $r = $f | Get-ParameterMetaData 'WhatIf' |
-                Test-FunctionParameter MandatoryCommon
+                Test-ParameterKind MandatoryCommon
             $r | Should be $false
         }
     }
     Context 'Common' {
         It 'true' {
             $r = $f | Get-ParameterMetaData 'Verbose' |
-                Test-FunctionParameter Common
+                Test-ParameterKind Common
             $r | Should be $true
         }
         It 'false' {
             $r = $f | Get-ParameterMetaData 'a' |
-                Test-FunctionParameter Common
+                Test-ParameterKind Common
             $r | Should be $false
         }
     }
     Context '-Not Common' {
         It 'true' {
             $r = $f | Get-ParameterMetaData 'a' |
-                Test-FunctionParameter -Not Common
+                Test-ParameterKind -Not Common
             $r | Should be $true
         }
         It 'false' {
             $r = $f | Get-ParameterMetaData 'Verbose' |
-                Test-FunctionParameter -Not Common
+                Test-ParameterKind -Not Common
             $r | Should be $false
         }
     }

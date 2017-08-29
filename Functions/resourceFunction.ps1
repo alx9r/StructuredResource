@@ -211,7 +211,7 @@ function Assert-ParameterAttribute
     }
 }
 
-function Assert-FunctionParameterMandatory
+function Assert-ParameterMandatory
 {
     [CmdletBinding()]
     param
@@ -231,7 +231,7 @@ function Assert-FunctionParameterMandatory
     }
 }
 
-function Assert-FunctionParameterOptional
+function Assert-ParameterOptional
 {
     [CmdletBinding()]
     param
@@ -251,7 +251,7 @@ function Assert-FunctionParameterOptional
     }
 }
 
-function Get-FunctionParameterType
+function Get-ParameterType
 {
     [CmdletBinding()]
     param
@@ -482,7 +482,7 @@ function Assert-ParameterOrdinality
     }
 }
 
-function Get-FunctionParameterDefault
+function Get-ParameterDefault
 {
     param
     (
@@ -501,7 +501,7 @@ function Get-FunctionParameterDefault
     }
 }
 
-function Test-FunctionParameterDefault
+function Test-ParameterDefault
 {
     param
     (
@@ -522,11 +522,11 @@ function Test-FunctionParameterDefault
     )
     process
     {
-        $Default -eq ($ParameterInfo | Get-FunctionParameterDefault)
+        $Default -eq ($ParameterInfo | Get-ParameterDefault)
     }
 }
 
-function Assert-FunctionParameterDefault
+function Assert-ParameterDefault
 {
     param
     (
@@ -547,12 +547,12 @@ function Assert-FunctionParameterDefault
     )
     process
     {
-        if ( Test-FunctionParameterDefault @PSBoundParameters )
+        if ( Test-ParameterDefault @PSBoundParameters )
         {
             return
         }
 
-        $actualDefault = $ParameterInfo | Get-FunctionParameterDefault
+        $actualDefault = $ParameterInfo | Get-ParameterDefault
         if ( $PSCmdlet.ParameterSetName -eq 'default_value' )
         {
             throw "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has default value $actualDefault not default value $Default."
@@ -561,7 +561,7 @@ function Assert-FunctionParameterDefault
     }
 }
 
-function Test-FunctionParameter
+function Test-ParameterKind
 {
     param
     (
@@ -597,7 +597,7 @@ function Test-FunctionParameter
     }
 }
 
-function Select-FunctionParameter
+function Select-Parameter
 {
     param
     (
@@ -618,7 +618,7 @@ function Select-FunctionParameter
     )
     process
     {
-        if (Test-FunctionParameter @PSBoundParameters )
+        if (Test-ParameterKind @PSBoundParameters )
         {
             $ParameterInfo
         }
