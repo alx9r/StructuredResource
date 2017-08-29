@@ -7,11 +7,11 @@ class TestResource1
 
     [DscProperty()]
     [string]
-    $SomeValue
+    $SomeValue = 'some default'
 
     [DscProperty()]
     [Ensure]
-    $Ensure
+    $Ensure = 'Present'
 
     [void] Set() { $this | Invoke-ProcessTestResource1 Set }
     [bool] Test() { return $this | Invoke-ProcessTestResource1 Test }

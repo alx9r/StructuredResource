@@ -482,6 +482,21 @@ function Assert-ParameterOrdinality
     }
 }
 
+function Test-ParameterHasDefault
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Management.Automation.Language.ParameterAst]
+        $ParameterInfo
+    )
+    process
+    {
+        $null -ne $ParameterInfo.DefaultValue
+    }
+}
+
 function Get-ParameterDefault
 {
     param
@@ -493,7 +508,7 @@ function Get-ParameterDefault
     )
     process
     {
-        if ( $null -eq $ParameterInfo.DefaultValue )
+        if ( -not ($ParameterInfo | Test-ParameterHasDefault) )
         {
             return
         }
@@ -508,6 +523,7 @@ function Test-ParameterDefault
         [Parameter(ParameterSetName = 'default_value',
                    Mandatory = $true,
                    Position = 1)]
+        [AllowNull()]
         $Default,
 
         [Parameter(ParameterSetName = 'no_default_value',
@@ -522,6 +538,10 @@ function Test-ParameterDefault
     )
     process
     {
+        if ( $PSCmdlet.ParameterSetName -eq 'no_default_value' )
+        {
+            return -not ($ParameterInfo | Test-ParameterHasDefault)
+        }
         $Default -eq ($ParameterInfo | Get-ParameterDefault)
     }
 }
@@ -533,6 +553,7 @@ function Assert-ParameterDefault
         [Parameter(ParameterSetName = 'default_value',
                    Mandatory = $true,
                    Position = 1)]
+        [AllowNull()]
         $Default,
 
         [Parameter(ParameterSetName = 'no_default_value',

@@ -423,6 +423,27 @@ Describe Assert-ParameterOrdinality {
     }
 }
 
+Describe Test-ParameterHasDefault {
+    function f { param($a=$null,$b) }
+    $f = Get-Command f
+    It 'returns exactly one boolean' {
+        $r = $f | Get-ParameterAst 'a' |
+            Test-ParameterHasDefault
+        $r.Count | Should be 1
+        $r | Should beOfType ([bool])
+    }
+    It 'true' {
+        $r = $f | Get-ParameterAst 'a' |
+            Test-ParameterHasDefault
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = $f | Get-ParameterAst 'b' |
+            Test-ParameterHasDefault
+        $r | Should be $false
+    }
+}
+
 Describe Get-ParameterDefault {
     function f {param($a=1,$b)}
     $p = Get-Command f | Get-ParameterAst 'a'
@@ -442,7 +463,7 @@ Describe Get-ParameterDefault {
 }
 
 Describe Test-ParameterDefault {
-    function f {param($a=1,$b)}
+    function f {param($a=1,$b,$c=$null)}
     Context 'default' {
         $p = Get-Command f | Get-ParameterAst 'a'
         It 'true' {
@@ -454,15 +475,37 @@ Describe Test-ParameterDefault {
             $r | Should be $false
         }
     }
-    Context 'no default' {
+    Context '-NoDefault' {
         It 'true' {
             $r = Get-Command f | Get-ParameterAst 'b' |
                 Test-ParameterDefault -NoDefault
             $r | Should be $true
         }
-        It 'false' {
+        It 'false (no default)' {
             $r = Get-Command f | Get-ParameterAst 'a' |
                 Test-ParameterDefault -NoDefault
+            $r | Should be $false
+        }
+        It 'false (default is $null)' {
+            $r = Get-Command f | Get-ParameterAst 'c' |
+                Test-ParameterDefault -NoDefault
+            $r | Should be $false
+        }
+    }
+    Context 'Default is $null' {
+        It 'true (no default)' {
+            $r = Get-Command f | Get-ParameterAst 'b' |
+                Test-ParameterDefault $null
+            $r | Should be $true
+        }
+        It 'true (default is $null)' {
+            $r = Get-Command f | Get-ParameterAst 'b' |
+                Test-ParameterDefault $null
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = Get-Command f | Get-ParameterAst 'a' |
+                Test-ParameterDefault $null
             $r | Should be $false
         }
     }

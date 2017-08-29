@@ -89,11 +89,13 @@ A public resource class has an optional `Ensure` property.  It is of type `[Ensu
 
 The name `Ensure` should only be used to specify whether a resource is present or absent because that is its customary meaning in PowerShell DSC. `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` has default value `Present` because omitting `Ensure` should cause the resource to ensure presence.
 
-### [x] PR.3: Other public resource properties have no default value.
+### [x] <del>PR.3: Other public resource properties have no default value</del>
 
 **Reason**
 
-Omitting optional parameters means the configuration affected by the parameter should remain unchanged.  A default value for a public resource property defeats that behavior because the configuration gets set to the default value when the parameter is omitted.
+<del>Omitting optional parameters means the configuration affected by the parameter should remain unchanged.  A default value for a public resource property defeats that behavior because the configuration gets set to the default value when the parameter is omitted.</del>
+
+This rule was removed because a resource author could reasonably opt that an omitted value should change the affected configuration to a default value.  A user can still override such behavior by specifying `$null` for such a parameter thereby preventing any change to the affected configuration.
 
 ### [x] PR.4: `Mode` public resource parameter.
 
@@ -158,7 +160,7 @@ Omission of an optional default-less parameter P means "don't change" P.  Such p
 
 ### [ ] PR.13: Value-type public resource properties must be `[Nullable[T]]`.
 
-**Reason**d
+**Reason**
 
 This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
 
@@ -180,7 +182,7 @@ This is to support parity between the interfaces published by the public resourc
 
 This is to support parity between the interfaces published by the public resource class and public resource function.
 
-### [ ] PR.17: Defaults values are the same for corresponding public resource properties and public resource parameters.
+### [ ] PR.17: Defaults values are the same for corresponding public resource properties and parameters.
 
 **Reason**
 

@@ -20,6 +20,6 @@ function Invoke-ProcessTestResource1
 
         [Parameter(ValueFromPipelineByPropertyname = $true)]
         [System.Nullable[int]]
-        $SomeValue
+        $SomeValue = 'some default'
     )
 }

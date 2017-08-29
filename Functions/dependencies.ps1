@@ -86,15 +86,6 @@ $tests = @{
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
     }
-    'PR.3' = @{
-        Message = 'Other public resource properties have no default value.'
-        Prerequisites = 'T013'
-    }
-    T013 = @{
-        Message = 'DSC properties other than "Ensure" have no default value.'
-        Prerequisites = 'T001'
-        Scriptblock = { $_ | Get-NestedModuleType | Assert-NullDscPropertyDefaults -Exclude 'Ensure' }
-    }
     'PR.4' = @{
         Message = 'Mode public resource parameter.'
         Prerequisites = 'T014','T015','T016','T017','T018','T019','T020'
@@ -272,7 +263,7 @@ $tests = @{
     }
     'PR.15' = @{
         Message = 'Each public resource property has a corresponding public resource parameter.'
-        Prerequisites = 'T002'
+        Prerequisites = 'T002','T006'
         Scriptblock = {
             $function = $_ | Get-PublicResourceFunction
             $_ | Get-NestedModuleType | Get-MemberProperty |
@@ -281,7 +272,7 @@ $tests = @{
     }
     'PR.16' = @{
         Message =  'Each public resource parameter has a corresponding public resource property.'
-        Prerequisites = 'T002'
+        Prerequisites = 'T002','T006'
         Scriptblock = { 
             $type = $_ | Get-NestedModuleType
             $_ | Get-PublicResourceFunction | 
@@ -289,6 +280,20 @@ $tests = @{
                 Select-Parameter -Not Common |
                 ? { $_.Name -ne 'Mode' } |
                 % { $type | Assert-MemberProperty $_.Name }        
+        }
+    }
+    'PR.17' = @{
+        Message = 'Default values are the same for corresponding public resource properties and parameters.'
+        Prerequisites = 'T002','T006'
+        Scriptblock = {
+            $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
+            $type = Get-NestedModuleType TestResource1 StructuredDscResourceCheck 
+            $type | Get-MemberProperty |
+                % { 
+                    $function | 
+                        Get-ParameterAst $_.Name |
+                        Assert-ParameterDefault ($type | Get-PropertyDefault $_.Name )
+                }
         }
     }
 }
