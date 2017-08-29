@@ -74,7 +74,7 @@ $tests = @{
     T010 = @{
         Message = 'Public resource class''s Ensure property has [DscProperty()] attribute.'
         Prerequisites = 'T001'
-        Scriptblock = { $_ | Get-NestedModuleType | Assert-DscProperty 'Ensure' }
+        Scriptblock = { $_ | Get-NestedModuleType | Get-MemberProperty 'Ensure' | Assert-PropertyCustomAttribute DscProperty }
     }
     T011 = @{
         Message = 'Public resource class''s Ensure property is of type [Ensure].'

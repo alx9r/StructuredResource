@@ -76,6 +76,90 @@ class c {
     [c] Get() { return $this }
 }
 
+Describe Get-PropertyCustomAttribute {
+    $p = [c] | Get-MemberProperty 'a'
+    It 'returns one object' {
+        $r = $p | Get-PropertyCustomAttribute 'DscProperty'
+        $r.Count | Should be 1
+    }
+    It 'returns attribute object' {
+        $r = $p | Get-PropertyCustomAttribute 'DscProperty'
+        $r | Should beOfType ([System.Reflection.CustomAttributeData])
+    }
+    It 'returns nothing for non-existent attribute' {
+        $r = $p | Get-PropertyCustomAttribute 'non-existent'
+        $r | Should beNullOrEmpty
+    }
+}
+
+Describe Test-PropertyCustomAttribute {
+    $p = [c] | Get-MemberProperty 'a'
+    It 'true' {
+        $r = $p | Test-PropertyCustomAttribute 'DscProperty'
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = $p | Test-PropertyCustomAttribute 'non-existent'
+        $r | Should be $false
+    }
+}
+
+Describe Assert-PropertyCustomAttribute {
+    $p = [c] | Get-MemberProperty 'a'
+    Context 'present' {
+        Mock Test-PropertyCustomAttribute { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-PropertyCustomAttribute 'b'
+            $r | Should beNullOrEmpty
+        }
+        It '-Not throws' {
+            { $p | Assert-PropertyCustomAttribute -Not 'b' } |
+                Should throw 'exists'
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Test-PropertyCustomAttribute 2 {
+                $PropertyInfo.Name -eq 'a' -and
+                $AttributeName -eq 'b'
+            }
+        }
+    }
+    Context 'absent' {
+        Mock Test-PropertyCustomAttribute { $false }
+        It 'throws' {
+            { $p | Assert-PropertyCustomAttribute 'b' } |
+                Should throw 'not exist'
+        }
+        It '-Not returns nothing' {
+            $r = $p | Assert-PropertyCustomAttribute -Not 'b'
+            $r | Should beNullOrEmpty
+        }
+    }
+}
+
+Describe Get-CustomAttributeArgument {
+    $a = [c] | Get-MemberProperty 'a' | Get-PropertyCustomAttribute 'DscProperty'
+    Context 'whole object' {
+        It 'returns one object' {
+            $r = $a | Get-CustomAttributeArgument 'Key'
+            $r.Count | Should be 1
+        }
+        It 'returns argument object' {
+            $r = $a | Get-CustomAttributeArgument 'Key'
+            $r | Should beOfType([System.Reflection.CustomAttributeNamedArgument])
+        }
+        It 'returns nothing for non-existent argument' {
+            $r = $a | Get-CustomAttributeArgument 'non-existent'
+            $r | Should beNullOrEmpty
+        }
+    }
+    Context '-ValueOnly' {
+        It 'returns value' {
+            $r = $a | Get-CustomAttributeArgument 'Key' -ValueOnly
+            $r | Should be $true
+        }
+    }
+}
+
 Describe Test-DscProperty {
     It 'returns true' {
         $i = [c] |

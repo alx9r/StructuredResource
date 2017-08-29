@@ -78,6 +78,116 @@ function Assert-MemberProperty
     }
 }
 
+function Get-PropertyCustomAttribute
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        [string]
+        $AttributeName,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.PropertyInfo]
+        $PropertyInfo
+    )
+    process
+    {
+        $PropertyInfo.CustomAttributes |
+            ? {$_.AttributeType.Name -eq "$AttributeName`Attribute" }
+    }
+}
+
+function Test-PropertyCustomAttribute
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   Position = 1)]
+        [string]
+        $AttributeName,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.PropertyInfo]
+        $PropertyInfo
+    )
+    process
+    {
+        [bool](Get-PropertyCustomAttribute @PSBoundParameters)
+    }
+}
+
+function Assert-PropertyCustomAttribute
+{
+    param
+    (
+        [Parameter(ParameterSetName = 'affirmative',
+                   Mandatory = $true,
+                   Position = 1)]
+        [string]
+        $AttributeName,
+
+        [Parameter(ParameterSetName = 'negative')]
+        [string]
+        $Not,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.PropertyInfo]
+        $PropertyInfo
+    )
+    process
+    {
+        $_attributeName = $AttributeName,$Not | ? {$_}
+        if
+        ( 
+            ( $PropertyInfo | Test-PropertyCustomAttribute $_attributeName ) -xor
+            ( $PSCmdlet.ParameterSetName -eq 'negative' )
+        )
+        {
+            return
+        }
+
+        if ( $PSCmdlet.ParameterSetName -eq 'negative' )
+        {
+            throw "Custom attribute $AttributeName exists on $($PropertyInfo.Name)."
+        }
+
+        throw "Custom attribute $AttributeName does not exist on $($PropertyInfo.Name)."
+    }
+}
+
+function Get-CustomAttributeArgument
+{
+    param
+    (
+        [Parameter(Position = 1)]
+        [string]
+        $ArgumentName,
+
+        [switch]
+        $ValueOnly,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.CustomAttributeData]
+        $CustomAttributeData
+    )
+    process
+    {
+        $object = $CustomAttributeData.NamedArguments |
+            ? {$_.MemberName -eq $ArgumentName}
+
+        if ( $ValueOnly )
+        {
+            return $object.TypedValue.Value
+        }
+        return $object
+    }
+}
+
 function Test-DscProperty
 {
     param
