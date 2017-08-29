@@ -59,7 +59,7 @@ $tests = @{
         Scriptblock = { Import-Module $_.ModuleName }
     }
     'PR.1' = @{
-        Message = 'Each public resource class has member variables with the [DscProperty()] attibute.'
+        Message = 'Each public resource class has properties with the [DscProperty()] attibute.'
         Prerequisites = 'T009'
     }
     T009 = @{
@@ -68,7 +68,7 @@ $tests = @{
         Scriptblock = { $_ | Get-NestedModuleType | Assert-HasDscProperty }
     }
     'PR.2' = @{
-        Message = 'Public resource class''s Ensure member variable'
+        Message = 'Ensure public resource property.'
         Prerequisites = 'T010','T011','T012'
     }
     T010 = @{
@@ -87,7 +87,7 @@ $tests = @{
         Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
     }
     'PR.3' = @{
-        Message = 'Other member variables of public resource classes have no default value.'
+        Message = 'Other public resource properties have no default value.'
         Prerequisites = 'T013'
     }
     T013 = @{
@@ -96,7 +96,7 @@ $tests = @{
         Scriptblock = { $_ | Get-NestedModuleType | Assert-NullDscPropertyDefaults -Exclude 'Ensure' }
     }
     'PR.4' = @{
-        Message = 'Public resource function Mode parameter.'
+        Message = 'Mode public resource parameter.'
         Prerequisites = 'T014','T015','T016','T017','T018','T019','T020'
     }
     T014 = @{
@@ -140,7 +140,7 @@ $tests = @{
         Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Mode' | Assert-ParameterDefault -NoDefault }
     }
     'PR.5' = @{
-        Message = 'Public resource function Ensure parameter.'
+        Message = 'Ensure public resource parameter.'
         Prerequisites = 'T021','T022','T023','T024','T025','T026','T027'
     }
     T021 = @{
@@ -184,7 +184,7 @@ $tests = @{
         Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterAst 'Ensure' | Assert-ParameterDefault 'Present' }
     }
     'PR.6' = @{
-        Message = 'No public resource function parameters bind to pipeline value.'
+        Message = 'No public resource parameters bind to pipeline value.'
         Prerequisites = 'T006'
         Scriptblock =  { $_ | Get-PublicResourceFunction | Get-ParameterMetaData | Assert-ParameterAttribute ValueFromPipeline $false }
     }
@@ -200,7 +200,7 @@ $tests = @{
         }
     }
     'PR.8' = @{
-        Message = 'A public resource class does not have have member variable Mode.'
+        Message = 'No Mode public resource property.'
         Prerequisites = 'T002'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-MemberProperty -Not 'Mode' }
     }
@@ -229,11 +229,11 @@ $tests = @{
         }
     }
     'PR.11' = @{
-        Message = 'Public resource value-type parameters must be [Nullable[T]].'
+        Message = 'Value-type public resource parameters must be `[Nullable[T]]`'
         Prerequisites = 'T028'
     }
     T028 = @{
-        Message = 'Public resource function parameters must be nullable.'
+        Message = 'Public resource parameters must be nullable.'
         Prerequisites = 'T006'
         Scriptblock = { 
             $_ | 
@@ -245,11 +245,11 @@ $tests = @{
                 Assert-NullableType }
     }
     'PR.13' = @{
-        Message = 'Public resource class value-type member variables must be [Nullable[T]]'
+        Message = 'Value-type public resource properties must be `[Nullable[T]]`.'
         Prerequisites = 'T029'
     }
     T029 = @{
-        Message = 'Public resource class member variables must be nullable.'
+        Message = 'Public resource properties must be nullable.'
         Prerequisites = 'T002'
         Scriptblock = {
             $_ |
@@ -271,7 +271,7 @@ $tests = @{
         }
     }
     'PR.15' = @{
-        Message = 'Each public resource class member variable has a corresponding public resource function parameter.'
+        Message = 'Each public resource property has a corresponding public resource parameter.'
         Prerequisites = 'T002'
         Scriptblock = {
             $function = $_ | Get-PublicResourceFunction
@@ -280,7 +280,7 @@ $tests = @{
             }
     }
     'PR.16' = @{
-        Message =  'Each public resource function parameter has a corresponding public resource class member variable.'
+        Message =  'Each public resource parameter has a corresponding public resource property.'
         Prerequisites = 'T002'
         Scriptblock = { 
             $type = $_ | Get-NestedModuleType
