@@ -60,12 +60,7 @@ $tests = @{
     }
     'PR.1' = @{
         Message = 'Each public resource class has properties with the [DscProperty()] attibute.'
-        Prerequisites = 'T009'
-    }
-    T009 = @{
-        Message = 'Check for properties with [DscProperty()] attribute.'
-        Prerequisites = 'T001'
-        Scriptblock = { $_ | Get-NestedModuleType | Assert-HasDscProperty }
+        Prerequisites = 'T005'
     }
     'PR.2' = @{
         Message = 'Ensure public resource property.'
@@ -228,12 +223,12 @@ $tests = @{
         Message = 'Optional public resource parameters must be nullable.'
         Prerequisites = 'T006'
         Scriptblock = { 
-            throw 'optional part of this is not implemented'
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
-                Select-Parameter -Not Common | 
-                ? { $_.Name -notin 'Ensure','Mode' } |
+                Select-Parameter -Not Common |
+                ? { $_.Name -ne 'Ensure' }
+                ? { $_ | Test-ParameterAttribute Mandatory $false } |
                 Get-ParameterType | 
                 Assert-NullableType }
     }
@@ -245,11 +240,11 @@ $tests = @{
         Message = 'Optional public resource properties must be nullable.'
         Prerequisites = 'T002'
         Scriptblock = {
-            throw 'optional part of this is not implemented'
             $_ |
                 Get-NestedModuleType | 
                 Get-MemberProperty |
-                ? {$_.Name -ne 'Ensure' } |
+                ? { $_.Name -ne 'Ensure' }
+                ? { -not ($_ | Test-DscPropertyRequired) } |
                 Get-PropertyType | 
                 Assert-NullableType
         }
@@ -289,8 +284,8 @@ $tests = @{
         Message = 'Defaults values match for corresponding public resource properties and parameters.'
         Prerequisites = 'T002','T006'
         Scriptblock = {
-            $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
-            $type = Get-NestedModuleType TestResource1 StructuredDscResourceCheck 
+            $function = $_ | Get-PublicResourceFunction
+            $type = $_ | Get-NestedModuleType
             $type | Get-MemberProperty |
                 % { 
                     $function | 
@@ -303,8 +298,8 @@ $tests = @{
         Message = 'Types match for corresponding public resource properties and parameters.'
         Prerequisites = 'T002','T006'
         Scriptblock = {
-            $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
-            Get-NestedModuleType TestResource1 StructuredDscResourceCheck | 
+            $function = $_ | Get-PublicResourceFunction
+            $_ | Get-NestedModuleType | 
                 Get-MemberProperty |
                 % { 
                     $function | 
@@ -318,7 +313,18 @@ $tests = @{
         Message = 'Mandatoriness matches for corresponding public resource properties and parameters.'
         Prerequisites = 'T002','T006'
         Scriptblock = {
-            throw 'not implemented'
+            $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
+            Get-NestedModuleType TestResource1 StructuredDscResourceCheck | 
+                Get-MemberProperty |
+                % {
+                    $assertion = @{
+                        $true = 'Assert-ParameterMandatory'
+                        $false = 'Assert-ParameterOptional'
+                    }.([bool]($_ | Test-DscPropertyRequired))
+                    $function | 
+                        Get-ParameterMetaData $_.Name |
+                        & $assertion        
+                }
         }
     }
 }

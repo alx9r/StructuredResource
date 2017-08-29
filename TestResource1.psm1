@@ -6,7 +6,7 @@ class TestResource1
     $SomeKey
 
     [DscProperty()]
-    [string]
+    [NullSafeString]
     $SomeValue = 'some default'
 
     [DscProperty()]

@@ -188,67 +188,70 @@ function Get-CustomAttributeArgument
     }
 }
 
-function Test-DscProperty
-{
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true,
-                   Position = 1)]
-        [System.Reflection.PropertyInfo]
-        $PropertyInfo
-    )
-    process
-    {
-        [bool] ( $PropertyInfo.CustomAttributes |
-            ? { $_.AttributeType.Name -eq 'DscPropertyAttribute' } )
-    }
-}
-
-function Assert-HasDscProperty
-{
-    param
-    (
-        [Parameter(ValueFromPipeline = $true,
-                   Mandatory = $true)]
-        [System.Reflection.TypeInfo]
-        $TypeInfo
-    )
-    process
-    {
-        if ( $TypeInfo | 
-            Get-MemberProperty | 
-            Test-DscProperty |
-            ? { $_ }
-        )
-        {
-            return
-        }
-        throw "DSC properties not found for type $TypeInfo."
-    }
-}
-
-function Assert-DscProperty
+function Test-CustomAttributeArgument
 {
     param
     (
         [Parameter(Position = 1)]
         [string]
-        $Filter = '*',
+        $ArgumentName,
 
-        [Parameter(ValueFromPipeline = $true,
-                   Mandatory = $true)]
-        [System.Reflection.TypeInfo]
-        $TypeInfo
+        [Parameter(Position = 2)]
+        $Value,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.CustomAttributeData]
+        $CustomAttributeData
     )
     process
     {
-        $TypeInfo |
-            Get-MemberProperty $Filter |
-            ? { -not ($_ | Test-DscProperty) } |
-            % { 
-                throw "[DscProperty()] attribute not found for member $($_.Name) of $TypeInfo."
-            }
+        if ( 'Value' -in $PSBoundParameters.get_Keys() )
+        {
+            return $Value -eq (
+                $CustomAttributeData | 
+                    Get-CustomAttributeArgument $ArgumentName -ValueOnly
+            )
+        }
+
+        [bool]( $CustomAttributeData | Get-CustomAttributeArgument $ArgumentName )
+    }
+}
+
+function Test-DscPropertyRequired
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.PropertyInfo]
+        $PropertyInfo
+    )
+    process
+    {
+        $attribute = $PropertyInfo | Get-PropertyCustomAttribute 'DscProperty'
+        return ($attribute | Test-CustomAttributeArgument Key $true) -or
+               ($attribute | Test-CustomAttributeArgument Mandatory $true)
+    }
+}
+
+function Assert-DscPropertyRequired
+{
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Reflection.PropertyInfo]
+        $PropertyInfo
+    )
+    process
+    {
+        if ( $PropertyInfo | Test-DscPropertyRequired )
+        {
+            return
+        }
+
+        throw "Property $($PropertyInfo.Name) is not a required DSC property."
     }
 }
 
@@ -324,27 +327,5 @@ function Assert-PropertyDefault
         if ( $null -eq $Value ) { $printValue = '$null' }
 
         throw "Default value $actualValue does not match expected value $printValue for property $PropertyName of [$TypeInfo]."
-    }
-}
-
-function Assert-NullDscPropertyDefaults
-{
-    param
-    (
-        [string[]]
-        $Exclude,
-
-        [Parameter(ValueFromPipeline = $true,
-                   Mandatory = $true)]
-        [System.Reflection.TypeInfo]
-        $TypeInfo
-    )
-    process
-    {
-        $TypeInfo | 
-            Get-MemberProperty |
-            ? { $_.Name -notin $Exclude } |
-            ? { $_ | Test-DscProperty } |
-            % { $TypeInfo | Assert-PropertyDefault $_.Name $null }
     }
 }

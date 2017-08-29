@@ -14,13 +14,13 @@ function Invoke-ProcessTestResource1
         [Ensure]
         $Ensure = 'Present',
 
-        [Parameter(ValueFromPipelineByPropertyname = $true)]
+        [Parameter(Mandatory = $true,
+                   ValueFromPipelineByPropertyname = $true)]
         [int]
         $SomeKey = 0,
 
-        [Parameter(ValueFromPipelineByPropertyname = $true,
-                   Mandatory = $true)]
-        [string]
+        [Parameter(ValueFromPipelineByPropertyname = $true)]
+        [NullsafeString]
         $SomeValue = 'some default'
     )
 }

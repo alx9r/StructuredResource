@@ -67,7 +67,7 @@ Describe Assert-MemberProperty {
 
 [DscResource()]
 class c {
-    [DscProperty(Key)]
+    [DscProperty(Key,Mandatory)]
     [string]
     $a
     $b
@@ -160,49 +160,85 @@ Describe Get-CustomAttributeArgument {
     }
 }
 
-Describe Test-DscProperty {
-    It 'returns true' {
-        $i = [c] |
-            Get-MemberProperty |
-            ? {$_.Name -eq 'a' }
-
-        $r = $i | Test-DscProperty
-
-        $r.Count | Should be 1
-        $r | Should be $true
+Describe Test-CustomAttributeArgument {
+    $a = [c] | Get-MemberProperty 'a' | Get-PropertyCustomAttribute 'DscProperty'
+    Context 'existence' {
+        It 'true' {
+            $r = $a | Test-CustomAttributeArgument 'Key'
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $a | Test-CustomAttributeArgument 'non-existent'
+            $r | Should be $false
+        }
     }
-    It 'returns false' {
-        $i = [c] |
-            Get-MemberProperty |
-            ? {$_.Name -eq 'b' }
-
-        $r = $i | Test-DscProperty
-
-        $r.Count | Should be 1
-        $r | Should be $false
-    }
-}
-
-Describe Assert-HasDscProperty {
-    It 'returns nothing' {
-        $r = [c] | Assert-HasDscProperty
-        $r | Should beNullOrEmpty
-    }
-    It 'throws' {
-        class d {$a;$b}
-        { [d] | Assert-HasDscProperty } |
-            Should throw 'not found'
+    Context 'value' {
+        Mock Get-CustomAttributeArgument { 'value' } -Verifiable
+        It 'true' {
+            $r = $a | Test-CustomAttributeArgument 'Key' 'value'
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $a | Test-CustomAttributeArgument 'Key' 'not value'
+            $r | Should be $false
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Get-CustomAttributeArgument 2 {
+                $ArgumentName -eq 'Key' -and
+                $CustomAttributeData.AttributeType.Name -eq 'DscPropertyAttribute'
+            }
+        }
     }
 }
 
-Describe Assert-DscProperty {
-    It 'returns nothing' {
-        $r = [c] | Assert-DscProperty 'a'
-        $r | Should beNullOrEmpty
+Describe Test-DscPropertyRequired {
+    $p = [c] | Get-MemberProperty 'a'
+    Context 'success' {
+        Mock Test-CustomAttributeArgument { $ArgumentName -eq 'Mandatory' } -Verifiable
+        It 'true' {
+            $r = $p | Test-DscPropertyRequired
+            $r | Should be $true
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Test-CustomAttributeArgument 1 {
+                $ArgumentName -eq 'Key' -and
+                $Value -eq $true
+            }
+            Assert-MockCalled Test-CustomAttributeArgument 1 {
+                $ArgumentName -eq 'Mandatory' -and
+                $Value -eq $true
+            }
+        }
     }
-    It 'throws' {
-        { [c] | Assert-DscProperty 'b' } |
-            Should throw 'not found'
+    Context 'failure' {
+        Mock Test-CustomAttributeArgument { $false }
+        It 'false' {
+            $r = $p | Test-DscPropertyRequired
+            $r | Should be $false
+        }
+    }
+}
+
+Describe Assert-DscPropertyRequired {
+    $p = [c] | Get-MemberProperty 'a'
+    Context 'is required' {
+        Mock Test-DscPropertyRequired { $true } -Verifiable
+        It 'returns nothing' {
+            $r = $p | Assert-DscPropertyRequired
+            $r | Should beNullOrEmpty
+        }
+        It 'invokes command' {
+            Assert-MockCalled Test-DscPropertyRequired 1 {
+                $PropertyInfo.Name -eq 'a'
+            }
+        }
+    }
+    Context 'is not required' {
+        Mock Test-DscPropertyRequired { $false }
+        It 'throws' {
+            { $p | Assert-DscPropertyRequired } |
+                Should throw 'not a required'
+        }
     }
 }
 
@@ -264,35 +300,6 @@ Describe Assert-PropertyDefault {
                 Assert-PropertyDefault 'bogus' 'default'
             $r | Should beNullOrEmpty
         }
-    }
-}
-
-Describe Assert-NullDscPropertyDefaults {
-    Context 'returns nothing' {
-        It 'empty class' {
-            class c {}
-            $r = [c] | Assert-NullDscPropertyDefaults
-            $r | Should beNullOrEmpty
-        }
-    }
-    Context 'does not throw' {
-        It 'no DSC properties' {
-            class c {$a = 'default'}
-            [c] | Assert-NullDscPropertyDefaults
-        }
-        It 'null default DSC properties' {
-            class c { [DscProperty()] $a; [DscProperty()] $b }
-            [c] | Assert-NullDscPropertyDefaults
-        }
-        It 'excluded non-null DSC property' {
-            class c { [DscProperty()] $a = 'default' }
-            [c] | Assert-NullDscPropertyDefaults -Exclude 'a'
-        }
-    }
-    It 'throws' {
-        class c { [DscProperty()] $a = 'default' }
-        { [c] | Assert-NullDscPropertyDefaults } |
-            Should throw 'does not match'
     }
 }
 }

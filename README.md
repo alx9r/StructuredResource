@@ -149,6 +149,8 @@ Because PR.12 does not apply to mandatory parameters, this rule also does not ap
 
 ### [x] PR.11: Optional value-type public resource parameters must be `[Nullable[T]]`.
 
+This rules does not apply to the `Ensure` public resource parameter.
+
 **Reason**
 
 This is to support compliance with PR.12 when a user omits a value-type parameter.  Normal value-type parameters in .Net cannot be `$null`.
@@ -162,6 +164,8 @@ Omission of an optional default-less parameter P means "don't change" P.  Such p
 This rule does not apply to mandatory parameters.
 
 ### [ ] PR.13: Optional value-type public resource properties must be `[Nullable[T]]`.
+
+This rule does not apply to the `Ensure` public resource property.
 
 **Reason**
 
@@ -197,7 +201,7 @@ This is to ensure the same behavior whether the resource is invoked using the pu
 
 This is to ensure the same behavior whether the resource is invoked using the public resource class or function.
 
-### [ ] PR.19: Mandatoriness matches for corresponding public resource properties and parameters.
+### [x] PR.19: Mandatoriness matches for corresponding public resource properties and parameters.
 
 **Reason**
 
