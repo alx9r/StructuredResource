@@ -263,7 +263,17 @@ function Get-ParameterType
     )
     process
     {
-        return $ParameterInfo.ParameterType
+        try
+        {
+            $ParameterInfo.ParameterType
+        }
+        catch
+        {
+            throw New-Object System.Exception (
+                "ParameterInfo.Name : $($ParameterInfo.Name)",
+                $_.Exception
+            )
+        }
     }
 }
 

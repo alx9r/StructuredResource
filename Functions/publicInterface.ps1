@@ -184,7 +184,23 @@ function Get-PublicResourceFunction
     )
     process
     {
-        Get-Command (Get-PublicResourceFunctionCommandName $ResourceName) -Module $ModuleName -ea SilentlyContinue
+        $splat = @{
+            Name = Get-PublicResourceFunctionCommandName $ResourceName
+            Module = $ModuleName
+        }
+        $command = Get-Command @splat -ea SilentlyContinue
+
+        try
+        {
+            $command
+        }
+        catch
+        {
+            throw New-Object System.Exception (
+                "ResourceName,ModuleName: $ResourceName,$ModuleName",
+                $_.Exception
+            )            
+        }
     }
 }
 

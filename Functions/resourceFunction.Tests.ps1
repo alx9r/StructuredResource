@@ -248,6 +248,19 @@ Describe Get-ParameterType {
             Get-ParameterType
         $r.FullName | Should be 'System.Object'
     }
+    It 'rethrows on pipeline exception' {
+        function g { 
+            param( [Parameter(ValueFromPipeline = $true)]$a )
+            process { throw 'exception in g' }
+        }
+
+        {
+            Get-Command f | Get-ParameterMetaData 'y' | 
+                Get-ParameterType |
+                g
+        } |
+            Should throw 'ParameterInfo.Name'
+    }
 }
 
 Describe Assert-ParameterPosition {

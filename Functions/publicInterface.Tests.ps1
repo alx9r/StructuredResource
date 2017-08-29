@@ -154,6 +154,15 @@ Describe Get-PublicResourceFunction {
             $Module -eq 'ModuleName'
         }
     }
+    It 'rethrows on pipeline exception' {
+        function g { 
+            param( [Parameter(ValueFromPipeline = $true)]$a )
+            process { throw 'exception in g' }
+        }
+
+        { Get-PublicResourceFunction 'ResourceName' 'ModuleName' | g } |
+            Should throw 'ResourceName,ModuleName'
+    }
 }
 
 Describe Assert-PublicResourceFunction {
