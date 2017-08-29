@@ -336,7 +336,6 @@ Describe Invoke-SortParametersByPosition {
     It 'sorts' {
         $r = Get-Command f | Get-ParameterMetaData |
             Invoke-SortParametersByPosition
-        $r[0].Name | Should be 'c'
         $r[-2].Name | Should be 'b'
         $r[-1].Name | Should be 'a'
     }
