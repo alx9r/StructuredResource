@@ -76,6 +76,17 @@ Describe Get-NestedModule {
             $r[1].Name | Should be 'nestedB'
         }
     }
+    Context 'exception' {
+        It 'rethrows on pipeline exception' {
+            function g { 
+                param( [Parameter(ValueFromPipeline = $true)]$a )
+                process { throw 'exception in g' }
+            }
+
+            { Get-NestedModule 'nestedA' 'ModuleName' | g } |
+                Should throw 'NestedName,Name'
+        }
+    }
 }
 
 Describe Assert-NestedModule {

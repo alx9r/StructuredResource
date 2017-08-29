@@ -139,18 +139,19 @@ This is to avert confusion that might result when bulk-binding the values of a p
 
 This is to help users understand what kind of object is expected for each parameter.
 
-### [x] PR.10: Public resource parameters cannot be `[string]`.
+### [x] PR.10: Optional public resource parameters cannot be `[string]`.
 
 **Reason**
 
-This is to support compliance with PR.11 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
+This is to support compliance with PR.12 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
 
+Because PR.12 does not apply to mandatory parameters, this rule also does not apply to mandatory parameters.
 
-### [x] PR.11: Value-type public resource parameters must be `[Nullable[T]]`.
+### [x] PR.11: Optional value-type public resource parameters must be `[Nullable[T]]`.
 
 **Reason**
 
-This is to support compliance with PR.11 when a user omits a value-type parameter.  Normal value-type parameters in .Net cannot be `$null`.
+This is to support compliance with PR.12 when a user omits a value-type parameter.  Normal value-type parameters in .Net cannot be `$null`.
 
 ### [ ] PR.12: The meaning of null for an optional default-less public resource property or parameter is the same as omitting it.
 
@@ -158,7 +159,9 @@ This is to support compliance with PR.11 when a user omits a value-type paramete
 
 Omission of an optional default-less parameter P means "don't change" P.  Such parameter takes the value `$null` while it is embodied as the value of a public resource property.  This is because there is no other built-in mechanism that means unbound, unspecified, or omitted for public resource properties.  Accordingly, all callees interpreting such a parameter must consider `$null` to mean "don't change".
 
-### [ ] PR.13: Value-type public resource properties must be `[Nullable[T]]`.
+This rule does not apply to mandatory parameters.
+
+### [ ] PR.13: Optional value-type public resource properties must be `[Nullable[T]]`.
 
 **Reason**
 
@@ -182,7 +185,19 @@ This is to support parity between the interfaces published by the public resourc
 
 This is to support parity between the interfaces published by the public resource class and public resource function.
 
-### [ ] PR.17: Defaults values are the same for corresponding public resource properties and parameters.
+### [x] PR.17: Defaults values match for corresponding public resource properties and parameters.
+
+**Reason**
+
+This is to ensure the same behavior whether the resource is invoked using the public resource class or function.
+
+### [x] PR.18: Types match for corresponding public resource properties and parameters.
+
+**Reason**
+
+This is to ensure the same behavior whether the resource is invoked using the public resource class or function.
+
+### [ ] PR.19: Mandatoriness matches for corresponding public resource properties and parameters.
 
 **Reason**
 

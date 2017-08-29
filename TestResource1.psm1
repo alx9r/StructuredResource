@@ -2,7 +2,7 @@
 class TestResource1
 {
     [DscProperty(Key,Mandatory)]
-    [string]
+    [int]
     $SomeKey
 
     [DscProperty()]

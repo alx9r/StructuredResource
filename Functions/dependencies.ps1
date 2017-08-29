@@ -196,7 +196,7 @@ $tests = @{
         Scriptblock = { $_ | Get-NestedModuleType | Assert-MemberProperty -Not 'Mode' }
     }
     'PR.9' = @{
-        Message = 'Each public resource function parameter is statically-typed.'
+        Message = 'Each public resource parameter is statically-typed.'
         Prerequisites = 'T006'
         Scriptblock = { 
             $_ | 
@@ -208,25 +208,27 @@ $tests = @{
         }
     }
     'PR.10' = @{
-        Message = 'Public resource function parameters cannot be [string]'
+        Message = 'Optional public resource parameters cannot be [string]'
         Prerequisites = 'T006'
         Scriptblock = { 
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
                 Select-Parameter -Not Common |
+                ? { $_ | Test-ParameterAttribute Mandatory $false } |
                 Get-ParameterType |
                 Assert-Type -not ([string])
         }
     }
     'PR.11' = @{
-        Message = 'Value-type public resource parameters must be `[Nullable[T]]`'
+        Message = 'Optional value-type public resource parameters must be `[Nullable[T]]`.'
         Prerequisites = 'T028'
     }
     T028 = @{
-        Message = 'Public resource parameters must be nullable.'
+        Message = 'Optional public resource parameters must be nullable.'
         Prerequisites = 'T006'
         Scriptblock = { 
+            throw 'optional part of this is not implemented'
             $_ | 
                 Get-PublicResourceFunction | 
                 Get-ParameterMetaData | 
@@ -236,13 +238,14 @@ $tests = @{
                 Assert-NullableType }
     }
     'PR.13' = @{
-        Message = 'Value-type public resource properties must be `[Nullable[T]]`.'
+        Message = 'Optional value-type public resource properties must be `[Nullable[T]]`.'
         Prerequisites = 'T029'
     }
     T029 = @{
-        Message = 'Public resource properties must be nullable.'
+        Message = 'Optional public resource properties must be nullable.'
         Prerequisites = 'T002'
         Scriptblock = {
+            throw 'optional part of this is not implemented'
             $_ |
                 Get-NestedModuleType | 
                 Get-MemberProperty |
@@ -268,7 +271,7 @@ $tests = @{
             $function = $_ | Get-PublicResourceFunction
             $_ | Get-NestedModuleType | Get-MemberProperty |
                 % { $function | Assert-Parameter $_.Name }
-            }
+        }
     }
     'PR.16' = @{
         Message =  'Each public resource parameter has a corresponding public resource property.'
@@ -283,7 +286,7 @@ $tests = @{
         }
     }
     'PR.17' = @{
-        Message = 'Default values are the same for corresponding public resource properties and parameters.'
+        Message = 'Defaults values match for corresponding public resource properties and parameters.'
         Prerequisites = 'T002','T006'
         Scriptblock = {
             $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
@@ -294,6 +297,28 @@ $tests = @{
                         Get-ParameterAst $_.Name |
                         Assert-ParameterDefault ($type | Get-PropertyDefault $_.Name )
                 }
+        }
+    }
+    'PR.18' = @{
+        Message = 'Types match for corresponding public resource properties and parameters.'
+        Prerequisites = 'T002','T006'
+        Scriptblock = {
+            $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
+            Get-NestedModuleType TestResource1 StructuredDscResourceCheck | 
+                Get-MemberProperty |
+                % { 
+                    $function | 
+                        Get-ParameterMetaData $_.Name |
+                        Get-ParameterType |
+                        Assert-Type ($_ | Get-PropertyType)
+                }
+        }
+    }
+    'PR.19' = @{
+        Message = 'Mandatoriness matches for corresponding public resource properties and parameters.'
+        Prerequisites = 'T002','T006'
+        Scriptblock = {
+            throw 'not implemented'
         }
     }
 }

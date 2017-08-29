@@ -75,7 +75,20 @@ function Get-NestedModule
             return $nestedModules
         }
 
-        return $nestedModules | ? { $_.Name -like $NestedName }
+        foreach ( $module in  $nestedModules | ? { $_.Name -like $NestedName } )
+        {
+            try
+            {
+                $module
+            }
+            catch
+            {
+                throw New-Object System.Exception (
+                    "NestedName,Name: $NestedName,$Name",
+                    $_.Exception
+                )
+            }
+        }
     }
 }
 
