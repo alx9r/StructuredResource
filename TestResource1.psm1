@@ -1,17 +1,21 @@
 [DscResource()]
 class TestResource1
 {
+    [DscProperty()]
+    [Ensure]
+    $Ensure = 'Present'
+
     [DscProperty(Key,Mandatory)]
     [int]
     $SomeKey
 
     [DscProperty()]
     [NullSafeString]
-    $SomeValue = 'some default'
+    $SourcePath
 
     [DscProperty()]
-    [Ensure]
-    $Ensure = 'Present'
+    [NullSafeString]
+    $SomeValue = 'some default'
 
     [void] Set() { $this | Invoke-ProcessTestResource1 Set }
     [bool] Test() { return $this | Invoke-ProcessTestResource1 Test }

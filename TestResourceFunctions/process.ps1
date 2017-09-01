@@ -14,6 +14,11 @@ function Invoke-ProcessTestResource1
         [Ensure]
         $Ensure = 'Present',
 
+        [Parameter(ValueFromPipelineByPropertyname)]
+        [StructuredDsc(Hint)]
+        [NullsafeString]
+        $SourcePath,
+
         [Parameter(Mandatory = $true,
                    ValueFromPipelineByPropertyname = $true)]
         [int]
