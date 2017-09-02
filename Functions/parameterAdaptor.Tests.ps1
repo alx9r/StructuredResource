@@ -11,6 +11,7 @@ function f
         $Ensure,
         [StructuredDsc('Key')]$Key,
         [StructuredDsc('Hint')]$Hint,
+        [StructuredDsc('ConstructorProperty')]$CtorProp,
         $Property1,
         $Property2
     )
@@ -70,6 +71,7 @@ $allParams = @{
     Ensure = 'ensure'
     Key = 'key'
     Hint = 'hint'
+    CtorProp = 'ctorprop'
     Property1 = 'property1'
     Property2 = 'property2'
 }
@@ -82,6 +84,7 @@ $nullParams = @{
     Ensure = $null
     Key = 'key'
     Hint = $null
+    CtorProp = $null
     Property1 = $null
     Property2 = $null
 }
@@ -91,54 +94,42 @@ Describe New-StructuredDscParameterGroup {
         $mi = f @allParams
         $c = $mi.MyCommand
         $p = $mi.BoundParameters
-        It 'Known' {
+        It 'Keys' {
             $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Known $p
-            $r | Should beOfType ([hashtable])
-            $r.Keys.Count | Should be 2
-            $r.Ensure | Should be 'ensure'
-            $r.Mode | Should be 'mode'
-        }
-        It 'Key' {
-            $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Key $p
+                New-StructuredDscParameterGroup Keys $p
             $r.Keys.Count | Should be 1
             $r.Key | Should be 'key'
         }
-        It 'Hint' {
+        It 'Hints' {
             $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Hint $p
-            $r | Should beOfType ([hashtable])
-            $r.Keys.Count | Should be 1
-            $r.Hint | Should be 'hint'
-        }
-        It 'Property' {
-            $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Property $p
+                New-StructuredDscParameterGroup Hints $p
             $r | Should beOfType ([hashtable])
             $r.Keys.Count | Should be 2
+            $r.Hint | Should be 'hint'
+            $r.CtorProp | Should be 'ctorprop'
+        }
+        It 'Properties' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Properties $p
+            $r | Should beOfType ([hashtable])
+            $r.Keys.Count | Should be 3
             $r.Property1 | Should be 'property1'
             $r.Property2 | Should be 'property2'
+            $r.CtorProp | Should be 'ctorprop'
         }
     }
     Context 'omit optional params' {
         $mi = f @minParams
         $c = $mi.MyCommand
         $p = $mi.BoundParameters
-        It 'Known' {
+        It '<n>' -TestCases @(
+            @{n='Hints'}
+            @{n='Properties'}
+        ) {
+            param($n)
+
             $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Known $p
-            $r.Keys.Count | Should be 1
-            $r.Mode | Should be 'mode'
-        }
-        It 'Hint' {
-            $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Hint $p
-            $r | Should beNullOrEmpty
-        }
-        It 'Property' {
-            $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Property $p
+                New-StructuredDscParameterGroup $n $p
             $r | Should beNullOrEmpty
         }
     }
@@ -146,20 +137,13 @@ Describe New-StructuredDscParameterGroup {
         $mi = f @nullParams
         $c = $mi.MyCommand
         $p = $mi.BoundParameters
-        It 'Known' {
+        It '<n>' -TestCases @(
+            @{n='Hints'}
+            @{n='Properties'}
+        ) {
+            param($n)
             $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Known $p
-            $r.Keys.Count | Should be 1
-            $r.Mode | Should be 'mode'
-        }
-        It 'Hint' {
-            $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Hint $p
-            $r | Should beNullOrEmpty
-        }
-        It 'Property' {
-            $r = $c | Get-ParameterMetaData |
-                New-StructuredDscParameterGroup Property $p
+                New-StructuredDscParameterGroup $n $p
             $r | Should beNullOrEmpty
         }
     }
@@ -179,16 +163,18 @@ Describe Add-StructuredDscGroupParameters {
         }
         It 'populates Keys' {
             $i.Keys.get_Keys().Count | Should be 1
-            $i.Keys.get_Item('Key') | Should be 'Key'
+            $i.Keys.get_Item('Key') | Should be 'key'
         }
         It 'populates Hints' {
-            $i.Hints.Keys.Count | Should be 1
-            $i.Hints.Hint | Should be 'hint'
+            $i.Hints.get_Keys().Count | Should be 2
+            $i.Hints.get_Item('Hint') | Should be 'hint'
+            $i.Hints.get_Item('CtorProp') | Should be 'ctorprop'
         }
         It 'populates Properties' {
-            $i.Properties.Keys.Count | Should be 2
-            $i.Properties.Property1 | Should be 'property1'
-            $i.Properties.Property2 | Should be 'property2'
+            $i.Properties.get_Keys().Count | Should be 3
+            $i.Properties.get_Item('Property1') | Should be 'property1'
+            $i.Properties.get_Item('Property2') | Should be 'property2'
+            $i.Properties.get_Item('CtorProp') | Should be 'ctorprop'
         }
     }
     Context 'omit optional params' {
@@ -240,6 +226,9 @@ Describe New-StructuredDscParameters {
         It 'populates input parameters' {
             $r.Param1 | Should be 'param1'
             $r.Param2 | Should be 'param2'
+        }
+        It 'populates module' {
+            $r.MyCommand.Module.Name | Should be 'StructuredDscResourceCheck'
         }
     }
     Context 'omit optional params' {

@@ -4,7 +4,7 @@ function Test-StructuredDscAttributeParameter
     (
         [Parameter(Mandatory,
                    Position = 1)]
-        [ValidateSet('Hint','Key','Property')]
+        [ValidateSet('Hint','Key','Property','ConstructorProperty')]
         $GroupName,
 
         [Parameter(Mandatory,
@@ -65,7 +65,7 @@ function New-StructuredDscParameterGroup
     (
         [Parameter(Mandatory,
                    Position = 1)]
-        [ValidateSet('Known','Key','Hint','Property')]
+        [ValidateSet('Keys','Hints','Properties')]
         $GroupName,
 
         [Parameter(Mandatory,
@@ -86,10 +86,11 @@ function New-StructuredDscParameterGroup
     process
     {
         $tester = @{
-            Known = { $_ | Test-StructuredDscKnownParameter }
-            Key =   { $_ | Test-StructuredDscAttributeParameter Key }
-            Hint =  { $_ | Test-StructuredDscAttributeParameter Hint }
-            Property = { $_ | Test-StructuredDscPropertyParameter }
+            Keys =   { $_ | Test-StructuredDscAttributeParameter Key }
+            Hints =  { ($_ | Test-StructuredDscAttributeParameter Hint) -or
+                       ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
+            Properties = { ($_ | Test-StructuredDscPropertyParameter) -or
+                           ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
         }.$GroupName
 
         if 
@@ -130,24 +131,12 @@ function Add-StructuredDscGroupParameters
         $p = $InvocationInfo.BoundParameters
         $c = $InvocationInfo.MyCommand
 
-        $outputName = @{
-            Key = 'Keys'
-            Hint = 'Hints'
-            Property = 'Properties'
-        }
-
-        foreach ( $inputName in 'Key','Hint','Property' )
+        foreach ( $name in 'Keys','Hints','Properties' )
         {
-            $outputName = @{
-                Key = 'Keys'
-                Hint = 'Hints'
-                Property = 'Properties'
-            }.$inputName
-
-            $params = $c | Get-ParameterMetaData | New-StructuredDscParameterGroup $inputName $p
+            $params = $c | Get-ParameterMetaData | New-StructuredDscParameterGroup $name $p
             if ( $params.Keys -ne $null )
             {
-                $InputObject | Add-Member NoteProperty $outputName $params
+                $InputObject | Add-Member NoteProperty $name $params
             }
         }
 

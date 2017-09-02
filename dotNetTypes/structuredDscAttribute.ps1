@@ -5,7 +5,8 @@
             {
                 Property,
                 Key,
-                Hint
+                Hint,
+                ConstructorProperty
             }
             private ParameterTypeEnum parameterType;
 
