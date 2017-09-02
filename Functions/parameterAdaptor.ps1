@@ -95,7 +95,8 @@ function New-StructuredDscParameterGroup
         if 
         ( 
             ( $ParameterInfo | ? $tester ) -and
-            ( $ParameterInfo.Name -in $BoundParameters.get_Keys() )
+            ( $ParameterInfo.Name -in $BoundParameters.get_Keys() ) -and
+            ( $null -ne $BoundParameters.get_Item($ParameterInfo.Name) )
         )
         {
             $output.($ParameterInfo.Name) = $BoundParameters.($ParameterInfo.Name)
@@ -176,6 +177,7 @@ function New-StructuredDscParameters
 
         'Mode','Ensure' |
             ? { $_ -in $InvocationInfo.BoundParameters.get_Keys() } |
+            ? { $null -ne $InvocationInfo.BoundParameters.get_Item($_) } |
             % { $outputParams.$_ = $InvocationInfo.BoundParameters.get_Item($_) }
 
         [pscustomobject]$outputParams |

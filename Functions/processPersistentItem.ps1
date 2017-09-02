@@ -41,7 +41,6 @@ function Invoke-ProcessPersistentItem
         $Remover,
 
         [Parameter(ParameterSetName = 'with_properties',
-                   Mandatory,
                    ValueFromPipelineByPropertyName)]
         [hashtable]
         $Properties,

@@ -77,6 +77,14 @@ $minParams = @{
     Mode = 'mode'
     Key = 'key'
 }
+$nullParams = @{
+    Mode = 'mode'
+    Ensure = $null
+    Key = 'key'
+    Hint = $null
+    Property1 = $null
+    Property2 = $null
+}
 
 Describe New-StructuredDscParameterGroup {
     Context 'all params' {
@@ -134,6 +142,27 @@ Describe New-StructuredDscParameterGroup {
             $r | Should beNullOrEmpty
         }
     }
+    Context 'null optional params' {
+        $mi = f @nullParams
+        $c = $mi.MyCommand
+        $p = $mi.BoundParameters
+        It 'Known' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Known $p
+            $r.Keys.Count | Should be 1
+            $r.Mode | Should be 'mode'
+        }
+        It 'Hint' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Hint $p
+            $r | Should beNullOrEmpty
+        }
+        It 'Property' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Property $p
+            $r | Should beNullOrEmpty
+        }
+    }
 }
 
 Describe Add-StructuredDscGroupParameters {
@@ -165,6 +194,16 @@ Describe Add-StructuredDscGroupParameters {
     Context 'omit optional params' {
         $i = New-Object pscustomobject
         $r = $i | Add-StructuredDscGroupParameters (f @minParams)
+        It 'omits Hints' {
+            $i | Get-Member Hints | Should beNullOrEmpty
+        }
+        It 'omits Properties' {
+            $i | Get-Member Properties | Should beNullOrEmpty
+        }
+    }
+    Context 'null optional params' {
+        $i = New-Object pscustomobject
+        $r = $i | Add-StructuredDscGroupParameters (f @nullParams)
         It 'omits Hints' {
             $i | Get-Member Hints | Should beNullOrEmpty
         }
@@ -209,36 +248,41 @@ Describe New-StructuredDscParameters {
             $r | Get-Member Ensure | Should beNullOrEmpty
         }
     }
+    Context 'null optional params' {
+        $r = f @nullParams | New-StructuredDscParameters @{}
+        It 'omits Ensure' {
+            $r | Get-Member Ensure | Should beNullOrEmpty
+        }
+    }
 }
 
 Describe 'use New-StructuredDscParameters' {
-    Context 'all params' {
-        function Invoke-ProcessSomeResource
+    function Invoke-ProcessSomeResource
+    {
+        [CmdletBinding()]
+        param
+        (
+            $Mode,
+            $Ensure,
+            [StructuredDsc('Key')]$Key,
+            [StructuredDsc('Hint')]$Hint,
+            $Property1,
+            $Property2
+        )
+        process
         {
-            [CmdletBinding()]
-            param
-            (
-                $Mode,
-                $Ensure,
-                [StructuredDsc('Key')]$Key,
-                [StructuredDsc('Hint')]$Hint,
-                $Property1,
-                $Property2
-            )
-            process
-            {
-                $MyInvocation | 
-                    New-StructuredDscParameters @{
-                        Tester = 'Test-SomeResource'
-                        Curer = 'Add-SomeResource'
-                        Remover = 'Remove-SomeResource'
-                        PropertyTester = 'Test-SomeResourceProperty'
-                        PropertyCurer = 'Set-SomeResourceProperty'
-                    } |
-                    Invoke-ProcessPersistentItem
-            }
+            $params = $MyInvocation | 
+                New-StructuredDscParameters @{
+                    Tester = 'Test-SomeResource'
+                    Curer = 'Add-SomeResource'
+                    Remover = 'Remove-SomeResource'
+                    PropertyTester = 'Test-SomeResourceProperty'
+                    PropertyCurer = 'Set-SomeResourceProperty'
+                }
+            $params | Invoke-ProcessPersistentItem
         }
-
+    }
+    Context 'all params' {
         Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
         It 'passes through value' {
             $splat = @{
@@ -272,7 +316,46 @@ Describe 'use New-StructuredDscParameters' {
             }
         }
     }
-    Context 'omit optional params' {
+    Context 'omit optional params, keep all delegates' {
+        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        It 'passes through value' {
+            $splat = @{
+                Mode = 'Set'
+                Key = 'key'
+            }
+            $r = Invoke-ProcessSomeResource @splat
+            $r | Should be 'return value'
+        }
+        It 'omits omitted resource parameters' {
+            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+                $null -eq $Ensure -and
+                $null -eq $Hints -and
+                $null -eq $Properties
+            }
+        }
+    }
+    Context 'null optional params, keep all delegates' {
+        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        It 'passes through value' {
+            $splat = @{
+                Mode = 'Set'
+                Ensure = 'Present'
+                Key = 'key'
+                Hint = $null
+                Property1 = $null
+                Property2 = $null
+            }
+            $r = Invoke-ProcessSomeResource @splat
+            $r | Should be 'return value'
+        }
+        It 'omits omitted resource parameters' {
+            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+                $null -eq $Hints -and
+                $null -eq $Properties
+            }
+        }
+    }
+    Context 'omit optional params and optional delegates' {
         function Invoke-ProcessSomeResource
         {
             [CmdletBinding()]
@@ -304,13 +387,6 @@ Describe 'use New-StructuredDscParameters' {
             }
             $r = Invoke-ProcessSomeResource @splat
             $r | Should be 'return value'
-        }
-        It 'omits omitted resource parameters' {
-            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
-                $null -eq $Ensure -and
-                $null -eq $Hints -and
-                $null -eq $Properties
-            }
         }
         It 'omits omitted delegates' {
             Assert-MockCalled Invoke-ProcessPersistentItem 1 {
