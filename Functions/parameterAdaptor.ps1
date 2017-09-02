@@ -169,6 +169,10 @@ function New-StructuredDscParameters
             ? { $null -ne $InvocationInfo.BoundParameters.get_Item($_) } |
             % { $outputParams.$_ = $InvocationInfo.BoundParameters.get_Item($_) }
 
+        $InvocationInfo.MyCommand.Module |
+            ? { $_ } |
+            ? { $outputParams.Module = $_ }
+
         [pscustomobject]$outputParams |
             Add-StructuredDscGroupParameters $InvocationInfo -PassThru
     }

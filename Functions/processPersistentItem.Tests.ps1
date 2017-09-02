@@ -2,7 +2,7 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-function Test-Item    { param ($Key) }
+function Test-Item   { param ($Key) }
 function Add-Item    { param ($Key,$CP) }
 function Remove-Item { param ($Key) }
 
@@ -239,6 +239,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{ P = 'correct' }
+                Module = $null
             }
             $r = Invoke-ProcessPersistentItemProperty Set @splat @delegates
             $r | Should beNullOrEmpty
@@ -258,6 +259,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{ P = 'correct' }
+                Module = $null
             }
             $r = Invoke-ProcessPersistentItemProperty Test @splat @delegates
             $r | Should be $true
@@ -277,6 +279,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{ P = 'desired' }
+                Module = $null
             }
             $r = Invoke-ProcessPersistentItemProperty Set @splat @delegates
             $r | Should beNullOrEmpty
@@ -300,6 +303,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{ P = 'desired' }
+                Module = $null
             }
             $r = Invoke-ProcessPersistentItemProperty Test @splat @delegates
             $r | Should be $false
