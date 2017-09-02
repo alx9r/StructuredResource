@@ -33,7 +33,7 @@ function Invoke-ProcessPersistentItem
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [hashtable]
-        $CurerHints = @{},
+        $Hints = @{},
 
 
         [Parameter(ValueFromPipelineByPropertyName)]
@@ -79,7 +79,7 @@ function Invoke-ProcessPersistentItem
                     # add the item
                     switch ( $Mode )
                     {
-                        'Set'  { $item = & $Curer @_Keys @CurerHints } # cure the item
+                        'Set'  { $item = & $Curer @_Keys @Hints } # cure the item
                         'Test' { return $false }           # the item doesn't exist
                     }
                 }

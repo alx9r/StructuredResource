@@ -103,20 +103,27 @@ function New-StructuredDscParameterGroup
     }
 }
 
-function Get-PersistentItemParameters
+function Add-StructuredDscGroupParameters
 {
     param
     (
         [Parameter(Mandatory,
-                   ValueFromPipeline)]
+                   Position = 1)]
         [System.Management.Automation.InvocationInfo]
-        $InvocationInfo
+        $InvocationInfo,
+
+        [switch]
+        $PassThru,
+
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        [pscustomobject]
+        $InputObject
     )
     process
     {
         $p = $InvocationInfo.BoundParameters
         $c = $InvocationInfo.MyCommand
-        $output = @{}
 
         $outputName = @{
             Key = 'Keys'
@@ -135,10 +142,39 @@ function Get-PersistentItemParameters
             $params = $c | Get-ParameterMetaData | New-StructuredDscParameterGroup $inputName $p
             if ( $params.Keys )
             {
-                $output.$outputName = $params
+                $InputObject | Add-Member NoteProperty $outputName $params
             }
         }
 
-        [pscustomobject]$output
+        if ($PassThru)
+        {
+            $InputObject
+        }
+    }
+}
+
+function New-StructuredDscParameters
+{
+    param
+    (
+        [Parameter(Mandatory,
+                   Position = 1)]
+        [hashtable]
+        $InputParams,
+
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        $InvocationInfo
+    )
+    process
+    {
+        $outputParams = $InputParams.Clone()
+
+        'Mode','Ensure' |
+            ? { $_ -in $InvocationInfo.BoundParameters.get_Keys() } |
+            % { $outputParams.$_ = $InvocationInfo.BoundParameters.get_Item($_) }
+
+        [pscustomobject]$outputParams |
+            Add-StructuredDscGroupParameters $InvocationInfo -PassThru
     }
 }

@@ -109,24 +109,61 @@ Describe New-StructuredDscParameterGroup {
     }
 }
 
-Describe Get-PersistentItemParameters {
+Describe Add-StructuredDscGroupParameters {
     Context 'all params' {
-        $r = f @allParams | Get-PersistentItemParameters
-        It 'returns a pscustomobject' {
-            $r | Should beOfType([pscustomobject])
+        $i = New-Object pscustomobject
+        $r = $i | Add-StructuredDscGroupParameters (f @allParams)
+        It 'returns nothing' {
+            $r | Should beNullOrEmpty
+        }
+        It '-Passthru returns input object' {
+            $i = New-Object pscustomobject
+            $r = $i | Add-StructuredDscGroupParameters (f @allParams) -PassThru
+            $r | Should be $i
         }
         It 'populates Keys' {
-            $r.Keys.get_Keys().Count | Should be 1
-            $r.Keys.get_Item('Key') | Should be 'Key'
+            $i.Keys.get_Keys().Count | Should be 1
+            $i.Keys.get_Item('Key') | Should be 'Key'
         }
         It 'populates Hints' {
-            $r.Hints.Keys.Count | Should be 1
-            $r.Hints.Hint | Should be 'hint'
+            $i.Hints.Keys.Count | Should be 1
+            $i.Hints.Hint | Should be 'hint'
         }
         It 'populates Properties' {
-            $r.Properties.Keys.Count | Should be 2
-            $r.Properties.Property1 | Should be 'property1'
-            $r.Properties.Property2 | Should be 'property2'
+            $i.Properties.Keys.Count | Should be 2
+            $i.Properties.Property1 | Should be 'property1'
+            $i.Properties.Property2 | Should be 'property2'
+        }
+    }
+}
+
+Describe New-StructuredDscParameters {
+    Mock Add-StructuredDscGroupParameters {$InputObject} -Verifiable
+    Context 'all params' {
+        $r = f @allParams | New-StructuredDscParameters @{
+            Param1 = 'param1'
+            Param2 = 'param2'
+        }
+        It 'returns a pscustomobject' {
+            $r | measure | % Count | Should be 1
+            $r | Should beOfType([pscustomobject])
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Add-StructuredDscGroupParameters 1 {
+                $InvocationInfo.MyCommand.Name -eq 'f' -and
+                $InvocationInfo.BoundParameters.Mode -and
+                $PassThru
+            }
+        }
+        It 'populates Mode' {
+            $r.Mode | Should be 'mode'
+        }
+        It 'populates Ensure' {
+            $r.Ensure | Should be 'ensure'
+        }
+        It 'populates input parameters' {
+            $r.Param1 | Should be 'param1'
+            $r.Param2 | Should be 'param2'
         }
     }
 }

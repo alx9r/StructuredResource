@@ -31,7 +31,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{ P = 'P desired' }
-                CurerHints = @{ CP = 'CP Param' }
+                Hints = @{ CP = 'CP Param' }
             }
             $r = Invoke-ProcessPersistentItem Set Present @splat @delegates
             $r | Should beNullOrEmpty
