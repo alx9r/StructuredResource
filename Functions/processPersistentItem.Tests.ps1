@@ -1,8 +1,6 @@
-if ( $PSVersionTable.PSVersion -lt '5.0.0' ) { return }
+Import-Module StructuredDscResourceCheck -Force
 
-Import-Module ToolFoundations -Force
-
-InModuleScope ToolFoundations {
+InModuleScope StructuredDscResourceCheck {
 
 function Test-Item    { param ($Key) }
 function Add-Item    { param ($Key,$CP) }
@@ -33,7 +31,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{ P = 'P desired' }
-                CurerParams = @{ CP = 'CP Param' }
+                CurerHints = @{ CP = 'CP Param' }
             }
             $r = Invoke-ProcessPersistentItem Set Present @splat @delegates
             $r | Should beNullOrEmpty

@@ -3,52 +3,59 @@ function Invoke-ProcessPersistentItem
     [CmdletBinding(DefaultParameterSetName = '__AllParameterSets')]
     param
     (
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory,
                    Position = 1,
-                   ValueFromPipelineByPropertyName = $true)]
+                   ValueFromPipelineByPropertyName)]
         [ValidateSet('Set','Test')]
         $Mode,
 
         [Parameter(Position = 2,
-                   ValueFromPipelineByPropertyName = $true)]
+                   ValueFromPipelineByPropertyName)]
         [ValidateSet('Present','Absent')]
         $Ensure = 'Present',
 
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory,
                    Position = 3,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true)]
+                   ValueFromPipelineByPropertyName)]
         [Alias('Keys')]
         [hashtable]
         $_Keys,  # https://github.com/pester/Pester/issues/776
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory,
+                   ValueFromPipelineByPropertyName)]
         [string]
         $Tester,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory,
+                   ValueFromPipelineByPropertyName)]
         [string]
         $Curer,
 
+        [Parameter(ValueFromPipelineByPropertyName)]
         [hashtable]
-        $CurerParams = @{},
+        $CurerHints = @{},
 
+
+        [Parameter(ValueFromPipelineByPropertyName)]
         [string]
         $Remover,
 
         [Parameter(ParameterSetName = 'with_properties',
-                   Mandatory = $true)]
+                   Mandatory,
+                   ValueFromPipelineByPropertyName)]
         [hashtable]
         $Properties,
 
         [Parameter(ParameterSetName = 'with_properties',
-                   Mandatory = $true)]
+                   Mandatory,
+                   ValueFromPipelineByPropertyName)]
         [string]
         $PropertyCurer,
 
 
         [Parameter(ParameterSetName = 'with_properties',
-                   Mandatory = $true)]
+                   Mandatory,
+                   ValueFromPipelineByPropertyName)]
         [string]
         $PropertyTester
     )
@@ -72,7 +79,7 @@ function Invoke-ProcessPersistentItem
                     # add the item
                     switch ( $Mode )
                     {
-                        'Set'  { $item = & $Curer @_Keys @CurerParams } # cure the item
+                        'Set'  { $item = & $Curer @_Keys @CurerHints } # cure the item
                         'Test' { return $false }           # the item doesn't exist
                     }
                 }
