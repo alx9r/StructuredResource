@@ -210,4 +210,115 @@ Describe New-StructuredDscParameters {
         }
     }
 }
+
+Describe 'use New-StructuredDscParameters' {
+    Context 'all params' {
+        function Invoke-ProcessSomeResource
+        {
+            [CmdletBinding()]
+            param
+            (
+                $Mode,
+                $Ensure,
+                [StructuredDsc('Key')]$Key,
+                [StructuredDsc('Hint')]$Hint,
+                $Property1,
+                $Property2
+            )
+            process
+            {
+                $MyInvocation | 
+                    New-StructuredDscParameters @{
+                        Tester = 'Test-SomeResource'
+                        Curer = 'Add-SomeResource'
+                        Remover = 'Remove-SomeResource'
+                        PropertyTester = 'Test-SomeResourceProperty'
+                        PropertyCurer = 'Set-SomeResourceProperty'
+                    } |
+                    Invoke-ProcessPersistentItem
+            }
+        }
+
+        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        It 'passes through value' {
+            $splat = @{
+                Mode = 'Set'
+                Ensure = 'Present'
+                Key = 'key'
+                Hint = 'hint'
+                Property1 = 'property1'
+                Property2 = 'property2'
+            }
+            $r = Invoke-ProcessSomeResource @splat
+            $r | Should be 'return value'
+        }
+        It 'passes through resource parameters' {
+            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+                $Mode -eq 'Set' -and
+                $Ensure -eq 'Present' -and
+                $_Keys.Key -eq 'key' -and
+                $Hints.Hint -eq 'hint' -and
+                $Properties.Property1 -eq 'property1' -and
+                $Properties.Property2 -eq 'property2'
+            }
+        }
+        It 'passes through delegate names' {
+            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+                $Tester -eq 'Test-SomeResource' -and
+                $Curer -eq 'Add-SomeResource' -and
+                $Remover -eq 'Remove-SomeResource' -and
+                $PropertyTester -eq 'Test-SomeResourceProperty' -and
+                $PropertyCurer -eq 'Set-SomeResourceProperty'
+            }
+        }
+    }
+    Context 'omit optional params' {
+        function Invoke-ProcessSomeResource
+        {
+            [CmdletBinding()]
+            param
+            (
+                $Mode,
+                $Ensure,
+                [StructuredDsc('Key')]$Key,
+                [StructuredDsc('Hint')]$Hint,
+                $Property1,
+                $Property2
+            )
+            process
+            {
+                $MyInvocation | 
+                    New-StructuredDscParameters @{
+                        Tester = 'Test-SomeResource'
+                        Curer = 'Add-SomeResource'
+                    } |
+                    Invoke-ProcessPersistentItem
+            }
+        }
+
+        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        It 'passes through value' {
+            $splat = @{
+                Mode = 'Set'
+                Key = 'key'
+            }
+            $r = Invoke-ProcessSomeResource @splat
+            $r | Should be 'return value'
+        }
+        It 'omits omitted resource parameters' {
+            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+                $null -eq $Ensure -and
+                $null -eq $Hints -and
+                $null -eq $Properties
+            }
+        }
+        It 'omits omitted delegates' {
+            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+                $null -eq $Remover -and
+                $null -eq $PropertyTester -and
+                $null -eq $PropertyCurer
+            }
+        }
+    }
+}
 }
