@@ -92,7 +92,11 @@ function New-StructuredDscParameterGroup
             Property = { $_ | Test-StructuredDscPropertyParameter }
         }.$GroupName
 
-        if ( $ParameterInfo | ? $tester )
+        if 
+        ( 
+            ( $ParameterInfo | ? $tester ) -and
+            ( $ParameterInfo.Name -in $BoundParameters.get_Keys() )
+        )
         {
             $output.($ParameterInfo.Name) = $BoundParameters.($ParameterInfo.Name)
         }
@@ -140,7 +144,7 @@ function Add-StructuredDscGroupParameters
             }.$inputName
 
             $params = $c | Get-ParameterMetaData | New-StructuredDscParameterGroup $inputName $p
-            if ( $params.Keys )
+            if ( $params.Keys -ne $null )
             {
                 $InputObject | Add-Member NoteProperty $outputName $params
             }

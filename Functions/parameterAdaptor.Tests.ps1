@@ -73,39 +73,66 @@ $allParams = @{
     Property1 = 'property1'
     Property2 = 'property2'
 }
+$minParams = @{
+    Mode = 'mode'
+    Key = 'key'
+}
 
 Describe New-StructuredDscParameterGroup {
-    $mi = f @allParams
-    $c = $mi.MyCommand
-    $p = $mi.BoundParameters
-    It 'Known' {
-        $r = $c | Get-ParameterMetaData |
-            New-StructuredDscParameterGroup Known $p
-        $r | Should beOfType ([hashtable])
-        $r.Keys.Count | Should be 2
-        $r.Ensure | Should be 'ensure'
-        $r.Mode | Should be 'mode'
+    Context 'all params' {
+        $mi = f @allParams
+        $c = $mi.MyCommand
+        $p = $mi.BoundParameters
+        It 'Known' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Known $p
+            $r | Should beOfType ([hashtable])
+            $r.Keys.Count | Should be 2
+            $r.Ensure | Should be 'ensure'
+            $r.Mode | Should be 'mode'
+        }
+        It 'Key' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Key $p
+            $r.Keys.Count | Should be 1
+            $r.Key | Should be 'key'
+        }
+        It 'Hint' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Hint $p
+            $r | Should beOfType ([hashtable])
+            $r.Keys.Count | Should be 1
+            $r.Hint | Should be 'hint'
+        }
+        It 'Property' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Property $p
+            $r | Should beOfType ([hashtable])
+            $r.Keys.Count | Should be 2
+            $r.Property1 | Should be 'property1'
+            $r.Property2 | Should be 'property2'
+        }
     }
-    It 'Key' {
-        $r = $c | Get-ParameterMetaData |
-            New-StructuredDscParameterGroup Key $p
-        $r.Keys.Count | Should be 1
-        $r.Key | Should be 'key'
-    }
-    It 'Hint' {
-        $r = $c | Get-ParameterMetaData |
-            New-StructuredDscParameterGroup Hint $p
-        $r | Should beOfType ([hashtable])
-        $r.Keys.Count | Should be 1
-        $r.Hint | Should be 'hint'
-    }
-    It 'Property' {
-        $r = $c | Get-ParameterMetaData |
-            New-StructuredDscParameterGroup Property $p
-        $r | Should beOfType ([hashtable])
-        $r.Keys.Count | Should be 2
-        $r.Property1 | Should be 'property1'
-        $r.Property2 | Should be 'property2'
+    Context 'omit optional params' {
+        $mi = f @minParams
+        $c = $mi.MyCommand
+        $p = $mi.BoundParameters
+        It 'Known' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Known $p
+            $r.Keys.Count | Should be 1
+            $r.Mode | Should be 'mode'
+        }
+        It 'Hint' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Hint $p
+            $r | Should beNullOrEmpty
+        }
+        It 'Property' {
+            $r = $c | Get-ParameterMetaData |
+                New-StructuredDscParameterGroup Property $p
+            $r | Should beNullOrEmpty
+        }
     }
 }
 
@@ -133,6 +160,16 @@ Describe Add-StructuredDscGroupParameters {
             $i.Properties.Keys.Count | Should be 2
             $i.Properties.Property1 | Should be 'property1'
             $i.Properties.Property2 | Should be 'property2'
+        }
+    }
+    Context 'omit optional params' {
+        $i = New-Object pscustomobject
+        $r = $i | Add-StructuredDscGroupParameters (f @minParams)
+        It 'omits Hints' {
+            $i | Get-Member Hints | Should beNullOrEmpty
+        }
+        It 'omits Properties' {
+            $i | Get-Member Properties | Should beNullOrEmpty
         }
     }
 }
@@ -164,6 +201,12 @@ Describe New-StructuredDscParameters {
         It 'populates input parameters' {
             $r.Param1 | Should be 'param1'
             $r.Param2 | Should be 'param2'
+        }
+    }
+    Context 'omit optional params' {
+        $r = f @minParams | New-StructuredDscParameters @{}
+        It 'omits Ensure' {
+            $r | Get-Member Ensure | Should beNullOrEmpty
         }
     }
 }
