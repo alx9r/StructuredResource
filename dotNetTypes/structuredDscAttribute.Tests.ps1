@@ -3,7 +3,7 @@ Import-Module StructuredDscResourceCheck -Force
 Describe StructuredDscAttribute {
     function f {
         param(
-            [StructuredDsc(Hint)]
+            [StructuredDsc('Hint')]
             $x,
 
             [StructuredDsc()]
@@ -11,20 +11,20 @@ Describe StructuredDscAttribute {
         )
     }
     $f = Get-Command f 
-    Context 'Hint' {
-        It 'true' {
+    Context 'ParameterType' {
+        It 'takes value Hint' {
             $r = $f |
                 Get-ParameterMetaData x |
                 Get-ParameterAttribute StructuredDsc |
-                Get-AttributeArgument Hint
-            $r | Should be $true
+                Get-AttributeArgument ParameterType
+            $r | Should be 'Hint'
         }
-        It 'false' {
+        It 'defaults to Property' {
             $r = $f |
                 Get-ParameterMetaData y |
                 Get-ParameterAttribute StructuredDsc |
-                Get-AttributeArgument Hint
-            $r | Should be $false
+                Get-AttributeArgument ParameterType
+            $r | Should be 'Property'
         }
     }
 }
