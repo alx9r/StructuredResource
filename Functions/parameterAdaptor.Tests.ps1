@@ -2,24 +2,26 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-function f
-{
-    [CmdletBinding()]
-    param
-    (
-        $Mode,
-        $Ensure,
-        [StructuredDsc('Key')]$Key,
-        [StructuredDsc('Hint')]$Hint,
-        [StructuredDsc('ConstructorProperty')]$CtorProp,
-        $Property1,
-        $Property2
-    )
-    process
+New-Psm1Module m {
+    function f
     {
-        $MyInvocation
+        [CmdletBinding()]
+        param
+        (
+            $Mode,
+            $Ensure,
+            [StructuredDsc('Key')]$Key,
+            [StructuredDsc('Hint')]$Hint,
+            [StructuredDsc('ConstructorProperty')]$CtorProp,
+            $Property1,
+            $Property2
+        )
+        process
+        {
+            $MyInvocation
+        }
     }
-}
+} | Import-Module
 
 Describe Test-StructuredDscAttributeParameter {
     $p = Get-Command f | Get-ParameterMetaData 'Key'
@@ -228,7 +230,7 @@ Describe New-StructuredDscParameters {
             $r.Param2 | Should be 'param2'
         }
         It 'populates module' {
-            $r.MyCommand.Module.Name | Should be 'StructuredDscResourceCheck'
+            $r.Module.Name | Should be 'm'
         }
     }
     Context 'omit optional params' {

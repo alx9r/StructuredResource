@@ -56,7 +56,11 @@ function Invoke-ProcessPersistentItem
                    Mandatory,
                    ValueFromPipelineByPropertyName)]
         [string]
-        $PropertyTester
+        $PropertyTester,
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [psmoduleinfo]
+        $Module
     )
     process
     {
@@ -67,7 +71,10 @@ function Invoke-ProcessPersistentItem
         }
 
         # retrieve the item
-        $correct = & $Tester @_Keys
+        $correct = & @{
+            $true =  { & $Module $Tester @_Keys }
+            $false = { &         $Tester @_Keys }
+        }.([bool]$Module)
 
         # process item existence
         switch ( $Ensure )
@@ -78,8 +85,16 @@ function Invoke-ProcessPersistentItem
                     # add the item
                     switch ( $Mode )
                     {
-                        'Set'  { $item = & $Curer @_Keys @Hints } # cure the item
-                        'Test' { return $false }           # the item doesn't exist
+                        # cure the item
+                        'Set'  { 
+                            $item = & @{
+                                $true =  { & $Module $Curer @_Keys @Hints }
+                                $false = { &         $Curer @_Keys @Hints }
+                            }.([bool]$Module)
+                        }
+
+                        # the item doesn't exist
+                        'Test' { return $false }
                     }
                 }
             }
@@ -89,7 +104,10 @@ function Invoke-ProcessPersistentItem
                     'Set'  {
                         if ( $correct )
                         {
-                            & $Remover @_Keys | Out-Null
+                            & @{ 
+                                $true =  { & $Module $Remover @_Keys | Out-Null }
+                                $false = { &         $Remover @_Keys | Out-Null }
+                            }.([bool]$Module)
                         }
                         return
                     }
@@ -115,6 +133,7 @@ function Invoke-ProcessPersistentItem
             Properties = $Properties
             PropertyCurer = $PropertyCurer
             PropertyTester = $PropertyTester
+            Module = $Module
         }
         Invoke-ProcessPersistentItemProperty @splat
     }
@@ -144,7 +163,12 @@ function Invoke-ProcessPersistentItemProperty
 
         [Parameter(Mandatory = $true)]
         [string]
-        $PropertyTester
+        $PropertyTester,
+
+        [Parameter(Mandatory = $true)]
+        [AllowNull()]
+        [psmoduleinfo]
+        $Module
     )
     process
     {
@@ -155,7 +179,10 @@ function Invoke-ProcessPersistentItemProperty
             $desired = $Properties.$propertyName
 
             # test for the desired value
-            $alreadyCorrect = & $PropertyTester @_Keys -PropertyName $propertyName -Value $desired
+            $alreadyCorrect = & @{
+                $true =  { & $Module $PropertyTester @_Keys -PropertyName $propertyName -Value $desired }
+                $false = { &         $PropertyTester @_Keys -PropertyName $propertyName -Value $desired }
+            }.([bool]$Module)
 
             if ( -not $alreadyCorrect )
             {
@@ -167,8 +194,10 @@ function Invoke-ProcessPersistentItemProperty
 
                 # the existing property does not match the desired property
                 # so fix it
-                & $PropertyCurer @_Keys -PropertyName $propertyName -Value $desired |
-                    Out-Null
+                & @{
+                    $true =  { & $Module $PropertyCurer @_Keys -PropertyName $propertyName -Value $desired | Out-Null }
+                    $false = { &         $PropertyCurer @_Keys -PropertyName $propertyName -Value $desired | Out-Null }
+                }.([bool]$Module)
             }
         }
 
