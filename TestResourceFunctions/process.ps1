@@ -1,4 +1,4 @@
-function Invoke-ProcessTestResource1
+function Invoke-ProcessTestStub1
 {
     [CmdletBinding()]
     param

@@ -1,5 +1,5 @@
 [DscResource()]
-class TestResource1
+class TestStub1
 {
     [DscProperty()]
     [Ensure]
@@ -17,8 +17,8 @@ class TestResource1
     [NullSafeString]
     $SomeValue = 'some default'
 
-    [void] Set() { $this | Invoke-ProcessTestResource1 Set }
-    [bool] Test() { return $this | Invoke-ProcessTestResource1 Test }
+    [void] Set() { $this | Invoke-ProcessTestStub1 Set }
+    [bool] Test() { return $this | Invoke-ProcessTestStub1 Test }
 
-    [TestResource1] Get() { return $this }
+    [TestStub1] Get() { return $this }
 }

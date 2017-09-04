@@ -313,8 +313,8 @@ $tests = @{
         Message = 'Mandatoriness matches for corresponding public resource properties and parameters.'
         Prerequisites = 'T002','T006'
         Scriptblock = {
-            $function = Get-PublicResourceFunction TestResource1 StructuredDscResourceCheck
-            Get-NestedModuleType TestResource1 StructuredDscResourceCheck | 
+            $function = Get-PublicResourceFunction TestStub1 StructuredDscResourceCheck
+            Get-NestedModuleType TestStub1 StructuredDscResourceCheck | 
                 Get-MemberProperty |
                 % {
                     $assertion = @{
