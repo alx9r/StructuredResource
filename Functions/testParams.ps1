@@ -9,7 +9,10 @@ function New-TestParams
 
         [Parameter(position = 2,
                    Mandatory = $true)]
-        $ModuleName
+        $ModuleName,
+
+        [Parameter(position = 3)]
+        $Arguments                   
     )
     New-Object TestParams -Property $PSBoundParameters
 }

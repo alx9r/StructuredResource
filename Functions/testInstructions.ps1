@@ -3,18 +3,23 @@ function New-TestInstructions
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory,
                    Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true)]
+                   ValueFromPipeline,
+                   ValueFromPipelineByPropertyName)]
         [string]
         $ResourceName,
 
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory,
                    Position = 2,
-                   ValueFromPipelineByPropertyName = $true)]
+                   ValueFromPipelineByPropertyName)]
         [string]
-        $ModuleName
+        $ModuleName,
+
+        [Parameter(Position = 3,
+                   ValueFromPipelineByPropertyName)]
+        [hashtable]
+        $Arguments
     )
     New-Object TestInstructions (New-TestParams @PSBoundParameters)
 }

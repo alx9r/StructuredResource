@@ -4,7 +4,10 @@ Describe "Public API: Pester Integration" {
     $h = @{}
 
     It 'create instructions' {
-        $h.i = New-TestInstructions TestStub1 StructuredDscResourceCheck
+        $h.i = New-TestInstructions TestStub2 StructuredDscResourceCheck @{
+            Presence = 'Corrigible'
+            Corrigible = 'value'
+        }
     }
     foreach ( $step in $h.i )
     {

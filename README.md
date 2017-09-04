@@ -234,3 +234,82 @@ The nested module must be imported to test the class inside it.
 This simplifies testing because the nested module can be accessed by name alone.
 
 ### [ ] I.5: Passing `$null` to a public resource function parameter means "don't change".
+
+## C: Contract
+
+### [ ] C.1: A resource can be set absent.
+
+**Reason**
+
+This simplifies testing because the removed state provides a consistent baseline from which to test configurations.
+
+**Enforcement**
+
+Invoke the public resource function as follows:
+
+ * `Set Absent`
+ * `Test Absent` and confirm the return value is `$true`.
+
+### [ ] C.2: An absent resource can be added.
+
+**Reason**
+
+To be usable, a resource must be present.  A resource can be removed per C.1.  Accordingly, for a resource to be usable, be possible to add it.
+
+**Enforcement**
+
+Invoke the public resource function as follows:
+
+ * `Set Absent` to reset
+ * `Set Present` to add it
+ * `Test Present` and confirm the return value is `$true`
+
+
+### [ ] C.3: A present resource can be removed.
+
+**Reason**
+
+This is required to support C.1.
+
+**Enforcement**
+
+Invoke the public resource function as follows:
+
+ * `Set Absent` to reset
+ * `Set Present`
+ * `Set Absent`
+ * `Test Absent` and confirm the return value is `$true`
+
+### [ ] C.4: A present resource tests false for absence.
+
+**Reason**
+
+A resource cannot be both present and absent.
+
+**Enforcement**
+
+Invoke the public resource function as follows:
+
+ * `Set Absent` to reset
+ * `Set Present` to add it
+ * `Test Absent` and confirm the return value is `$false`
+
+### [ ] C.5: An absent resource tests false for presence.
+
+**Reason**
+
+A resource cannot be both absent and present.
+
+**Enforcement**
+
+Invoke the public resource function as follows:
+
+ * `Set Absent` to reset
+ * `Test Present` and confirm the return value is `$false`
+
+The following should probably also be tested:
+
+ * `Set Absent` to reset
+ * `Set Present`
+ * `Set Absent`
+ * `Test Present` and confirm the return value is `$false`

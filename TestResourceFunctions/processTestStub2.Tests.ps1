@@ -15,6 +15,11 @@ Describe Invoke-ProcessTestStub2 {
                 $r = Invoke-ProcessTestStub2 Test Present -Presence Corrigible
                 $r | Should be $true
             }
+            It 'false when present' {
+                Invoke-ProcessTestStub2 Set Present -Presence Corrigible
+                $r = Invoke-ProcessTestStub2 Test Absent -Presence Corrigible
+                $r | Should be $false
+            }
             It 'gets set back to absent' {
                 Invoke-ProcessTestStub2 Set Present -Presence Corrigible
                 Invoke-ProcessTestStub2 Set Absent -Presence Corrigible
@@ -23,11 +28,6 @@ Describe Invoke-ProcessTestStub2 {
             }
             It 'false when absent' {
                 $r = Invoke-ProcessTestStub2 Test Present -Presence Corrigible
-                $r | Should be $false
-            }
-            It 'false when present' {
-                Invoke-ProcessTestStub2 Set Present -Presence Corrigible
-                $r = Invoke-ProcessTestStub2 Test Absent -Presence Corrigible
                 $r | Should be $false
             }
         }

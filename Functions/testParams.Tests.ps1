@@ -20,12 +20,12 @@ Describe New-TestParams {
     }
     Context 'real' {
         It 'populates fields' {
-            $r = New-TestParams 'resource_name' 'module_name'
+            $r = New-TestParams 'resource_name' 'module_name' @{arg='uments'}
 
             $r.ResourceName | Should be 'resource_name'
             $r.ModuleName | Should be 'module_name'
+            $r.Arguments.arg | Should be 'uments'
         }
     }
 }
-
 }

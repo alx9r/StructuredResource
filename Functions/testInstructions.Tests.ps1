@@ -7,18 +7,20 @@ Describe New-TestInstructions {
         $obj = [TestParams]::new()
         $obj.ModuleName = 'resulting_module_name'
         $obj.ResourceName = 'resulting_resource_name'
+        $obj.Arguments = @{ resulting_arg = 'arg' }
         $obj
     } -Verifiable
     Mock New-Object { 'object' } -Verifiable
     It 'returns object' {
-        $r = New-TestInstructions 'resource_name' 'module_name'
+        $r = New-TestInstructions 'resource_name' 'module_name' @{ arg = 'arg' }
 
         $r | Should be 'object'
     }
     It 'invokes commands' {
         Assert-MockCalled New-TestParams 1 {
             $ResourceName -eq 'resource_name' -and
-            $ModuleName -eq 'module_name'
+            $ModuleName -eq 'module_name' -and
+            $Arguments.arg -eq 'arg'
         }
         Assert-MockCalled New-Object 1 {
             $TypeName -eq 'TestInstructions' -and
