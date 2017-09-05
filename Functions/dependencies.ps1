@@ -331,7 +331,7 @@ $tests = @{
         Message = 'A resource can be set absent.'
         Prerequisites = 'PR.19'
         Scriptblock = {
-            $_ | Invoke-PresenceTest {
+            $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Absent @Keys | Assert-Value $true
@@ -342,7 +342,7 @@ $tests = @{
         Message = 'An absent resource can be added.'
         Prerequisites = 'C.1'
         Scriptblock = {
-            $_ | Invoke-PresenceTest {
+            $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Set Present @Keys @Hints
@@ -354,7 +354,7 @@ $tests = @{
         Message = 'A present resource can be removed.'
         Prerequisites = 'C.2'
         Scriptblock = {
-            $_ | Invoke-PresenceTest {
+            $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Set Present @Keys @Hints
@@ -367,7 +367,7 @@ $tests = @{
         Message = 'A present resource tests false for absence.'
         Prerequisites = 'C.2'
         Scriptblock = {
-            $_ | Invoke-PresenceTest {
+            $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Set Present @Keys @Hints
@@ -383,7 +383,7 @@ $tests = @{
         Message = 'An absent resource tests false for presence.'
         Prerequisites = 'C.5'
         Scriptblock = {
-                $_ | Invoke-PresenceTest {
+                $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Present @Keys | Assert-Value $false
@@ -394,7 +394,7 @@ $tests = @{
         Message = 'An absent resource tests false for presence after adding and removing it.'
         Prerequisites = 'C.5'
         Scriptblock = {
-                $_ | Invoke-PresenceTest {
+                $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Set Present @Keys @Hints

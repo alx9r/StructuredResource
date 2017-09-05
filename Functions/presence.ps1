@@ -1,4 +1,4 @@
-function Invoke-PresenceTest
+function Invoke-IntegrationTest
 {
     param
     (

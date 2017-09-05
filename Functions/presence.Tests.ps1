@@ -2,7 +2,7 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-Describe Invoke-PresenceTest {
+Describe Invoke-IntegrationTest {
     function f {
         param
         (
@@ -27,7 +27,7 @@ Describe Invoke-PresenceTest {
     $sb = {'scriptblock'}
     Context 'success' {
         It 'returns scriptblock output' {
-            $r = $i | Invoke-PresenceTest $sb
+            $r = $i | Invoke-IntegrationTest $sb
             $r | Should be 'scriptblock output'
         }
         It 'invokes commands' {
@@ -54,7 +54,7 @@ Describe Invoke-PresenceTest {
         Mock Invoke-Scriptblock { throw 'in scriptblock' }
         try
         {
-            $i | Invoke-PresenceTest $sb
+            $i | Invoke-IntegrationTest $sb
         }
         catch
         {
