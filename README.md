@@ -6,13 +6,19 @@ These guidelines shall be interpreted according to the doctrine of _lex speciali
 
 ## Definitions
 
-**public resource class** - the class with the `[DscResource()] object that is used to publish a resource
+**constructor property** - a public resource parameter or property that is a required parameter of the resource's constructor.  Every constructor property is a hint but not every hint is a constructor property. 
 
-**public resource function** - a function that is invoked by `Set()` and `Test()` of a corresponding public resource class and is also exported as a public interface to the module
+**hint** - a public resource parameter or property that is passed to the resource's constructor.
 
-**public resource parameter** - a parameter of a public resource function
+**key** - a mandatory public resource parameter or property that uniquely identifies an instance of a resource.
 
-**public resource property** - a property of a public resource class
+**public resource class** - the class with the `[DscResource()] object that is used to publish a resource.
+
+**public resource function** - a function that is invoked by `Set()` and `Test()` of a corresponding public resource class and is also exported as a public interface to the module.
+
+**public resource parameter** - a parameter of a public resource function.
+
+**public resource property** - a property of a public resource class.
 
 ## PB: Publishing
 
@@ -207,6 +213,12 @@ This is to ensure the same behavior whether the resource is invoked using the pu
 
 This is to ensure the same behavior whether the resource is invoked using the public resource class or function.
 
+### [ ] PR.20: Public resource parameters that correspond to constructor properties are marked with an attribute.
+
+**Reason**
+
+This is so that libraries interpreting public resource parameters are able to correctly pass required properties to a resource's constructor.   
+
 ## I: Integration
 
 ### [ ] I.1: The module can be imported.
@@ -313,3 +325,15 @@ The following should probably also be tested:
  * `Set Present`
  * `Set Absent`
  * `Test Present` and confirm the return value is `$false`
+
+## A: Arguments
+
+### A.1: All constructor properties are provided when invoking `Set Present`.
+
+**Reason**
+
+Invoking `Set Present` may lead to invoking the constructor for resource.  If the resource has constructor properties those must also be provided otherwise construction will fail.
+
+**Enforcement**
+
+This can be enforced by checking for missing constructor properties whenever `Set Present` is invoked. 

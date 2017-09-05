@@ -25,16 +25,14 @@ function Invoke-PresenceTest
     process
     {
         $function = Get-PublicResourceFunction $ResourceName $ModuleName
-        $keys = $function |
+        $structuredDscArgs = $function |
             Get-ParameterMetaData |
-            New-StructuredDscArgumentGroup Keys $Arguments
+            New-StructuredDscArgs $Arguments
+        $structuredDscArgs.CommandName = $function.Name
 
         try
         {
-            $Scriptblock | Invoke-Scriptblock -NamedArgs @{
-                Keys = $keys
-                CommandName = $function.Name
-            }
+            $Scriptblock | Invoke-Scriptblock -NamedArgs $structuredDscArgs
         }
         catch
         {
@@ -43,8 +41,7 @@ function Invoke-PresenceTest
 
 ResourceName: $ResourceName
 ModuleName: $ModuleName
-Keys: $($keys | ConvertTo-PsLiteralString)
-CommandName: $($function.Name)
+StructuredDscArg: $($structuredDscArgs | ConvertTo-PsLiteralString)
 
 "@,
                 $_.Exception

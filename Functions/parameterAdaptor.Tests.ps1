@@ -187,6 +187,35 @@ Describe New-StructuredDscArgumentGroup {
     }
 }
 
+Describe New-StructuredDscArgs {
+    Mock New-StructuredDscArgumentGroup { 'return value' } -Verifiable    
+    $r = Get-Command f | Get-ParameterMetaData |
+        New-StructuredDscArgs $allParams
+    It 'returns one hashtable' {
+        $r | measure | % Count | Should be 1
+        $r | Should beOfType([hashtable])
+    }
+    It 'populates item <g>' -TestCases @(
+        @{g='Keys'}
+        @{g='Hints'}
+        @{g='Properties'}
+    ) {
+        param($g)
+        $r.$g | Should match 'return value'
+    }
+    It 'has no other items' {
+        $r.Count | Should be 3
+    }
+    It 'invokes commands' {
+        Assert-MockCalled New-StructuredDscArgumentGroup 1 { $GroupName -eq 'Keys' }
+        Assert-MockCalled New-StructuredDscArgumentGroup 1 { $GroupName -eq 'Hints' }
+        Assert-MockCalled New-StructuredDscArgumentGroup 1 { $GroupName -eq 'Properties' }
+        Assert-MockCalled New-StructuredDscArgumentGroup 1 {
+            $NamedArguments.Key -eq 'key'
+        }
+    }
+}
+
 Describe Add-StructuredDscGroupParameters {
     Context 'all params' {
         $i = New-Object pscustomobject

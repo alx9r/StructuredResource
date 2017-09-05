@@ -17,7 +17,7 @@ Describe Invoke-PresenceTest {
     }
     Mock Get-PublicResourceFunction { Get-Command f } -Verifiable
     Mock Get-ParameterMetaData { (Get-Command f).Parameters.Key1 } -Verifiable
-    Mock New-StructuredDscArgumentGroup { @{ Key1 = 1 } } -Verifiable
+    Mock New-StructuredDscArgs { @{ Keys='k';Hints='h';Properties='p' } } -Verifiable
     Mock Invoke-Scriptblock { 'scriptblock output' } -Verifiable
     $i = [pscustomobject]@{
         ResourceName = 'resource_name'
@@ -38,13 +38,15 @@ Describe Invoke-PresenceTest {
             Assert-MockCalled Get-ParameterMetaData 1 {
                 $FunctionInfo.Name -eq 'f'
             }
-            Assert-MockCalled New-StructuredDscArgumentGroup 1 {
-                $GroupName -eq 'Keys' -and
+            Assert-MockCalled New-StructuredDscArgs 1 {
                 $NamedArguments.arguments -eq 'arguments'
             }
             Assert-MockCalled Invoke-Scriptblock 1 {
                 [string]$Scriptblock -eq [string]{'scriptblock'} -and
-                $NamedArgs.Keys.Key1 -eq 1
+                $NamedArgs.CommandName -eq 'f' 
+                $NamedArgs.Keys -eq 'k' -and
+                $NamedArgs.Hints -eq 'h' -and
+                $NamedArgs.Properties -eq 'p'
             }
         }
     }
@@ -62,7 +64,7 @@ Describe Invoke-PresenceTest {
             $e | Should not beNullOrEmpty
         }
         It 'outer exception' {
-            $e.Exception.Message | Should match 'CommandName: f'
+            $e.Exception.Message | Should match "CommandName='f'"
         }
         It 'inner exception' {
             $e.Exception.InnerException.Message | Should match 'in scriptblock'

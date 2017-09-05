@@ -332,7 +332,7 @@ $tests = @{
         Prerequisites = 'PR.19'
         Scriptblock = {
             $_ | Invoke-PresenceTest {
-                param($CommandName,$Keys)
+                param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Absent @Keys | Assert-Value $true
             }
@@ -343,9 +343,9 @@ $tests = @{
         Prerequisites = 'C.1'
         Scriptblock = {
             $_ | Invoke-PresenceTest {
-                param($CommandName,$Keys)    
+                param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
-                & $CommandName Set Present @Keys
+                & $CommandName Set Present @Keys @Hints
                 & $CommandName Test Present @Keys | Assert-Value $true
             }
         }
@@ -355,9 +355,9 @@ $tests = @{
         Prerequisites = 'C.2'
         Scriptblock = {
             $_ | Invoke-PresenceTest {
-                param($CommandName,$Keys)    
+                param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
-                & $CommandName Set Present @Keys
+                & $CommandName Set Present @Keys @Hints
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Absent @Keys | Assert-Value $true
             }
@@ -368,9 +368,9 @@ $tests = @{
         Prerequisites = 'C.2'
         Scriptblock = {
             $_ | Invoke-PresenceTest {
-                param($CommandName,$Keys)    
+                param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
-                & $CommandName Set Present @Keys
+                & $CommandName Set Present @Keys @Hints
                 & $CommandName Test Absent @Keys | Assert-Value $false
             }
         }
@@ -384,7 +384,7 @@ $tests = @{
         Prerequisites = 'C.5'
         Scriptblock = {
                 $_ | Invoke-PresenceTest {
-                param($CommandName,$Keys)    
+                param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Present @Keys | Assert-Value $false
             }
@@ -395,9 +395,9 @@ $tests = @{
         Prerequisites = 'C.5'
         Scriptblock = {
                 $_ | Invoke-PresenceTest {
-                param($CommandName,$Keys)    
+                param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
-                & $CommandName Set Present @Keys
+                & $CommandName Set Present @Keys @Hints
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Present @Keys | Assert-Value $false
             }

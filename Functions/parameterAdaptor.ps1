@@ -135,6 +135,47 @@ function New-StructuredDscArgumentGroup
     }
 }
 
+function New-StructuredDscArgs
+{
+    param
+    (
+        [Parameter(ParameterSetName = 'BoundParameters',
+                   Mandatory,
+                   Position = 1)]
+        #[PSBoundParametersDictionary]
+        [System.Collections.Generic.Dictionary`2[System.String,System.Object]]
+        $BoundParameters,
+
+        [Parameter(ParameterSetName = 'hashtable',
+                   Mandatory,
+                   Position = 1)]
+        [hashtable]
+        $NamedArguments,
+
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    begin
+    {
+        $parameters = New-Object System.Collections.Queue
+    }
+    process
+    {
+        $parameters.Enqueue($ParameterInfo)
+    }
+    end
+    {
+        $arguments = $BoundParameters,$NamedArguments | ? {$null -ne $_}
+        @{
+            Keys =       $parameters | New-StructuredDscArgumentGroup Keys $arguments
+            Hints =      $parameters | New-StructuredDscArgumentGroup Hints $arguments
+            Properties = $parameters | New-StructuredDscArgumentGroup Properties $arguments
+        }
+    }
+}
+
 function Add-StructuredDscGroupParameters
 {
     param
