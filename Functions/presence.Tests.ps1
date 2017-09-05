@@ -2,7 +2,7 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-Describe New-PresenceTest {
+Describe Invoke-PresenceTest {
     function f {
         param
         (
@@ -15,34 +15,44 @@ Describe New-PresenceTest {
             throw 'exception in f'
         }
     }
-    $r = @{ Key1 = 'value' } | New-PresenceTest (Get-Command f)
-    It 'outputs objects' {
-        $r[0] | Should beOfType([pscustomobject])
-        $r[-1] | Should beOfType([pscustomobject])
+    Mock Get-PublicResourceFunction { Get-Command f } -Verifiable
+    Mock Get-ParameterMetaData { (Get-Command f).Parameters.Key1 } -Verifiable
+    Mock New-StructuredDscArgumentGroup { @{ Key1 = 1 } } -Verifiable
+    Mock Invoke-Scriptblock { 'scriptblock output' } -Verifiable
+    $i = [pscustomobject]@{
+        ResourceName = 'resource_name'
+        ModuleName = 'module_name'
+        Arguments = @{ arguments = 'arguments' }
     }
-    It 'populates named args' {
-        $r[0].NamedArgs.Keys.Key1 | Should be 'value'
-    }
-    It 'populates scriptblock' {
-        $r[0].Scriptblock | Should beOfType([scriptblock])
-    }
-    It 'populates message' {
-        $r[0].Message | Should beOfType([string])
-        $r[0].Message | Should not beNullOrEmpty
-    }
-    It 'every even object is the same (because it should be a reset)' {
-        ($r | measure | % Count) % 2 | Should be 0
-        $r[0].Scriptblock | Should be $r[2].Scriptblock
-    }
-    It 'every odd object is different (because it should be a different test)' {
-        $r[1].Scriptblock | Should not be $r[3].Scriptblock
+    $sb = {'scriptblock'}
+    Context 'success' {
+        It 'returns scriptblock output' {
+            $r = $i | Invoke-PresenceTest $sb
+            $r | Should be 'scriptblock output'
+        }
+        It 'invokes commands' {
+            Assert-MockCalled Get-PublicResourceFunction 1 {
+                $ResourceName -eq 'resource_name' -and
+                $ModuleName -eq 'module_name'
+            }
+            Assert-MockCalled Get-ParameterMetaData 1 {
+                $FunctionInfo.Name -eq 'f'
+            }
+            Assert-MockCalled New-StructuredDscArgumentGroup 1 {
+                $GroupName -eq 'Keys' -and
+                $NamedArguments.arguments -eq 'arguments'
+            }
+            Assert-MockCalled Invoke-Scriptblock 1 {
+                [string]$Scriptblock -eq [string]{'scriptblock'} -and
+                $NamedArgs.Keys.Key1 -eq 1
+            }
+        }
     }
     Context 'pipeline exception' {
+        Mock Invoke-Scriptblock { throw 'in scriptblock' }
         try
         {
-            @{ Key1 = 'throw' } | 
-                New-PresenceTest (Get-Command f) |
-                Invoke-Scriptblock
+            $i | Invoke-PresenceTest $sb
         }
         catch
         {
@@ -52,10 +62,10 @@ Describe New-PresenceTest {
             $e | Should not beNullOrEmpty
         }
         It 'outer exception' {
-            $e.Exception.Message | Should match 'reset'
+            $e.Exception.Message | Should match 'CommandName: f'
         }
         It 'inner exception' {
-            $e.Exception.InnerException.Message | Should match 'in f'
+            $e.Exception.InnerException.Message | Should match 'in scriptblock'
         }
     }
 }

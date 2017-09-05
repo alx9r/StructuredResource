@@ -59,7 +59,7 @@ function Test-StructuredDscPropertyParameter
     }    
 }
 
-function New-StructuredDscParameterGroup
+function Test-StructuredDscGroupParameter
 {
     param
     (
@@ -69,10 +69,43 @@ function New-StructuredDscParameterGroup
         $GroupName,
 
         [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        & @{
+            Keys =   { $_ | Test-StructuredDscAttributeParameter Key }
+            Hints =  { ($_ | Test-StructuredDscAttributeParameter Hint) -or
+                       ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
+            Properties = { ($_ | Test-StructuredDscPropertyParameter) -or
+                           ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
+        }.$GroupName
+    }
+}
+
+function New-StructuredDscArgumentGroup
+{
+    param
+    (
+        [Parameter(Mandatory,
+                   Position = 1)]
+        [ValidateSet('Keys','Hints','Properties')]
+        $GroupName,
+
+        [Parameter(ParameterSetName = 'BoundParameters',
+                   Mandatory,
                    Position = 2)]
         #[PSBoundParametersDictionary]
         [System.Collections.Generic.Dictionary`2[System.String,System.Object]]
         $BoundParameters,
+
+        [Parameter(ParameterSetName = 'hashtable',
+                   Mandatory,
+                   Position = 2)]
+        [hashtable]
+        $NamedArguments,
 
         [Parameter(Mandatory,
                    ValueFromPipeline)]
@@ -85,22 +118,15 @@ function New-StructuredDscParameterGroup
     }
     process
     {
-        $tester = @{
-            Keys =   { $_ | Test-StructuredDscAttributeParameter Key }
-            Hints =  { ($_ | Test-StructuredDscAttributeParameter Hint) -or
-                       ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
-            Properties = { ($_ | Test-StructuredDscPropertyParameter) -or
-                           ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
-        }.$GroupName
-
+        $arguments = $BoundParameters,$NamedArguments | ? {$null -ne $_}
         if 
         ( 
-            ( $ParameterInfo | ? $tester ) -and
-            ( $ParameterInfo.Name -in $BoundParameters.get_Keys() ) -and
-            ( $null -ne $BoundParameters.get_Item($ParameterInfo.Name) )
+            ( $ParameterInfo | ? {$_ | Test-StructuredDscGroupParameter $GroupName } ) -and
+            ( $ParameterInfo.Name -in $arguments.get_Keys() ) -and
+            ( $null -ne $arguments.get_Item($ParameterInfo.Name) )
         )
         {
-            $output.($ParameterInfo.Name) = $BoundParameters.($ParameterInfo.Name)
+            $output.($ParameterInfo.Name) = $arguments.($ParameterInfo.Name)
         }
     }
     end
@@ -133,7 +159,7 @@ function Add-StructuredDscGroupParameters
 
         foreach ( $name in 'Keys','Hints','Properties' )
         {
-            $params = $c | Get-ParameterMetaData | New-StructuredDscParameterGroup $name $p
+            $params = $c | Get-ParameterMetaData | New-StructuredDscArgumentGroup $name $p
             if ( $params.Keys -ne $null )
             {
                 $InputObject | Add-Member NoteProperty $name $params

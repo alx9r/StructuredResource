@@ -313,8 +313,8 @@ $tests = @{
         Message = 'Mandatoriness matches for corresponding public resource properties and parameters.'
         Prerequisites = 'T002','T006'
         Scriptblock = {
-            $function = Get-PublicResourceFunction TestStub1 StructuredDscResourceCheck
-            Get-NestedModuleType TestStub1 StructuredDscResourceCheck | 
+            $function = $_ | Get-PublicResourceFunction
+            $_ | Get-NestedModuleType | 
                 Get-MemberProperty |
                 % {
                     $assertion = @{
@@ -325,6 +325,82 @@ $tests = @{
                         Get-ParameterMetaData $_.Name |
                         & $assertion        
                 }
+        }
+    }
+    'C.1' = @{
+        Message = 'A resource can be set absent.'
+        Prerequisites = 'PR.19'
+        Scriptblock = {
+            $_ | Invoke-PresenceTest {
+                param($CommandName,$Keys)
+                & $CommandName Set Absent @Keys
+                & $CommandName Test Absent @Keys | Assert-Value $true
+            }
+        }
+    }
+    'C.2' = @{
+        Message = 'An absent resource can be added.'
+        Prerequisites = 'C.1'
+        Scriptblock = {
+            $_ | Invoke-PresenceTest {
+                param($CommandName,$Keys)    
+                & $CommandName Set Absent @Keys
+                & $CommandName Set Present @Keys
+                & $CommandName Test Present @Keys | Assert-Value $true
+            }
+        }
+    }
+    'C.3' = @{
+        Message = 'A present resource can be removed.'
+        Prerequisites = 'C.2'
+        Scriptblock = {
+            $_ | Invoke-PresenceTest {
+                param($CommandName,$Keys)    
+                & $CommandName Set Absent @Keys
+                & $CommandName Set Present @Keys
+                & $CommandName Set Absent @Keys
+                & $CommandName Test Absent @Keys | Assert-Value $true
+            }
+        }
+    }
+    'C.4' = @{
+        Message = 'A present resource tests false for absence.'
+        Prerequisites = 'C.2'
+        Scriptblock = {
+            $_ | Invoke-PresenceTest {
+                param($CommandName,$Keys)    
+                & $CommandName Set Absent @Keys
+                & $CommandName Set Present @Keys
+                & $CommandName Test Absent @Keys | Assert-Value $false
+            }
+        }
+    }
+    'C.5' = @{
+        Message = 'An absent resource tests false for presence.'
+        Prerequisites = 'C.1','C.3'
+    }
+    T030 = @{
+        Message = 'An absent resource tests false for presence.'
+        Prerequisites = 'C.5'
+        Scriptblock = {
+                $_ | Invoke-PresenceTest {
+                param($CommandName,$Keys)    
+                & $CommandName Set Absent @Keys
+                & $CommandName Test Present @Keys | Assert-Value $false
+            }
+        }
+    }
+    T031 = @{
+        Message = 'An absent resource tests false for presence after adding and removing it.'
+        Prerequisites = 'C.5'
+        Scriptblock = {
+                $_ | Invoke-PresenceTest {
+                param($CommandName,$Keys)    
+                & $CommandName Set Absent @Keys
+                & $CommandName Set Present @Keys
+                & $CommandName Set Absent @Keys
+                & $CommandName Test Present @Keys | Assert-Value $false
+            }
         }
     }
 }
