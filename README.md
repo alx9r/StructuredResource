@@ -10,7 +10,11 @@ These guidelines shall be interpreted according to the doctrine of _lex speciali
 
 **hint** - a public resource parameter or property that is passed to the resource's constructor.
 
-**key** - a mandatory public resource parameter or property that uniquely identifies an instance of a resource.
+**key** - a mandatory public resource parameter or property that uniquely identifies a resource instance.
+
+**property** - a property of a resource instance.  A property can be set and tested by passing a value to its corresponding public resource parameter.  A property cannot be created or removed from its resource instance. 
+
+**resource instance** - an instance of a resource that can be created and removed using `Set Present` and `Set Absent`, respectively.
 
 **public resource class** - the class with the `[DscResource()] object that is used to publish a resource.
 
@@ -249,7 +253,7 @@ This simplifies testing because the nested module can be accessed by name alone.
 
 ## C: Contract
 
-### [ ] C.1: A resource can be set absent.
+### [x] C.1: A resource instance can be set absent.
 
 **Reason**
 
@@ -262,11 +266,11 @@ Invoke the public resource function as follows:
  * `Set Absent`
  * `Test Absent` and confirm the return value is `$true`.
 
-### [ ] C.2: An absent resource can be added.
+### [x] C.2: An absent resource instance can be added.
 
 **Reason**
 
-To be usable, a resource must be present.  A resource can be removed per C.1.  Accordingly, for a resource to be usable, be possible to add it.
+To be usable, a resource instance must be present.  A resource instance can be removed per C.1.  Accordingly, for a resource instance to be usable, be possible to add it.
 
 **Enforcement**
 
@@ -277,7 +281,7 @@ Invoke the public resource function as follows:
  * `Test Present` and confirm the return value is `$true`
 
 
-### [ ] C.3: A present resource can be removed.
+### [x] C.3: A present resource instance can be removed.
 
 **Reason**
 
@@ -292,7 +296,7 @@ Invoke the public resource function as follows:
  * `Set Absent`
  * `Test Absent` and confirm the return value is `$true`
 
-### [ ] C.4: A present resource tests false for absence.
+### [x] C.4: A present resource instance tests false for absence.
 
 **Reason**
 
@@ -306,7 +310,7 @@ Invoke the public resource function as follows:
  * `Set Present` to add it
  * `Test Absent` and confirm the return value is `$false`
 
-### [ ] C.5: An absent resource tests false for presence.
+### [x] C.5: An absent resource instance tests false for presence.
 
 **Reason**
 
@@ -325,6 +329,18 @@ The following should probably also be tested:
  * `Set Present`
  * `Set Absent`
  * `Test Present` and confirm the return value is `$false`
+
+### [x] C.6: Properties can be set after construction.
+
+**Reason**
+
+If a property cannot be set after construction the DSC algorithm will never converge. 
+
+### [x] C.7: A property can be set on construction.
+
+**Reason**
+
+This is to avoid requiring multiple passes of the DSC algorithm to achieve convergence.  A property that cannot be set on construction will cause the test following the set to fail.  Such a failure will cause the DSC engine to halt further configuration.
 
 ## A: Arguments
 

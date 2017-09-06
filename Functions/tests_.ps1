@@ -396,12 +396,37 @@ function Get-Tests
         Message = 'An absent resource tests false for presence after adding and removing it.'
         Prerequisites = 'C.5'
         Scriptblock = {
-                $_ | Invoke-IntegrationTest {
+            $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Set Present @Keys @Hints
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Present @Keys | Assert-Value $false
+            }
+        }
+    }
+    'C.6' = @{
+        Message = 'Properties can be set after construction.'
+        Prerequisites = 'C.2'
+        Scriptblock = {
+            $_ | Invoke-IntegrationTest {
+                param($CommandName,$Keys,$Hints,$Properties)
+                & $CommandName Set Absent @Keys
+                & $CommandName Set Present @Keys @Hints
+                & $CommandName Set Present @Keys @Properties
+                & $CommandName Test Present @Keys @Properties | Assert-Value $true
+            }            
+        }
+    }
+    'C.7' = @{
+        Message = 'A property can be set on construction.'
+        Prerequisites = 'C.2'
+        Scriptblock = {
+            $_ | Invoke-IntegrationTest {
+                param($CommandName,$Keys,$Hints,$Properties)
+                & $CommandName Set Absent @Keys
+                & $CommandName Set Present @Keys @Properties
+                & $CommandName Test Present @Keys @Properties | Assert-Value $true
             }
         }
     }
