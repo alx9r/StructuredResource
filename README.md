@@ -6,7 +6,9 @@ These guidelines shall be interpreted according to the doctrine of _lex speciali
 
 ## Definitions
 
-**constructor property** - a public resource parameter or property that is a required parameter of the resource's constructor.  Every constructor property is a hint but not every hint is a constructor property. 
+**constructor property** - a public resource parameter or property that is a required parameter of the resource's constructor.  Every constructor property is a hint but not every hint is a constructor property.
+
+**DSC algorithm** - the process that successively invokes DSC resources to converge on a configuration.
 
 **hint** - a public resource parameter or property that is passed to the resource's constructor.
 
@@ -133,6 +135,8 @@ This is to improve parameter binding predictability.  With `ValueFromPipeline` s
 
 ### [x] PR.7: Public resource parameters bind to pipeline object property values.
 
+Eeach public resource parameter should have the `ValueFromPipelineByPropertyName` attribute set.
+
 **Reason**
 
 This is to support binding of bulk parameters using objects.  In particular, it supports passing the values of member variables of a `[DscResource()]` object as arguments to the function (e.g. `$this | Invoke-ProcessResource Set`).
@@ -141,7 +145,7 @@ This is to support binding of bulk parameters using objects.  In particular, it 
 
 **Reason**
 
-This is to avert confusion that might result when bulk-binding the values of a public resource properties to public resource parameters using the pipeline (e.g. `$this | Invoke-ProcessResource`).  The correct value for `Mode` must be explicitly passed to the public resource function (e.g. "`Test`" in `Invoke-ProcessResource Test`) on each invocation of the `Set()` and `Test()` methods.  The existence of a `Mode` property probably indicates an error (i.e. a resource author is probably incorrectly expecting `Mode` to be passed by the pipeline).
+This is to avert confusion that might result when bulk-binding the values of a public resource properties to public resource parameters using the pipeline (e.g. `$this | Invoke-ProcessResource`).  The correct value for `Mode` must be explicitly passed to the public resource function (e.g. "`Test`" in `Invoke-ProcessResource Test`) on each invocation of the `Set()` and `Test()` methods.  The existence of a `Mode` property probably indicates an error.  That is, a resource author is probably incorrectly expecting `Mode` to be passed from a public resource property by the pipeline.
 
 ### [x] PR.9: Each public resource parameter is statically-typed.
 
@@ -159,27 +163,31 @@ Because PR.12 does not apply to mandatory parameters, this rule also does not ap
 
 ### [x] PR.11: Optional value-type public resource parameters must be `[Nullable[T]]`.
 
-This rules does not apply to the `Ensure` public resource parameter.
-
 **Reason**
 
 This is to support compliance with PR.12 when a user omits a value-type parameter.  Normal value-type parameters in .Net cannot be `$null`.
+
+**Exceptions**
+
+This rules does not apply to the `Ensure` public resource parameter because it cannot be null.
 
 ### [ ] PR.12: The meaning of null for an optional default-less public resource property or parameter is the same as omitting it.
 
 **Reason**
 
-Omission of an optional default-less parameter P means "don't change" P.  Such parameter takes the value `$null` while it is embodied as the value of a public resource property.  This is because there is no other built-in mechanism that means unbound, unspecified, or omitted for public resource properties.  Accordingly, all callees interpreting such a parameter must consider `$null` to mean "don't change".
+Omission of an optional default-less parameter P means "don't change" P.  Such an omitted parameter takes the value `$null` while it is embodied as the value of a public resource property.  This is because there is no other built-in mechanism that means unbound, unspecified, or omitted for public resource properties.  Accordingly, all callees interpreting such a parameter must consider `$null` to mean "don't change".
 
-This rule does not apply to mandatory parameters.
+This rule does not apply to mandatory parameters because they can neither be null (by PR.14) nor omitted (because they are mandatory).
 
 ### [ ] PR.13: Optional value-type public resource properties must be `[Nullable[T]]`.
-
-This rule does not apply to the `Ensure` public resource property.
 
 **Reason**
 
 This is to support compliance with PR.11 when a user omits a value-type parameter.  Value-type parameters in .Net cannot be `$null`.
+
+**Exception**
+
+This rule does not apply to the `Ensure` public resource property.
 
 ### [x] PR.14: Public resource parameters do not have the `[AllowNull()]` attribute.
 
@@ -270,7 +278,7 @@ Invoke the public resource function as follows:
 
 **Reason**
 
-To be usable, a resource instance must be present.  A resource instance can be removed per C.1.  Accordingly, for a resource instance to be usable, be possible to add it.
+To be usable, a resource instance must be present.  A resource instance can be removed per C.1.  Accordingly, for a resource instance to be usable, it must be possible to add it.
 
 **Enforcement**
 
@@ -334,7 +342,7 @@ The following should probably also be tested:
 
 **Reason**
 
-If a property cannot be set after construction the DSC algorithm will never converge. 
+If a property cannot be set after construction and a resource instance exists with a different property value, the DSC algorithm will never converge. 
 
 ### [x] C.7: A property can be set on construction.
 
