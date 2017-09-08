@@ -6,11 +6,11 @@ function Test-Item   { param ($Key) }
 function Add-Item    { param ($Key,$CP) }
 function Remove-Item { param ($Key) }
 
-Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
+Describe 'Invoke-StructuredResource -Ensure Present: ' {
     Mock Test-Item -Verifiable
     Mock Add-Item -Verifiable
     Mock Remove-Item { 'junk' } -Verifiable
-    Mock Invoke-ProcessPersistentItemProperty -Verifiable
+    Mock Invoke-StructuredResourceProperty -Verifiable
 
     $delegates = @{
         Tester = 'Test-Item'
@@ -33,7 +33,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Properties = @{ P = 'P desired' }
                 Hints = @{ CP = 'CP Param' }
             }
-            $r = Invoke-ProcessPersistentItem Set Present @splat @delegates
+            $r = Invoke-StructuredResource Set Present @splat @delegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
@@ -43,7 +43,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 $CP -eq 'CP Param'
             }
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 1 {
+            Assert-MockCalled Invoke-StructuredResourceProperty 1 {
                 $Mode -eq 'Set' -and
                 $_Keys.Key -eq 'key value' -and
                 $Properties.P -eq 'P desired' -and
@@ -56,14 +56,14 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
         Mock Add-Item { 'item' }
         It 'returns nothing' {
             $splat = @{ Keys = @{ Key = 'key value' } }
-            $r = Invoke-ProcessPersistentItem Set Present @splat @coreDelegates
+            $r = Invoke-StructuredResource Set Present @splat @coreDelegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Present: absent, Test' {
@@ -72,14 +72,14 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Test Present @splat @delegates
+            $r = Invoke-StructuredResource Test Present @splat @delegates
             $r | Should be $false
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Present: present, Set' {
@@ -89,46 +89,46 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Set Present @splat @delegates
+            $r = Invoke-StructuredResource Set Present @splat @delegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 1
+            Assert-MockCalled Invoke-StructuredResourceProperty 1
         }
     }
     Context '-Ensure Present: present, Test' {
         Mock Test-Item { $true } -Verifiable
-        Mock Invoke-ProcessPersistentItemProperty { 'property test result' } -Verifiable
+        Mock Invoke-StructuredResourceProperty { 'property test result' } -Verifiable
         It 'returns result of properties test' {
             $splat = @{
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Test Present @splat @delegates
+            $r = Invoke-StructuredResource Test Present @splat @delegates
             $r | Should be 'property test result'
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 1
+            Assert-MockCalled Invoke-StructuredResourceProperty 1
         }
     }
     Context '-Ensure Present: present, Test - omitting properties skips setting properties' {
         Mock Test-Item { $true } -Verifiable
         It 'returns result of properties test' {
             $splat = @{ Keys = @{ Key = 'key value' } }
-            $r = Invoke-ProcessPersistentItem Test Present @splat @coreDelegates
+            $r = Invoke-StructuredResource Test Present @splat @coreDelegates
             $r | Should be $true
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Absent: absent, Set' {
@@ -137,14 +137,14 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Set Absent @splat @delegates
+            $r = Invoke-StructuredResource Set Absent @splat @delegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Absent: absent, Test' {
@@ -153,14 +153,14 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Test Absent @splat @delegates
+            $r = Invoke-StructuredResource Test Absent @splat @delegates
             $r | Should be $true
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Absent: present, Set' {
@@ -170,14 +170,14 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Set Absent @splat @delegates
+            $r = Invoke-StructuredResource Set Absent @splat @delegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 1 { $Key -eq 'key value' }
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Absent: present, Test' {
@@ -187,14 +187,14 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Keys = @{ Key = 'key value' }
                 Properties = @{}
             }
-            $r = Invoke-ProcessPersistentItem Test Absent @splat @delegates
+            $r = Invoke-StructuredResource Test Absent @splat @delegates
             $r | Should be $false
         }
         It 'correctly invokes functions' {
             Assert-MockCalled Test-Item 1 { $Key -eq 'key value' }
             Assert-MockCalled Add-Item 0 -Exactly
             Assert-MockCalled Remove-Item 0 -Exactly
-            Assert-MockCalled Invoke-ProcessPersistentItemProperty 0 -Exactly
+            Assert-MockCalled Invoke-StructuredResourceProperty 0 -Exactly
         }
     }
     Context '-Ensure Absent: Set, no remover' {
@@ -204,7 +204,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Tester = 'Test-Item'
                 Curer = 'Add-Item'
             }
-            { Invoke-ProcessPersistentItem Set Absent @splat } |
+            { Invoke-StructuredResource Set Absent @splat } |
                 Should throw 'no remover'
         }
     }
@@ -215,7 +215,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
                 Tester = 'Test-Item'
                 Curer = 'Add-Item'
             }
-            $r = Invoke-ProcessPersistentItem Test Absent @splat
+            $r = Invoke-StructuredResource Test Absent @splat
             $r | Should be $true
         }
     }
@@ -225,7 +225,7 @@ Describe 'Invoke-ProcessPersistentItem -Ensure Present: ' {
 function Set-Property { param ($Key,$PropertyName,$Value) }
 function Test-Property { param ($Key,$PropertyName,$Value) }
 
-Describe 'Invoke-ProcessPersistentItemProperty' {
+Describe 'Invoke-StructuredResourceProperty' {
     Mock Set-Property { 'junk' } -Verifiable
     Mock Test-Property { $true } -Verifiable
 
@@ -241,7 +241,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
                 Properties = @{ P = 'correct' }
                 Module = $null
             }
-            $r = Invoke-ProcessPersistentItemProperty Set @splat @delegates
+            $r = Invoke-StructuredResourceProperty Set @splat @delegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
@@ -261,7 +261,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
                 Properties = @{ P = 'correct' }
                 Module = $null
             }
-            $r = Invoke-ProcessPersistentItemProperty Test @splat @delegates
+            $r = Invoke-StructuredResourceProperty Test @splat @delegates
             $r | Should be $true
         }
         It 'correctly invokes functions' {
@@ -281,7 +281,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
                 Properties = @{ P = 'desired' }
                 Module = $null
             }
-            $r = Invoke-ProcessPersistentItemProperty Set @splat @delegates
+            $r = Invoke-StructuredResourceProperty Set @splat @delegates
             $r | Should beNullOrEmpty
         }
         It 'correctly invokes functions' {
@@ -305,7 +305,7 @@ Describe 'Invoke-ProcessPersistentItemProperty' {
                 Properties = @{ P = 'desired' }
                 Module = $null
             }
-            $r = Invoke-ProcessPersistentItemProperty Test @splat @delegates
+            $r = Invoke-StructuredResourceProperty Test @splat @delegates
             $r | Should be $false
         }
         It 'correctly invokes functions' {

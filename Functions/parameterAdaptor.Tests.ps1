@@ -335,11 +335,11 @@ Describe 'use New-StructuredDscParameters' {
                     PropertyTester = 'Test-SomeResourceProperty'
                     PropertyCurer = 'Set-SomeResourceProperty'
                 }
-            $params | Invoke-ProcessPersistentItem
+            $params | Invoke-StructuredResource
         }
     }
     Context 'all params' {
-        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        Mock Invoke-StructuredResource { 'return value' } -Verifiable
         It 'passes through value' {
             $splat = @{
                 Mode = 'Set'
@@ -353,7 +353,7 @@ Describe 'use New-StructuredDscParameters' {
             $r | Should be 'return value'
         }
         It 'passes through resource parameters' {
-            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+            Assert-MockCalled Invoke-StructuredResource 1 {
                 $Mode -eq 'Set' -and
                 $Ensure -eq 'Present' -and
                 $_Keys.Key -eq 'key' -and
@@ -363,7 +363,7 @@ Describe 'use New-StructuredDscParameters' {
             }
         }
         It 'passes through delegate names' {
-            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+            Assert-MockCalled Invoke-StructuredResource 1 {
                 $Tester -eq 'Test-SomeResource' -and
                 $Curer -eq 'Add-SomeResource' -and
                 $Remover -eq 'Remove-SomeResource' -and
@@ -373,7 +373,7 @@ Describe 'use New-StructuredDscParameters' {
         }
     }
     Context 'omit optional params, keep all delegates' {
-        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        Mock Invoke-StructuredResource { 'return value' } -Verifiable
         It 'passes through value' {
             $splat = @{
                 Mode = 'Set'
@@ -383,7 +383,7 @@ Describe 'use New-StructuredDscParameters' {
             $r | Should be 'return value'
         }
         It 'omits omitted resource parameters' {
-            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+            Assert-MockCalled Invoke-StructuredResource 1 {
                 $null -eq $Ensure -and
                 $null -eq $Hints -and
                 $null -eq $Properties
@@ -391,7 +391,7 @@ Describe 'use New-StructuredDscParameters' {
         }
     }
     Context 'null optional params, keep all delegates' {
-        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        Mock Invoke-StructuredResource { 'return value' } -Verifiable
         It 'passes through value' {
             $splat = @{
                 Mode = 'Set'
@@ -405,7 +405,7 @@ Describe 'use New-StructuredDscParameters' {
             $r | Should be 'return value'
         }
         It 'omits omitted resource parameters' {
-            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+            Assert-MockCalled Invoke-StructuredResource 1 {
                 $null -eq $Hints -and
                 $null -eq $Properties
             }
@@ -431,11 +431,11 @@ Describe 'use New-StructuredDscParameters' {
                         Tester = 'Test-SomeResource'
                         Curer = 'Add-SomeResource'
                     } |
-                    Invoke-ProcessPersistentItem
+                    Invoke-StructuredResource
             }
         }
 
-        Mock Invoke-ProcessPersistentItem { 'return value' } -Verifiable
+        Mock Invoke-StructuredResource { 'return value' } -Verifiable
         It 'passes through value' {
             $splat = @{
                 Mode = 'Set'
@@ -445,7 +445,7 @@ Describe 'use New-StructuredDscParameters' {
             $r | Should be 'return value'
         }
         It 'omits omitted delegates' {
-            Assert-MockCalled Invoke-ProcessPersistentItem 1 {
+            Assert-MockCalled Invoke-StructuredResource 1 {
                 $null -eq $Remover -and
                 $null -eq $PropertyTester -and
                 $null -eq $PropertyCurer

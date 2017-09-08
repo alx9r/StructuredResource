@@ -1,4 +1,4 @@
-function Invoke-ProcessPersistentItem
+function Invoke-StructuredResource
 {
     [CmdletBinding(DefaultParameterSetName = '__AllParameterSets')]
     param
@@ -135,11 +135,11 @@ function Invoke-ProcessPersistentItem
             PropertyTester = $PropertyTester
             Module = $Module
         }
-        Invoke-ProcessPersistentItemProperty @splat
+        Invoke-StructuredResourceProperty @splat
     }
 }
 
-function Invoke-ProcessPersistentItemProperty
+function Invoke-StructuredResourceProperty
 {
     [CmdletBinding()]
     param
