@@ -1,5 +1,7 @@
 Import-Module StructuredDscResourceCheck -Force
 
+InModuleScope StructuredDscResourceCheck {
+
 Describe StructuredDscAttribute {
     function f {
         param(
@@ -27,4 +29,5 @@ Describe StructuredDscAttribute {
             $r | Should be 'Property'
         }
     }
+}
 }

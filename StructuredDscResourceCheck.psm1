@@ -19,3 +19,12 @@ $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
     Get-Item |
     ? { $_.Name -notmatch 'Tests\.ps1$' } |
     % { . $_.FullName }
+
+
+# export public functions
+Export-ModuleMember @(
+    'New-StructuredDscParameters'
+    'Invoke-ProcessPersistentItem'
+    'New-TestInstructions'
+    'Invoke-TestStep'
+)
