@@ -23,7 +23,7 @@ $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
 
 # export public functions
 Export-ModuleMember @(
-    'New-StructuredDscParameters'
+    'New-StructuredArguments'
     'Invoke-StructuredResource'
     'New-TestInstructions'
     'Invoke-TestStep'
