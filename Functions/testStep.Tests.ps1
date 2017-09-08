@@ -2,7 +2,7 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-Describe Invoke-TestStep {
+Describe Invoke-StructuredResourceTest {
     function f { 
         param
         (
@@ -25,7 +25,7 @@ Describe Invoke-TestStep {
         'result'
     } -Verifiable
     It 'returns output of scriptblock' {
-        $r = $ts | Invoke-TestStep
+        $r = $ts | Invoke-StructuredResourceTest
         $r | Should be 'result'
     }
     It 'invokes commands' {

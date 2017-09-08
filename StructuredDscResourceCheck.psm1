@@ -26,5 +26,5 @@ Export-ModuleMember @(
     'New-StructuredArguments'
     'Invoke-StructuredResource'
     'New-TestInstructions'
-    'Invoke-TestStep'
+    'Invoke-StructuredResourceTest'
 )

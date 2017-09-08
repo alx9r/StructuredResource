@@ -6,11 +6,11 @@ Describe 'Public API: New-TestInstructions' {
     }
 }
 
-Describe 'Public API: Invoke-TestStep' {
+Describe 'Public API: Invoke-StructuredResourceTest' {
     It 'invoke' {
         $i = New-TestInstructions TestStub2 StructuredDscResourceCheck @{
             Presence = 'Corrigible'
         }
-        $i | Invoke-TestStep
+        $i | Invoke-StructuredResourceTest
     }
 }

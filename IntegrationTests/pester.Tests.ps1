@@ -12,7 +12,7 @@ Describe "Public API: Pester Integration" {
     foreach ( $step in $h.i )
     {
         It $step.Message {
-            $step | Invoke-TestStep
+            $step | Invoke-StructuredResourceTest
         }
     }
 }

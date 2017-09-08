@@ -1,4 +1,4 @@
-function Invoke-TestStep
+function Invoke-StructuredResourceTest
 {
     [CmdletBinding()]
     param
