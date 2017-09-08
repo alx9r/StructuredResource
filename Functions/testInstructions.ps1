@@ -1,4 +1,4 @@
-function New-TestInstructions
+function New-StructuredResourceTest
 {
     [CmdletBinding()]
     param

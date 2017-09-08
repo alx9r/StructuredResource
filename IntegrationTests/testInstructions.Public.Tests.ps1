@@ -1,14 +1,14 @@
 Import-Module StructuredDscResourceCheck -Force
 
-Describe 'Public API: New-TestInstructions' {
+Describe 'Public API: New-StructuredResourceTest' {
     It 'create instructions' {
-        New-TestInstructions TestStub2 StructuredDscResourceCheck
+        New-StructuredResourceTest TestStub2 StructuredDscResourceCheck
     }
 }
 
 Describe 'Public API: Invoke-StructuredResourceTest' {
     It 'invoke' {
-        $i = New-TestInstructions TestStub2 StructuredDscResourceCheck @{
+        $i = New-StructuredResourceTest TestStub2 StructuredDscResourceCheck @{
             Presence = 'Corrigible'
         }
         $i | Invoke-StructuredResourceTest

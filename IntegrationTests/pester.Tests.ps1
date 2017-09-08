@@ -4,7 +4,7 @@ Describe "Public API: Pester Integration" {
     $h = @{}
 
     It 'create instructions' {
-        $h.i = New-TestInstructions TestStub2 StructuredDscResourceCheck @{
+        $h.i = New-StructuredResourceTest TestStub2 StructuredDscResourceCheck @{
             Presence = 'Corrigible'
             Corrigible = 'value'
         }

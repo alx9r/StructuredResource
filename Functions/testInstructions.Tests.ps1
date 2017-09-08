@@ -2,7 +2,7 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-Describe New-TestInstructions {
+Describe New-StructuredResourceTest {
     Mock New-TestParams { 
         $obj = [TestParams]::new()
         $obj.ModuleName = 'resulting_module_name'
@@ -12,7 +12,7 @@ Describe New-TestInstructions {
     } -Verifiable
     Mock New-Object { 'object' } -Verifiable
     It 'returns object' {
-        $r = New-TestInstructions 'resource_name' 'module_name' @{ arg = 'arg' }
+        $r = New-StructuredResourceTest 'resource_name' 'module_name' @{ arg = 'arg' }
 
         $r | Should be 'object'
     }
