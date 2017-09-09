@@ -1,4 +1,4 @@
-class TestInstructions : System.Collections.IEnumerable {
+class StructuredResourceTestCollection : System.Collections.IEnumerable {
     [TestParams]$Params
 
     [System.Collections.IEnumerator] GetEnumerator ()
@@ -6,7 +6,7 @@ class TestInstructions : System.Collections.IEnumerable {
         return Get-TestEnumerator($this)
     }
 
-    TestInstructions ( [TestParams] $Params )
+    StructuredResourceTestCollection ( [TestParams] $Params )
     {
         $this.Params = $Params
     }

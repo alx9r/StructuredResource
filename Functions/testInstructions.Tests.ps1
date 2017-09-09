@@ -23,7 +23,7 @@ Describe New-StructuredResourceTest {
             $Arguments.arg -eq 'arg'
         }
         Assert-MockCalled New-Object 1 {
-            $TypeName -eq 'TestInstructions' -and
+            $TypeName -eq 'StructuredResourceTestCollection' -and
             $ArgumentList.ModuleName -eq 'resulting_module_name' -and
             $ArgumentList.ResourceName -eq 'resulting_resource_name'
         }
@@ -45,7 +45,7 @@ Describe Get-TestEnumerator {
             }
     } -Verifiable
     It 'returns enumerator' {
-        $ti = [TestInstructions]::new($p)
+        $ti = [StructuredResourceTestCollection]::new($p)
         
         $r = (Get-TestEnumerator -Enumerable $ti).GetType()
 
@@ -56,7 +56,7 @@ Describe Get-TestEnumerator {
         Assert-MockCalled Get-OrderedSteps 1
     }
     It 'populates params' {
-        $ti = [TestInstructions]::new($p)
+        $ti = [StructuredResourceTestCollection]::new($p)
         
         $r = Get-TestEnumerator -Enumerable $ti |
             % {$_}

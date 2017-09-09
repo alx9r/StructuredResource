@@ -37,7 +37,7 @@ function New-StructuredResourceTest
         [hashtable]
         $Arguments
     )
-    New-Object TestInstructions (New-TestParams @PSBoundParameters)
+    New-Object StructuredResourceTestCollection (New-TestParams @PSBoundParameters)
 }
 
 function Get-TestEnumerator
@@ -45,7 +45,7 @@ function Get-TestEnumerator
     [CmdletBinding()]
     param
     (
-        [TestInstructions]
+        [StructuredResourceTestCollection]
         $Enumerable
     )
     ,(
