@@ -1,14 +1,17 @@
 function Invoke-StructuredResourceTest
 {
+    <#
+
+    #>
     [CmdletBinding()]
     param
     (
         [Parameter(ValueFromPipeline = $true)]
-        [TestStep]
-        $Step
+        [StructuredResourceTest]
+        $Test
     )
     process
     {
-        $Step.Params | % $Step.Scriptblock
+        $Test.Params | % $Test.Scriptblock
     }
 }

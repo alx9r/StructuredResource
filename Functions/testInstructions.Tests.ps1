@@ -38,7 +38,7 @@ Describe Get-TestEnumerator {
     Mock Get-OrderedSteps { 
         1,2 |
             % { 
-                New-Object TestStep -Property @{ 
+                New-Object StructuredResourceTest -Property @{ 
                     ID = $_
                     Scriptblock = {}
                 }

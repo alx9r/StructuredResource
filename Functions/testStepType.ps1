@@ -1,4 +1,4 @@
-class TestStep
+class StructuredResourceTest
 {
     [string]$ID
     [string[]]$Prerequisites
@@ -8,7 +8,7 @@ class TestStep
 }
 
 $splat = @{
-    TypeName = 'TestStep'
+    TypeName = 'StructuredResourceTest'
     DefaultDisplayPropertySet = ‘ID’,'Prerequisites','Message'
 }
 Update-TypeData @splat -ErrorAction SilentlyContinue

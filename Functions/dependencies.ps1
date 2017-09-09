@@ -40,7 +40,7 @@ function Get-OrderedSteps
     )
     Get-OrderedTestIds $Tests |
         % { 
-            $step = New-Object TestStep -Property $Tests.get_Item($_)
+            $step = New-Object StructuredResourceTest -Property $Tests.get_Item($_)
             $step.ID = $_
             $step
         }
