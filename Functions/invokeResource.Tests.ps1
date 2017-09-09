@@ -1,6 +1,6 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
-InModuleScope StructuredDscResourceCheck {
+InModuleScope StructuredResource {
 
 function Test-Item   { param ($Key) }
 function Add-Item    { param ($Key,$CP) }

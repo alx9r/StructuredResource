@@ -1,6 +1,6 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
-InModuleScope StructuredDscResourceCheck {
+InModuleScope StructuredResource {
 
 Describe Assert-Value {
     It 'returns nothing' {

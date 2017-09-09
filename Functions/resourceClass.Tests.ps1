@@ -1,6 +1,6 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
-InModuleScope StructuredDscResourceCheck {
+InModuleScope StructuredResource {
 
 Describe Get-NestedModuleType {
     Mock Get-NestedModule -Verifiable { New-Module e9ddad25 {} }

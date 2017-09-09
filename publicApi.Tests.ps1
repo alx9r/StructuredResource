@@ -1,7 +1,7 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
 Describe 'Public API' {
-    $commands = Get-Command -Module StructuredDscResourceCheck
+    $commands = Get-Command -Module StructuredResource
     It 'exports some functions...' {
         $commands | measure | % Count | Should beGreaterThan 1
     }

@@ -1,10 +1,10 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
 Describe "Public API: Pester Integration" {
     $h = @{}
 
     It 'create instructions' {
-        $h.i = New-StructuredResourceTest TestStub2 StructuredDscResourceCheck @{
+        $h.i = New-StructuredResourceTest TestStub2 StructuredResource @{
             Presence = 'Corrigible'
             Corrigible = 'value'
         }

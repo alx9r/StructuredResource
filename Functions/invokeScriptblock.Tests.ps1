@@ -1,6 +1,6 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
-InModuleScope StructuredDscResourceCheck {
+InModuleScope StructuredResource {
 
 Describe Invoke-Scriptblock {
     Context 'no pipeline' {

@@ -1,6 +1,6 @@
-Import-Module StructuredDscResourceCheck -Force
+Import-Module StructuredResource -Force
 
-InModuleScope StructuredDscResourceCheck {
+InModuleScope StructuredResource {
 
 Describe Get-TypeFromModule {
     $moduleInfo = [psmoduleinfo]::new({class a67a9d14 {}})

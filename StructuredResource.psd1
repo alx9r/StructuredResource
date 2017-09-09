@@ -1,7 +1,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'StructuredDscResourceCheck.psm1'
+RootModule = 'StructuredResource.psm1'
 NestedModules = 'TestStub1.psm1','TestStub2.psm1'
 ScriptsToProcess = @(
     '.\dotNetTypes\ensure.ps1'
