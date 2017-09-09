@@ -22,7 +22,7 @@ function Invoke-ProcessTestStub2
         [Parameter(Mandatory,
                    ValueFromPipelineByPropertyName)]
         [ValidateSet('Corrigible','Incorrigible')]
-        [StructuredDsc('Key')]
+        [StructuredResource('Key')]
         [string]
         $Presence,
 

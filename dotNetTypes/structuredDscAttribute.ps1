@@ -1,6 +1,6 @@
 ﻿Add-Type @'
         [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field)]
-        public class StructuredDscAttribute : System.Attribute {
+        public class StructuredResourceAttribute : System.Attribute {
             public enum ParameterTypeEnum
             {
                 Property,
@@ -10,9 +10,9 @@
             }
             private ParameterTypeEnum parameterType;
 
-            public StructuredDscAttribute() { }
+            public StructuredResourceAttribute() { }
 
-            public StructuredDscAttribute ( ParameterTypeEnum parameterType )
+            public StructuredResourceAttribute ( ParameterTypeEnum parameterType )
             {
                 this.parameterType = parameterType;
             }

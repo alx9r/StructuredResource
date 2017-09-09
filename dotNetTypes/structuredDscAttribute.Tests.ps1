@@ -2,13 +2,13 @@ Import-Module StructuredDscResourceCheck -Force
 
 InModuleScope StructuredDscResourceCheck {
 
-Describe StructuredDscAttribute {
+Describe StructuredResourceAttribute {
     function f {
         param(
-            [StructuredDsc('Hint')]
+            [StructuredResource('Hint')]
             $x,
 
-            [StructuredDsc()]
+            [StructuredResource()]
             $y
         )
     }
@@ -17,14 +17,14 @@ Describe StructuredDscAttribute {
         It 'takes value Hint' {
             $r = $f |
                 Get-ParameterMetaData x |
-                Get-ParameterAttribute StructuredDsc |
+                Get-ParameterAttribute StructuredResource |
                 Get-AttributeArgument ParameterType
             $r | Should be 'Hint'
         }
         It 'defaults to Property' {
             $r = $f |
                 Get-ParameterMetaData y |
-                Get-ParameterAttribute StructuredDsc |
+                Get-ParameterAttribute StructuredResource |
                 Get-AttributeArgument ParameterType
             $r | Should be 'Property'
         }

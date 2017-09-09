@@ -10,9 +10,9 @@ New-Psm1Module m {
         (
             $Mode,
             $Ensure,
-            [StructuredDsc('Key')]$Key,
-            [StructuredDsc('Hint')]$Hint,
-            [StructuredDsc('ConstructorProperty')]$CtorProp,
+            [StructuredResource('Key')]$Key,
+            [StructuredResource('Hint')]$Hint,
+            [StructuredResource('ConstructorProperty')]$CtorProp,
             $Property1,
             $Property2
         )
@@ -23,19 +23,19 @@ New-Psm1Module m {
     }
 } | Import-Module
 
-Describe Test-StructuredDscAttributeParameter {
+Describe Test-StructuredResourceAttributeParameter {
     $p = Get-Command f | Get-ParameterMetaData 'Key'
     It 'true' {
-        $r = $p | Test-StructuredDscAttributeParameter 'Key'
+        $r = $p | Test-StructuredResourceAttributeParameter 'Key'
         $r | Should be $true
     }
     It 'false : not match' {
-        $r = $p | Test-StructuredDscAttributeParameter 'Hint'
+        $r = $p | Test-StructuredResourceAttributeParameter 'Hint'
         $r | Should be $false
     }
     It 'false : non-existent' {
         $r = Get-Command f | Get-ParameterMetaData 'Mode' |
-            Test-StructuredDscAttributeParameter 'Key'
+            Test-StructuredResourceAttributeParameter 'Key'
         $r | Should be $false
     }
 }
@@ -320,8 +320,8 @@ Describe 'use New-StructuredResourceArgs' {
         (
             $Mode,
             $Ensure,
-            [StructuredDsc('Key')]$Key,
-            [StructuredDsc('Hint')]$Hint,
+            [StructuredResource('Key')]$Key,
+            [StructuredResource('Hint')]$Hint,
             $Property1,
             $Property2
         )
@@ -419,8 +419,8 @@ Describe 'use New-StructuredResourceArgs' {
             (
                 $Mode,
                 $Ensure,
-                [StructuredDsc('Key')]$Key,
-                [StructuredDsc('Hint')]$Hint,
+                [StructuredResource('Key')]$Key,
+                [StructuredResource('Hint')]$Hint,
                 $Property1,
                 $Property2
             )

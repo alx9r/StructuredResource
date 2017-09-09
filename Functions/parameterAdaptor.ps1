@@ -1,4 +1,4 @@
-function Test-StructuredDscAttributeParameter
+function Test-StructuredResourceAttributeParameter
 {
     param
     (
@@ -17,7 +17,7 @@ function Test-StructuredDscAttributeParameter
         $GroupName -eq 
             (
                 $ParameterInfo | 
-                    Get-ParameterAttribute StructuredDsc | 
+                    Get-ParameterAttribute StructuredResource | 
                     ? {$null -ne $_} | 
                     Get-AttributeArgument ParameterType
             )
@@ -50,9 +50,9 @@ function Test-StructuredDscPropertyParameter
     )
     process
     {
-        ( $ParameterInfo | Test-StructuredDscAttributeParameter Property ) -or
+        ( $ParameterInfo | Test-StructuredResourceAttributeParameter Property ) -or
         ( 
-            -not ($ParameterInfo | Get-ParameterAttribute StructuredDsc) -and
+            -not ($ParameterInfo | Get-ParameterAttribute StructuredResource) -and
             -not ($ParameterInfo | Test-StructuredDscKnownParameter) -and
             -not ($ParameterInfo | Test-ParameterKind Common )
         )
@@ -76,11 +76,11 @@ function Test-StructuredDscGroupParameter
     process
     {
         & @{
-            Keys =   { $_ | Test-StructuredDscAttributeParameter Key }
-            Hints =  { ($_ | Test-StructuredDscAttributeParameter Hint) -or
-                       ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
+            Keys =   { $_ | Test-StructuredResourceAttributeParameter Key }
+            Hints =  { ($_ | Test-StructuredResourceAttributeParameter Hint) -or
+                       ($_ | Test-StructuredResourceAttributeParameter ConstructorProperty) }
             Properties = { ($_ | Test-StructuredDscPropertyParameter) -or
-                           ($_ | Test-StructuredDscAttributeParameter ConstructorProperty) }
+                           ($_ | Test-StructuredResourceAttributeParameter ConstructorProperty) }
         }.$GroupName
     }
 }
@@ -225,8 +225,8 @@ function New-StructuredResourceArgs
 	 - Mode: the value for Mode that was passed to the public resource function
 	 - Ensure: the value for Ensure that was passed to the public resource function
 	 - Module: the containing module of the public resource function
-	 - Keys: a hashtable containing each of the public resource parameters bearing the [StructuredDsc('Key')] attribute
-	 - Hints: a hashtable containing each of the public resource parameters bearing either the [StructuredDsc('Hint')] or [StructuredDsc('ContstructorProperty')] attributes.
+	 - Keys: a hashtable containing each of the public resource parameters bearing the [StructuredResource('Key')] attribute
+	 - Hints: a hashtable containing each of the public resource parameters bearing either the [StructuredResource('Hint')] or [StructuredResource('ContstructorProperty')] attributes.
 	 - Properties: a hashtable containing each of the public resource parameters other than Mode, Ensure, and those included in Keys or Hints.
 	 
 	Additional arguments can be included as properties of the object using InputArgs.

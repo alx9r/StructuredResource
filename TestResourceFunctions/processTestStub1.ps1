@@ -15,7 +15,7 @@ function Invoke-ProcessTestStub1
         $Ensure = 'Present',
 
         [Parameter(ValueFromPipelineByPropertyname)]
-        [StructuredDsc('Hint')]
+        [StructuredResource('Hint')]
         [NullsafeString]
         $SourcePath,
 
