@@ -40,7 +40,7 @@ Describe Test-StructuredResourceAttributeParameter {
     }
 }
 
-Describe Test-StructuredDscKnownParameter {
+Describe Test-StructuredKnownParameter {
     It 'returns <e> for <p>' -TestCases @(
         @{p='Mode';  e=$true},
         @{p='Ensure';e=$true},
@@ -49,12 +49,12 @@ Describe Test-StructuredDscKnownParameter {
         param($p,$e)
 
         $r = Get-Command f | Get-ParameterMetaData $p |
-            Test-StructuredDscKnownParameter
+            Test-StructuredKnownParameter
         $r | Should be $e
     }
 }
 
-Describe Test-StructuredDscPropertyParameter {
+Describe Test-StructuredPropertyParameter {
     It 'returns <e> for <p>' -TestCases @(
         @{p='Mode';e=$false}
         @{p='Key';e=$false}
@@ -63,12 +63,12 @@ Describe Test-StructuredDscPropertyParameter {
         param($p,$e)
 
         $r = Get-Command f | Get-ParameterMetaData $p |
-            Test-StructuredDscPropertyParameter
+            Test-StructuredPropertyParameter
         $r | Should be $e
     }
 }
 
-Describe Test-StructuredDscGroupParameter {
+Describe Test-StructuredGroupParameter {
     It 'returns <e> for <p> in group <g>' -TestCases @(
         @{ p='Key';      g='Keys';      e=$true  }
         @{ p='Key';      g='Hints';     e=$false }
@@ -89,7 +89,7 @@ Describe Test-StructuredDscGroupParameter {
         param($p,$g,$e)
 
         $r = Get-Command f | Get-ParameterMetaData $p |
-            Test-StructuredDscGroupParameter $g
+            Test-StructuredGroupParameter $g
         $r | Should be $e
     }
 }
@@ -117,7 +117,7 @@ $nullParams = @{
     Property2 = $null
 }
 
-Describe New-StructuredDscArgumentGroup {
+Describe New-StructuredArgumentGroup {
     Context 'BoundParameters' {
         Context 'all params' {
             $mi = f @allParams
@@ -125,13 +125,13 @@ Describe New-StructuredDscArgumentGroup {
             $p = $mi.BoundParameters
             It 'Keys' {
                 $r = $c | Get-ParameterMetaData |
-                    New-StructuredDscArgumentGroup Keys $p
+                    New-StructuredArgumentGroup Keys $p
                 $r.Keys.Count | Should be 1
                 $r.Key | Should be 'key'
             }
             It 'Hints' {
                 $r = $c | Get-ParameterMetaData |
-                    New-StructuredDscArgumentGroup Hints $p
+                    New-StructuredArgumentGroup Hints $p
                 $r | Should beOfType ([hashtable])
                 $r.Keys.Count | Should be 2
                 $r.Hint | Should be 'hint'
@@ -139,7 +139,7 @@ Describe New-StructuredDscArgumentGroup {
             }
             It 'Properties' {
                 $r = $c | Get-ParameterMetaData |
-                    New-StructuredDscArgumentGroup Properties $p
+                    New-StructuredArgumentGroup Properties $p
                 $r | Should beOfType ([hashtable])
                 $r.Keys.Count | Should be 3
                 $r.Property1 | Should be 'property1'
@@ -158,7 +158,7 @@ Describe New-StructuredDscArgumentGroup {
                 param($n)
 
                 $r = $c | Get-ParameterMetaData |
-                    New-StructuredDscArgumentGroup $n $p
+                    New-StructuredArgumentGroup $n $p
                 $r | Should beNullOrEmpty
             }
         }
@@ -172,7 +172,7 @@ Describe New-StructuredDscArgumentGroup {
             ) {
                 param($n)
                 $r = $c | Get-ParameterMetaData |
-                    New-StructuredDscArgumentGroup $n $p
+                    New-StructuredArgumentGroup $n $p
                 $r | Should beNullOrEmpty
             }
         }
@@ -180,17 +180,17 @@ Describe New-StructuredDscArgumentGroup {
     Context 'hashtable' {
         It 'Keys' {
             $r = Get-Command f | Get-ParameterMetaData |
-                New-StructuredDscArgumentGroup Keys $allParams
+                New-StructuredArgumentGroup Keys $allParams
             $r.Count | Should be 1
             $r.Key | Should be 'key'
         }
     }
 }
 
-Describe New-StructuredDscArgs {
-    Mock New-StructuredDscArgumentGroup { 'return value' } -Verifiable    
+Describe New-StructuredArgs {
+    Mock New-StructuredArgumentGroup { 'return value' } -Verifiable    
     $r = Get-Command f | Get-ParameterMetaData |
-        New-StructuredDscArgs $allParams
+        New-StructuredArgs $allParams
     It 'returns one hashtable' {
         $r | measure | % Count | Should be 1
         $r | Should beOfType([hashtable])
@@ -207,25 +207,25 @@ Describe New-StructuredDscArgs {
         $r.Count | Should be 3
     }
     It 'invokes commands' {
-        Assert-MockCalled New-StructuredDscArgumentGroup 1 { $GroupName -eq 'Keys' }
-        Assert-MockCalled New-StructuredDscArgumentGroup 1 { $GroupName -eq 'Hints' }
-        Assert-MockCalled New-StructuredDscArgumentGroup 1 { $GroupName -eq 'Properties' }
-        Assert-MockCalled New-StructuredDscArgumentGroup 1 {
+        Assert-MockCalled New-StructuredArgumentGroup 1 { $GroupName -eq 'Keys' }
+        Assert-MockCalled New-StructuredArgumentGroup 1 { $GroupName -eq 'Hints' }
+        Assert-MockCalled New-StructuredArgumentGroup 1 { $GroupName -eq 'Properties' }
+        Assert-MockCalled New-StructuredArgumentGroup 1 {
             $NamedArguments.Key -eq 'key'
         }
     }
 }
 
-Describe Add-StructuredDscGroupParameters {
+Describe Add-StructuredGroupParameters {
     Context 'all params' {
         $i = New-Object pscustomobject
-        $r = $i | Add-StructuredDscGroupParameters (f @allParams)
+        $r = $i | Add-StructuredGroupParameters (f @allParams)
         It 'returns nothing' {
             $r | Should beNullOrEmpty
         }
         It '-Passthru returns input object' {
             $i = New-Object pscustomobject
-            $r = $i | Add-StructuredDscGroupParameters (f @allParams) -PassThru
+            $r = $i | Add-StructuredGroupParameters (f @allParams) -PassThru
             $r | Should be $i
         }
         It 'populates Keys' {
@@ -246,7 +246,7 @@ Describe Add-StructuredDscGroupParameters {
     }
     Context 'omit optional params' {
         $i = New-Object pscustomobject
-        $r = $i | Add-StructuredDscGroupParameters (f @minParams)
+        $r = $i | Add-StructuredGroupParameters (f @minParams)
         It 'omits Hints' {
             $i | Get-Member Hints | Should beNullOrEmpty
         }
@@ -256,7 +256,7 @@ Describe Add-StructuredDscGroupParameters {
     }
     Context 'null optional params' {
         $i = New-Object pscustomobject
-        $r = $i | Add-StructuredDscGroupParameters (f @nullParams)
+        $r = $i | Add-StructuredGroupParameters (f @nullParams)
         It 'omits Hints' {
             $i | Get-Member Hints | Should beNullOrEmpty
         }
@@ -267,7 +267,7 @@ Describe Add-StructuredDscGroupParameters {
 }
 
 Describe New-StructuredResourceArgs {
-    Mock Add-StructuredDscGroupParameters {$InputObject} -Verifiable
+    Mock Add-StructuredGroupParameters {$InputObject} -Verifiable
     Context 'all params' {
         $r = f @allParams | New-StructuredResourceArgs @{
             Param1 = 'param1'
@@ -278,7 +278,7 @@ Describe New-StructuredResourceArgs {
             $r | Should beOfType([pscustomobject])
         }
         It 'invokes commands' {
-            Assert-MockCalled Add-StructuredDscGroupParameters 1 {
+            Assert-MockCalled Add-StructuredGroupParameters 1 {
                 $InvocationInfo.MyCommand.Name -eq 'f' -and
                 $InvocationInfo.BoundParameters.Mode -and
                 $PassThru

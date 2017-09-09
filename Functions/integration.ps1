@@ -27,7 +27,7 @@ function Invoke-IntegrationTest
         $function = Get-PublicResourceFunction $ResourceName $ModuleName
         $structuredDscArgs = $function |
             Get-ParameterMetaData |
-            New-StructuredDscArgs $Arguments
+            New-StructuredArgs $Arguments
         $structuredDscArgs.CommandName = $function.Name
 
         try
@@ -41,7 +41,7 @@ function Invoke-IntegrationTest
 
 ResourceName: $ResourceName
 ModuleName: $ModuleName
-StructuredDscArg: $($structuredDscArgs | ConvertTo-PsLiteralString)
+StructuredArg: $($structuredDscArgs | ConvertTo-PsLiteralString)
 
 "@,
                 $_.Exception

@@ -24,7 +24,7 @@ function Test-StructuredResourceAttributeParameter
     }
 }
 
-function Test-StructuredDscKnownParameter
+function Test-StructuredKnownParameter
 {
     param
     (
@@ -39,7 +39,7 @@ function Test-StructuredDscKnownParameter
     }
 }
 
-function Test-StructuredDscPropertyParameter
+function Test-StructuredPropertyParameter
 {
     param
     (
@@ -53,13 +53,13 @@ function Test-StructuredDscPropertyParameter
         ( $ParameterInfo | Test-StructuredResourceAttributeParameter Property ) -or
         ( 
             -not ($ParameterInfo | Get-ParameterAttribute StructuredResource) -and
-            -not ($ParameterInfo | Test-StructuredDscKnownParameter) -and
+            -not ($ParameterInfo | Test-StructuredKnownParameter) -and
             -not ($ParameterInfo | Test-ParameterKind Common )
         )
     }    
 }
 
-function Test-StructuredDscGroupParameter
+function Test-StructuredGroupParameter
 {
     param
     (
@@ -79,13 +79,13 @@ function Test-StructuredDscGroupParameter
             Keys =   { $_ | Test-StructuredResourceAttributeParameter Key }
             Hints =  { ($_ | Test-StructuredResourceAttributeParameter Hint) -or
                        ($_ | Test-StructuredResourceAttributeParameter ConstructorProperty) }
-            Properties = { ($_ | Test-StructuredDscPropertyParameter) -or
+            Properties = { ($_ | Test-StructuredPropertyParameter) -or
                            ($_ | Test-StructuredResourceAttributeParameter ConstructorProperty) }
         }.$GroupName
     }
 }
 
-function New-StructuredDscArgumentGroup
+function New-StructuredArgumentGroup
 {
     param
     (
@@ -121,7 +121,7 @@ function New-StructuredDscArgumentGroup
         $arguments = $BoundParameters,$NamedArguments | ? {$null -ne $_}
         if 
         ( 
-            ( $ParameterInfo | ? {$_ | Test-StructuredDscGroupParameter $GroupName } ) -and
+            ( $ParameterInfo | ? {$_ | Test-StructuredGroupParameter $GroupName } ) -and
             ( $ParameterInfo.Name -in $arguments.get_Keys() ) -and
             ( $null -ne $arguments.get_Item($ParameterInfo.Name) )
         )
@@ -135,7 +135,7 @@ function New-StructuredDscArgumentGroup
     }
 }
 
-function New-StructuredDscArgs
+function New-StructuredArgs
 {
     param
     (
@@ -169,14 +169,14 @@ function New-StructuredDscArgs
     {
         $arguments = $BoundParameters,$NamedArguments | ? {$null -ne $_}
         @{
-            Keys =       $parameters | New-StructuredDscArgumentGroup Keys $arguments
-            Hints =      $parameters | New-StructuredDscArgumentGroup Hints $arguments
-            Properties = $parameters | New-StructuredDscArgumentGroup Properties $arguments
+            Keys =       $parameters | New-StructuredArgumentGroup Keys $arguments
+            Hints =      $parameters | New-StructuredArgumentGroup Hints $arguments
+            Properties = $parameters | New-StructuredArgumentGroup Properties $arguments
         }
     }
 }
 
-function Add-StructuredDscGroupParameters
+function Add-StructuredGroupParameters
 {
     param
     (
@@ -200,7 +200,7 @@ function Add-StructuredDscGroupParameters
 
         foreach ( $name in 'Keys','Hints','Properties' )
         {
-            $params = $c | Get-ParameterMetaData | New-StructuredDscArgumentGroup $name $p
+            $params = $c | Get-ParameterMetaData | New-StructuredArgumentGroup $name $p
             if ( $params.Keys -ne $null )
             {
                 $InputObject | Add-Member NoteProperty $name $params
@@ -263,6 +263,6 @@ function New-StructuredResourceArgs
             ? { $outputParams.Module = $_ }
 
         [pscustomobject]$outputParams |
-            Add-StructuredDscGroupParameters $InvocationInfo -PassThru
+            Add-StructuredGroupParameters $InvocationInfo -PassThru
     }
 }

@@ -17,7 +17,7 @@ Describe Invoke-IntegrationTest {
     }
     Mock Get-PublicResourceFunction { Get-Command f } -Verifiable
     Mock Get-ParameterMetaData { (Get-Command f).Parameters.Key1 } -Verifiable
-    Mock New-StructuredDscArgs { @{ Keys='k';Hints='h';Properties='p' } } -Verifiable
+    Mock New-StructuredArgs { @{ Keys='k';Hints='h';Properties='p' } } -Verifiable
     Mock Invoke-Scriptblock { 'scriptblock output' } -Verifiable
     $i = [pscustomobject]@{
         ResourceName = 'resource_name'
@@ -38,7 +38,7 @@ Describe Invoke-IntegrationTest {
             Assert-MockCalled Get-ParameterMetaData 1 {
                 $FunctionInfo.Name -eq 'f'
             }
-            Assert-MockCalled New-StructuredDscArgs 1 {
+            Assert-MockCalled New-StructuredArgs 1 {
                 $NamedArguments.arguments -eq 'arguments'
             }
             Assert-MockCalled Invoke-Scriptblock 1 {
