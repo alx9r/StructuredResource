@@ -216,20 +216,42 @@ function Add-StructuredDscGroupParameters
 
 function New-StructuredResourceArgs
 {
+    <#
+	.SYNOPSIS
+	Creates a new arguments object for invoking a structured resource.
+	.DESCRIPTION
+	New-StructuredResourceArgs creates a new object whose properties are suitable for passing to Invoke-StructuredResource as arguments via the pipeline.  Common arguments are determined from InvocationInfo which is usually obtained from the body of a public resource function.  The following arguments are populated from InvocationInfo:
+	
+	 - Mode: the value for Mode that was passed to the public resource function
+	 - Ensure: the value for Ensure that was passed to the public resource function
+	 - Module: the containing module of the public resource function
+	 - Keys: a hashtable containing each of the public resource parameters bearing the [StructuredDsc('Key')] attribute
+	 - Hints: a hashtable containing each of the public resource parameters bearing either the [StructuredDsc('Hint')] or [StructuredDsc('ContstructorProperty')] attributes.
+	 - Properties: a hashtable containing each of the public resource parameters other than Mode, Ensure, and those included in Keys or Hints.
+	 
+	Additional arguments can be included as properties of the object using InputArgs.
+	
+	.PARAMETER InputArgs
+	A hashtable containing user-specified arguments that are included as properties of the new object.
+	
+	.PARAMETER InvocationInfo
+	An InvocationInfo object containing the information from an invocation of a public resource function.  The Mode, Ensure, Module, Properties, Keys, and Hints properties of the new object are obtained from InvocationInfo.
+    #>
     param
     (
         [Parameter(Mandatory,
                    Position = 1)]
         [hashtable]
-        $InputParams,
+        $InputArgs,
 
         [Parameter(Mandatory,
                    ValueFromPipeline)]
+        [System.Management.Automation.InvocationInfo]
         $InvocationInfo
     )
     process
     {
-        $outputParams = $InputParams.Clone()
+        $outputParams = $InputArgs.Clone()
 
         'Mode','Ensure' |
             ? { $_ -in $InvocationInfo.BoundParameters.get_Keys() } |
