@@ -1,17 +1,24 @@
 function Invoke-StructuredResourceTest
 {
     <#
-
+	.SYNOPSIS
+	Runs a structured resource test.
+	
+	.DESCRIPTION
+	Invoke-StructuredResourceTest runs a test created using New-StructuredResourceTest.
+	
+	.PARAMETER InputObject
+	The test object created using New-StructuredResourceTest.
     #>
     [CmdletBinding()]
     param
     (
         [Parameter(ValueFromPipeline = $true)]
         [StructuredResourceTest]
-        $Test
+        $InputObject
     )
     process
     {
-        $Test.Params | % $Test.Scriptblock
+        $InputObject.Params | % $InputObject.Scriptblock
     }
 }
