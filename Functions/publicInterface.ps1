@@ -173,7 +173,7 @@ function Get-PublicResourceFunctionCommandName
     )
     process
     {
-        "Invoke-Process$ResourceName"
+        "Invoke-$ResourceName"
     }
 }
 

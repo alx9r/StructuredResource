@@ -17,8 +17,8 @@ class TestStub2
     [NullSafeString]
     $Corrigible
 
-    [void] Set() { $this | Invoke-ProcessTestStub2 Set }
-    [bool] Test() { return $this | Invoke-ProcessTestStub2 Test }
+    [void] Set() { $this | Invoke-TestStub2 Set }
+    [bool] Test() { return $this | Invoke-TestStub2 Test }
 
     [TestStub2] Get() { return $this }
 }

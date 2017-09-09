@@ -313,7 +313,7 @@ Describe New-StructuredResourceArgs {
 }
 
 Describe 'use New-StructuredResourceArgs' {
-    function Invoke-ProcessSomeResource
+    function Invoke-SomeResource
     {
         [CmdletBinding()]
         param
@@ -349,7 +349,7 @@ Describe 'use New-StructuredResourceArgs' {
                 Property1 = 'property1'
                 Property2 = 'property2'
             }
-            $r = Invoke-ProcessSomeResource @splat
+            $r = Invoke-SomeResource @splat
             $r | Should be 'return value'
         }
         It 'passes through resource parameters' {
@@ -379,7 +379,7 @@ Describe 'use New-StructuredResourceArgs' {
                 Mode = 'Set'
                 Key = 'key'
             }
-            $r = Invoke-ProcessSomeResource @splat
+            $r = Invoke-SomeResource @splat
             $r | Should be 'return value'
         }
         It 'omits omitted resource parameters' {
@@ -401,7 +401,7 @@ Describe 'use New-StructuredResourceArgs' {
                 Property1 = $null
                 Property2 = $null
             }
-            $r = Invoke-ProcessSomeResource @splat
+            $r = Invoke-SomeResource @splat
             $r | Should be 'return value'
         }
         It 'omits omitted resource parameters' {
@@ -412,7 +412,7 @@ Describe 'use New-StructuredResourceArgs' {
         }
     }
     Context 'omit optional params and optional delegates' {
-        function Invoke-ProcessSomeResource
+        function Invoke-SomeResource
         {
             [CmdletBinding()]
             param
@@ -441,7 +441,7 @@ Describe 'use New-StructuredResourceArgs' {
                 Mode = 'Set'
                 Key = 'key'
             }
-            $r = Invoke-ProcessSomeResource @splat
+            $r = Invoke-SomeResource @splat
             $r | Should be 'return value'
         }
         It 'omits omitted delegates' {

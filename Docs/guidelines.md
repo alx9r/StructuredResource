@@ -48,7 +48,7 @@ There might be subtle differences between the public resource class and the resu
 
 Functions are more easily tested than classes.  Exposing a public function that is also invoked by the resource facilitates isolated testing.
 
-### [x] PB.4: The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName
+### [x] PB.4: The function corresponding to public resource ResourceName is named Invoke-ResourceName
 
 **Reason**
 
@@ -115,7 +115,7 @@ Each public resource function has a mandatory `Mode` parameter.  The `Mode` para
 
 **Reason**
 
-The mode parameter is required to select between `Test` and `Set`.  It is of type `[Mode]` to restrict its values to `Set` and `Test`. Because it is mandatory, a default value has no use.  `Mode` is the first positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test`).
+The mode parameter is required to select between `Test` and `Set`.  It is of type `[Mode]` to restrict its values to `Set` and `Test`. Because it is mandatory, a default value has no use.  `Mode` is the first positional argument to support readability at call sites (e.g. `Invoke-Resource Test`).
 
 ### [x] PR.5: `Ensure` public resource parameter.
 
@@ -123,7 +123,7 @@ Each public resource function has an optional `Ensure` parameter.  The `Ensure` 
 
 **Reason**
 
-The name `Ensure` should only be used to specify whether a resource is present or absent because that is its customary meaning in PowerShell DSC.  `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` is the second positional argument to support readability at call sites (e.g. `Invoke-ProcessResource Test Absent`).  `Ensure` has default value `Present` because omitting `Ensure` should cause the resource to ensure presence.
+The name `Ensure` should only be used to specify whether a resource is present or absent because that is its customary meaning in PowerShell DSC.  `Ensure` is of type `[Ensure]` so that it can only take the values `Present` and `Absent`.  `Ensure` is the second positional argument to support readability at call sites (e.g. `Invoke-Resource Test Absent`).  `Ensure` has default value `Present` because omitting `Ensure` should cause the resource to ensure presence.
 
 ### [x] PR.6: No public resource parameters bind to pipeline value.
 
@@ -139,13 +139,13 @@ Eeach public resource parameter should have the `ValueFromPipelineByPropertyName
 
 **Reason**
 
-This is to support binding of bulk parameters using objects.  In particular, it supports passing the values of member variables of a `[DscResource()]` object as arguments to the function (e.g. `$this | Invoke-ProcessResource Set`).
+This is to support binding of bulk parameters using objects.  In particular, it supports passing the values of member variables of a `[DscResource()]` object as arguments to the function (e.g. `$this | Invoke-Resource Set`).
 
 ### [x] PR.8: No `Mode` public resource property
 
 **Reason**
 
-This is to avert confusion that might result when bulk-binding the values of a public resource properties to public resource parameters using the pipeline (e.g. `$this | Invoke-ProcessResource`).  The correct value for `Mode` must be explicitly passed to the public resource function (e.g. "`Test`" in `Invoke-ProcessResource Test`) on each invocation of the `Set()` and `Test()` methods.  The existence of a `Mode` property probably indicates an error.  That is, a resource author is probably incorrectly expecting `Mode` to be passed from a public resource property by the pipeline.
+This is to avert confusion that might result when bulk-binding the values of a public resource properties to public resource parameters using the pipeline (e.g. `$this | Invoke-Resource`).  The correct value for `Mode` must be explicitly passed to the public resource function (e.g. "`Test`" in `Invoke-Resource Test`) on each invocation of the `Set()` and `Test()` methods.  The existence of a `Mode` property probably indicates an error.  That is, a resource author is probably incorrectly expecting `Mode` to be passed from a public resource property by the pipeline.
 
 ### [x] PR.9: Each public resource parameter is statically-typed.
 

@@ -43,7 +43,7 @@ function Get-Tests
         Prerequisites = 'T006'
     }
     'PB.4' = @{
-        Message = 'The function corresponding to public resource ResourceName is named Invoke-ProcessResourceName.'
+        Message = 'The function corresponding to public resource ResourceName is named Invoke-ResourceName.'
         Prerequisites = 'T006'
     }
     T006 = @{

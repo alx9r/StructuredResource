@@ -17,8 +17,8 @@ class TestStub1
     [NullSafeString]
     $SomeValue = 'some default'
 
-    [void] Set() { $this | Invoke-ProcessTestStub1 Set }
-    [bool] Test() { return $this | Invoke-ProcessTestStub1 Test }
+    [void] Set() { $this | Invoke-TestStub1 Set }
+    [bool] Test() { return $this | Invoke-TestStub1 Test }
 
     [TestStub1] Get() { return $this }
 }

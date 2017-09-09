@@ -145,7 +145,7 @@ Describe Assert-DscResource {
 Describe Get-PublicResourceFunctionCommandName {
     It 'returns correct name' {
         $r = Get-PublicResourceFunctionCommandName 'ResourceName'
-        $r | Should be 'Invoke-ProcessResourceName'
+        $r | Should be 'Invoke-ResourceName'
     }
 }
 

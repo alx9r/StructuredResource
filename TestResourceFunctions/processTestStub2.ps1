@@ -3,7 +3,7 @@ $testStub2 = @{
     Property = [string]::Empty
 }
 
-function Invoke-ProcessTestStub2
+function Invoke-TestStub2
 {
     [CmdletBinding()]
     param
