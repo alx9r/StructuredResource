@@ -1,5 +1,21 @@
 function New-StructuredResourceTest
 {
+    <#
+	.SYNOPSIS
+	Creates an object for testing a structured resource.
+	
+	.DESCRIPTION
+	New-StructuredResourceTest creates an object for testing a structured resource.  The tests can be invoked by piping the object to Invoke-StructuredResourceTest.
+	
+	.PARAMETER ResourceName
+	The name of the structured resource to test.
+	
+	.PARAMETER ModuleName
+	The name of the module containing the structured resource to test.
+	
+	.PARAMETER Arguments
+	A hashtable containing the arguments used to perform integration tests on the resource. 
+    #>
     [CmdletBinding()]
     param
     (
