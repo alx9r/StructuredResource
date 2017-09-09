@@ -266,10 +266,10 @@ Describe Add-StructuredDscGroupParameters {
     }
 }
 
-Describe New-StructuredArguments {
+Describe New-StructuredResourceArgs {
     Mock Add-StructuredDscGroupParameters {$InputObject} -Verifiable
     Context 'all params' {
-        $r = f @allParams | New-StructuredArguments @{
+        $r = f @allParams | New-StructuredResourceArgs @{
             Param1 = 'param1'
             Param2 = 'param2'
         }
@@ -299,20 +299,20 @@ Describe New-StructuredArguments {
         }
     }
     Context 'omit optional params' {
-        $r = f @minParams | New-StructuredArguments @{}
+        $r = f @minParams | New-StructuredResourceArgs @{}
         It 'omits Ensure' {
             $r | Get-Member Ensure | Should beNullOrEmpty
         }
     }
     Context 'null optional params' {
-        $r = f @nullParams | New-StructuredArguments @{}
+        $r = f @nullParams | New-StructuredResourceArgs @{}
         It 'omits Ensure' {
             $r | Get-Member Ensure | Should beNullOrEmpty
         }
     }
 }
 
-Describe 'use New-StructuredArguments' {
+Describe 'use New-StructuredResourceArgs' {
     function Invoke-ProcessSomeResource
     {
         [CmdletBinding()]
@@ -328,7 +328,7 @@ Describe 'use New-StructuredArguments' {
         process
         {
             $params = $MyInvocation | 
-                New-StructuredArguments @{
+                New-StructuredResourceArgs @{
                     Tester = 'Test-SomeResource'
                     Curer = 'Add-SomeResource'
                     Remover = 'Remove-SomeResource'
@@ -427,7 +427,7 @@ Describe 'use New-StructuredArguments' {
             process
             {
                 $MyInvocation | 
-                    New-StructuredArguments @{
+                    New-StructuredResourceArgs @{
                         Tester = 'Test-SomeResource'
                         Curer = 'Add-SomeResource'
                     } |

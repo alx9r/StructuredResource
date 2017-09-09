@@ -214,7 +214,7 @@ function Add-StructuredDscGroupParameters
     }
 }
 
-function New-StructuredArguments
+function New-StructuredResourceArgs
 {
     param
     (
