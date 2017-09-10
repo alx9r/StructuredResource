@@ -1,0 +1,4 @@
+ - add guidelines and tests for parity between [DscProperty(Key)] and [StructuredDsc('Key')]
+ - add early test for existence of parameters to catch PowerShell's strange silent failure problem
+ - add tests so that calls to Invoke-Resource are not forgotten in the .Set() and .Test() methods
+ - add test that confirms Test mode returns anything at all
