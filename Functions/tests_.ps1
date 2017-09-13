@@ -344,9 +344,25 @@ function Get-Tests
                 }
         }
     }
+    T035 = @{
+        Message = 'Testing returns something.'
+        Prerequisites = 'PR.19'
+        Scriptblock = {
+            $_ | Invoke-IntegrationTest {
+                param($CommandName,$Keys,$Hints,$Properties)
+                $r = & $CommandName Test Absent @Keys |
+                    measure |
+                    % Count
+                if ( $r -lt 1 )
+                {
+                    throw 'test returned nothing'
+                }
+            }
+        }
+    }
     'C.1' = @{
         Message = 'A resource can be set absent.'
-        Prerequisites = 'PR.19'
+        Prerequisites = 'T035'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
