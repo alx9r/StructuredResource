@@ -83,9 +83,24 @@ function Get-Tests
         Prerequisites = 'T001'
         Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
     }
+    T034 = @{
+        Message = 'Public resource function has parameters'
+        Prerequisites = 'T006'
+        Scriptblock = {
+            $r = $_ | 
+                Get-PublicResourceFunction | 
+                Get-ParameterMetaData |
+                measure |
+                % Count
+            if ( $r -lt 1 )
+            {
+                throw 'no parameters found'
+            }
+        }
+    }
     'PR.4' = @{
         Message = 'Mode public resource parameter.'
-        Prerequisites = 'T014','T015','T016','T017','T018','T019','T020'
+        Prerequisites = 'T014','T015','T016','T017','T018','T019','T020','T034'
     }
     T014 = @{
         Message = 'Public resource function has Mode parameter.'
@@ -129,7 +144,7 @@ function Get-Tests
     }
     'PR.5' = @{
         Message = 'Ensure public resource parameter.'
-        Prerequisites = 'T021','T022','T023','T024','T025','T026','T027'
+        Prerequisites = 'T021','T022','T023','T024','T025','T026','T027','T034'
     }
     T021 = @{
         Message = 'Public resource function has Ensure parameter.'
@@ -173,12 +188,12 @@ function Get-Tests
     }
     'PR.6' = @{
         Message = 'No public resource parameters bind to pipeline value.'
-        Prerequisites = 'T006'
+        Prerequisites = 'T006','T034'
         Scriptblock =  { $_ | Get-PublicResourceFunction | Get-ParameterMetaData | Assert-ParameterAttribute ValueFromPipeline $false }
     }
     'PR.7' = @{
         Message = 'Public resource parameters bind to pipeline object property values.'
-        Prerequisites = 'T006'
+        Prerequisites = 'T006','T034'
         Scriptblock = { 
             $_ | 
                 Get-PublicResourceFunction | 
@@ -194,7 +209,7 @@ function Get-Tests
     }
     'PR.9' = @{
         Message = 'Each public resource parameter is statically-typed.'
-        Prerequisites = 'T006'
+        Prerequisites = 'T006','T034'
         Scriptblock = { 
             $_ | 
                 Get-PublicResourceFunction | 
@@ -206,7 +221,7 @@ function Get-Tests
     }
     'PR.10' = @{
         Message = 'Optional public resource parameters cannot be [string]'
-        Prerequisites = 'T006'
+        Prerequisites = 'T006','T034'
         Scriptblock = { 
             $_ | 
                 Get-PublicResourceFunction | 
@@ -219,7 +234,7 @@ function Get-Tests
     }
     'PR.11' = @{
         Message = 'Optional value-type public resource parameters must be `[Nullable[T]]`.'
-        Prerequisites = 'T028'
+        Prerequisites = 'T028','T034'
     }
     T028 = @{
         Message = 'Optional public resource parameters must be nullable.'
@@ -253,7 +268,7 @@ function Get-Tests
     }
     'PR.14' = @{
         Message = 'Public resource function parameters do not have the [AllowNull()] attribute.'
-        Prerequisites = 'T006'
+        Prerequisites = 'T006','T034'
         Scriptblock = { 
             $_ |
                 Get-PublicResourceFunction |
@@ -272,7 +287,7 @@ function Get-Tests
     }
     'PR.16' = @{
         Message =  'Each public resource parameter has a corresponding public resource property.'
-        Prerequisites = 'T002','T006'
+        Prerequisites = 'T002','T006','T034'
         Scriptblock = { 
             $type = $_ | Get-NestedModuleType
             $_ | Get-PublicResourceFunction | 

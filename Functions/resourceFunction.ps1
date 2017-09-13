@@ -14,6 +14,10 @@ function Get-ParameterMetaData
     )
     process
     {
+        if ( $null -eq $FunctionInfo.Parameters )
+        {
+            return
+        }
         if ( -not $ParameterName )
         {
             return $FunctionInfo.Parameters.get_Values()

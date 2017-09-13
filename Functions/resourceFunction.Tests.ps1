@@ -18,6 +18,16 @@ Describe Get-ParameterMetaData {
         $r = Get-Command f | Get-ParameterMetaData
         $r.Count | Should be 2
     }
+    It 'returns nothing for no input parameters' {
+        function f {}
+        $r = Get-Command f | Get-ParameterMetaData
+        $r | Should beNullOrEmpty
+    }
+    It 'returns nothing for corrupted input parameters' {
+        function f {param([BadAttribute()]$x)}
+        $r = Get-Command f | Get-ParameterMetaData
+        $r | Should beNullOrEmpty
+    }
 }
 
 Describe Get-ParameterAst {
