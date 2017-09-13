@@ -407,27 +407,68 @@ function Get-Tests
     }
     'C.6' = @{
         Message = 'Properties can be set after construction.'
+        Prerequisites = 'T032'
+    }
+    T032 = @{
+        Message = 'Each property can be set after construction.'
         Prerequisites = 'C.2'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
-                & $CommandName Set Absent @Keys
-                & $CommandName Set Present @Keys @Hints
-                & $CommandName Set Present @Keys @Properties
-                & $CommandName Test Present @Keys @Properties | Assert-Value $true
-            }            
+
+                foreach ( $propertyName in $Properties.get_Keys() )
+                {
+                    & $CommandName Set Absent @Keys
+                    & $CommandName Set Present @Keys @Hints
+
+                    $property = @{ $propertyName = $Properties.$propertyName }
+                    try
+                    {
+                        & $CommandName Set Present @Keys @property
+                        & $CommandName Test Present @Keys @property | Assert-Value $true
+                    }
+                    catch
+                    {
+                        throw [System.Exception]::new(
+                            ($property | ConvertTo-PsLiteralString),
+                            $_.Exception
+                        )
+                    }
+                }
+            }
         }
     }
     'C.7' = @{
         Message = 'A property can be set on construction.'
+        Prerequisites = 'T033'
+    }
+    T033 = @{
+        Message = 'Each property can be set on construction.'
         Prerequisites = 'C.2'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
-                & $CommandName Set Absent @Keys
-                & $CommandName Set Present @Keys @Properties
-                & $CommandName Test Present @Keys @Properties | Assert-Value $true
-            }
+
+                foreach ( $propertyName in $Properties.get_Keys() )
+                {
+                    & $CommandName Set Absent @Keys
+
+
+                    $property = @{ $propertyName = $Properties.$propertyName }
+                    try
+                    {
+                        & $CommandName Set Present @Keys @property
+                        & $CommandName Test Present @Keys @property | Assert-Value $true
+                    }
+                    catch
+                    {
+                        throw [System.Exception]::new(
+                            ($property | ConvertTo-PsLiteralString),
+                            $_.Exception
+                        )
+                    }
+                }
+            }            
         }
     }
 }
