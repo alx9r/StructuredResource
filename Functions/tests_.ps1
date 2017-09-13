@@ -344,9 +344,38 @@ function Get-Tests
                 }
         }
     }
+    'PR.21' = @{
+        Message = "Each public resource parameter whose corresponding public resource property bear [DscProperty(Key)] bears [StructuredResource('Key')]"
+        Prerequisites = 'T002','T006'
+        Scriptblock = {
+            $function = $_ | Get-PublicResourceFunction
+            $_ | 
+                Get-NestedModuleType | 
+                Get-MemberProperty |
+                ? {
+                    $_ | 
+                        Get-PropertyCustomAttribute DscProperty |
+                        Test-CustomAttributeArgument Key $true
+                } |
+                % {
+                    $r = $function |
+                        Get-ParameterMetaData $_.Name |
+                        Get-ParameterAttribute StructuredResource |
+                        ? {$null -ne $_} |
+                        Get-AttributeArgument ParameterType
+                    if ( $r -ne 'Key' )
+                    {
+                        throw [System.Exception]::new(
+                            "Parameter $($_.Name) does not bear the [StructuredResource('Key')] attribute",
+                            $_.Exception
+                        )
+                    }
+                }            
+        }
+    }
     T035 = @{
         Message = 'Testing returns something.'
-        Prerequisites = 'PR.19'
+        Prerequisites = 'PR.21'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)

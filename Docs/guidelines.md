@@ -229,7 +229,13 @@ This is to ensure the same behavior whether the resource is invoked using the pu
 
 **Reason**
 
-This is so that libraries interpreting public resource parameters are able to correctly pass required properties to a resource's constructor.   
+This is so that libraries interpreting public resource parameters are able to correctly pass required properties to a resource's constructor.
+
+### [ ] PR.21: Each public resource parameter whose corresponding public resource property bear `[DscProperty(Key)]` bears `[StructuredResource('Key')]`
+
+**Reason**
+
+This is to ensure that libraries interpreting public resource parameters are able to correctly identify Key parameters.
 
 ## I: Integration
 
