@@ -78,7 +78,7 @@ Related resources usually share an amount of utility code.  Publishing related r
 
 Invoke `Get-DscResource` for each of the related public resources and confirm that the module name is the parent module. 
 
-### [ ] L.3: The Set and Test methods of the public resource class simply invoke the public function
+### [ ] L.3: The Set and Test methods of the public resource class simply invoke the corresponding public function
 
 **Reason**
 

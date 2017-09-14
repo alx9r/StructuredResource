@@ -531,5 +531,17 @@ function Get-Tests
             }            
         }
     }
+    'L.3' = @{
+        Message = 'The Set and Test methods of the public resource class simply invoke the corresponding public function.'
+        Prerequisites = 'PB.3'
+        Scriptblock = {
+            $a = $_ | Get-NestedModule |
+                    Get-ModuleAst |
+                    % { $_.EndBlock } |
+                    Get-StatementAst TestStub2
+            'Set','Test' |
+                % { $a | Assert-ResourceClassMethodBody $_ }
+        }
+    }
 }
 }

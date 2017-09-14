@@ -1,4 +1,3 @@
- - add tests so that calls to Invoke-Resource are not forgotten in the .Set() and .Test() methods
  - argument names passed to New-StructuredResourceTest should be tested for validity
  - argument names passed to New-StructuredResourceTest should be tested for omissions
  - New-StructuredResourceArgs should check that all ConstructorProperties are provided in Set mode

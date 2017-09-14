@@ -18,7 +18,7 @@ class TestStub2
     $Corrigible
 
     [void] Set() { $this | Invoke-TestStub2 Set }
-    [bool] Test() { return $this | Invoke-TestStub2 Test }
+    [bool] Test() { return $this | Invoke-TestStub2 }
 
     [TestStub2] Get() { return $this }
 }

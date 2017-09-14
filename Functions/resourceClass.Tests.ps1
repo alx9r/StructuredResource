@@ -146,4 +146,134 @@ Describe Assert-DscResourceAttribute {
     }
 }
 
+Describe Assert-ResourceClassMethodBody {
+    Context 'Test' {
+        Context 'success' {
+            $a = {
+                class R {
+                    [bool] Test () { return $this | Invoke-R Test }
+                }
+            }.Ast.EndBlock |
+                Get-StatementAst R
+            It 'returns nothing' {
+                $r = $a | Assert-ResourceClassMethodBody Test
+                $r | Should -BeNullOrEmpty
+            }
+        }
+        Context 'failure throws' {
+            It '"expected" message' {
+                { 
+                    {
+                        class R {
+                            [bool] Test () {return $true}
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Test
+                } |
+                    Should throw '[bool] Test () { return $this | Invoke-R Test }'                 
+            }
+            It 'extra statement' {
+                { 
+                    {
+                        class R {
+                            [bool] Test () { Out-Null; return  Invoke-R Test }
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Test
+                } |
+                    Should throw 'exactly one statement'          
+            }
+            It 'no this' {
+                { 
+                    {
+                        class R {
+                            [bool] Test () { return  Invoke-R Test }
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Test
+                } |
+                    Should throw 'missing $this'
+            }
+            It 'no public resource function name' {
+                { 
+                    {
+                        class R {
+                            [bool] Test () { return $this | Invoke-SomeWrongResource }
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Test
+                } |
+                    Should throw 'missing call'            
+            }
+            It 'no mode parameter' {
+                { 
+                    {
+                        class R {
+                            [bool] Test () { return $this | Invoke-R }
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Test
+                } |
+                    Should throw 'missing mode'
+            }
+            It 'wrong mode parameter' {
+                { 
+                    {
+                        class R {
+                            [bool] Test () { return $this | Invoke-R Set }
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Test
+                } |
+                    Should throw 'incorrect mode'
+            }
+        }
+    }
+    Context 'Set' {
+        Context 'success' {
+            $a = {
+                class R {
+                    [void] Set () { $this | Invoke-R Set }
+                }
+            }.Ast.EndBlock |
+                Get-StatementAst R
+            It 'returns nothing' {
+                $r = $a | Assert-ResourceClassMethodBody Set
+                $r | Should -BeNullOrEmpty
+            }
+        }
+        Context 'failure throws' {
+            It '"expected" message' {
+                { 
+                    {
+                        class R {
+                            [void] Set () {}
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Set
+                } |
+                    Should throw '[void] Set () { $this | Invoke-R Set }'                 
+            }
+            It 'wrong mode parameter' {
+                { 
+                    {
+                        class R {
+                            [void] Set () { $this | Invoke-R Test }
+                        }
+                    }.Ast.EndBlock |
+                        Get-StatementAst R |
+                        Assert-ResourceClassMethodBody Set
+                } |
+                    Should throw 'incorrect mode'
+            }
+        }
+    }
+}
 }
