@@ -439,11 +439,11 @@ function Get-Tests
     }
     'C.5' = @{
         Message = 'An absent resource tests false for presence.'
-        Prerequisites = 'C.1','C.3'
+        Prerequisites = 'T030','T031'
     }
     T030 = @{
         Message = 'An absent resource tests false for presence.'
-        Prerequisites = 'C.5'
+        Prerequisites = 'C.2'
         Scriptblock = {
                 $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
@@ -454,7 +454,7 @@ function Get-Tests
     }
     T031 = @{
         Message = 'An absent resource tests false for presence after adding and removing it.'
-        Prerequisites = 'C.5'
+        Prerequisites = 'C.2'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
@@ -471,7 +471,7 @@ function Get-Tests
     }
     T032 = @{
         Message = 'Each property can be set after construction.'
-        Prerequisites = 'C.2'
+        Prerequisites = 'C.5'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
@@ -507,7 +507,7 @@ function Get-Tests
     }
     T033 = @{
         Message = 'Each property can be set on construction.'
-        Prerequisites = 'C.2'
+        Prerequisites = 'C.5'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
