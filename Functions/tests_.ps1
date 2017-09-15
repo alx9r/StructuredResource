@@ -476,7 +476,10 @@ function Get-Tests
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
 
-                foreach ( $propertyName in $Properties.get_Keys() )
+                $pk = $Properties | ? { $null -ne $_ } | % {$_.get_Keys()}
+                $hk = $Hints      | ? { $null -ne $_ } | % {$_.get_Keys()}
+
+                foreach ( $propertyName in ($pk | ? {$_ -notin $hk}) )
                 {
                     & $CommandName Set Absent @Keys
                     & $CommandName Set Present @Keys @Hints
@@ -484,7 +487,7 @@ function Get-Tests
                     $property = @{ $propertyName = $Properties.$propertyName }
                     try
                     {
-                        & $CommandName Set Present @Keys @property
+                        & $CommandName Set Present @Keys @Hints @property
                         & $CommandName Test Present @Keys @property | Assert-Value $true
                     }
                     catch
@@ -509,10 +512,12 @@ function Get-Tests
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
 
-                foreach ( $propertyName in ($Properties.get_Keys() | ? {$_ -notin $Hints.get_Keys()}) )
+                $pk = $Properties | ? { $null -ne $_ } | % {$_.get_Keys()}
+                $hk = $Hints      | ? { $null -ne $_ } | % {$_.get_Keys()}
+
+                foreach ( $propertyName in ($pk | ? {$_ -notin $hk}) )
                 {
                     & $CommandName Set Absent @Keys
-
 
                     $property = @{ $propertyName = $Properties.$propertyName }
                     try

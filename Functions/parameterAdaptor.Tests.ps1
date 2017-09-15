@@ -297,6 +297,10 @@ Describe New-StructuredResourceArgs {
         It 'populates module' {
             $r.Module.Name | Should be 'm'
         }
+        It 'populates __InvocationInfo' {
+            $r.__InvocationInfo | Should -Not -BeNullOrEmpty
+            $r.__InvocationInfo | Should -BeOfType ([System.Management.Automation.InvocationInfo])
+        }
     }
     Context 'omit optional params' {
         $r = f @minParams | New-StructuredResourceArgs @{}
@@ -450,6 +454,77 @@ Describe 'use New-StructuredResourceArgs' {
                 $null -eq $PropertyTester -and
                 $null -eq $PropertyCurer
             }
+        }
+    }
+}
+
+Describe Assert-StructuredResourceArgs {
+    Mock Assert-ConstructorArgument -Verifiable
+    It 'passes object unaltered' {
+        $a = [pscustomobject]@{}
+        $r = $a | Assert-StructuredResourceArgs
+        $r | Should be $a
+    }
+    Context 'Set Present' {
+        function f { param($x) $MyInvocation }
+        It 'invokes constructor property assertion' {
+            [pscustomobject]@{
+                Mode = 'Set'
+                Ensure = 'Present'
+                Hints = @{ Hint = 'hint' }
+                __InvocationInfo = f 1
+            } |
+                Assert-StructuredResourceArgs
+
+            Assert-MockCalled Assert-ConstructorArgument 1 {
+                $Arguments.x -eq 1
+            }
+        }
+    }
+    Context 'not Set Present' {
+        It 'does not invoke constructor property assertion' {
+            [pscustomobject]@{} | Assert-StructuredResourceArgs
+
+            Assert-MockCalled Assert-ConstructorArgument 0 -Exactly
+        }
+    }
+    Context 'Set Present without __InvocationInfo' {
+        It 'throws' {
+            {
+                [pscustomobject]@{
+                    Mode = 'Set'
+                    Ensure = 'Present'
+                } |
+                    Assert-StructuredResourceArgs
+            } |
+                Should throw '__InvocationInfo missing'
+        }
+    }
+}
+
+Describe 'use Assert-StructuredResourceArgs' {
+    function Invoke-SomeResource
+    {
+        [CmdletBinding()]
+        param
+        (
+            $Mode,
+            $Ensure,
+            [StructuredResource('ConstructorProperty')]$CtorProp
+        )
+        process
+        {
+            $args = $MyInvocation | New-StructuredResourceArgs @{}
+            $args | Assert-StructuredResourceArgs | Out-Null
+        }
+    }
+    It 'success' {
+        Invoke-SomeResource -Mode Set -Ensure Present -CtorProp foo
+    }
+    Context 'omit constructor property' {
+        It 'throws' {
+            { Invoke-SomeResource -Mode Set -Ensure Present } |
+                Should throw 'constructor property'
         }
     }
 }

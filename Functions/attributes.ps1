@@ -18,6 +18,32 @@ function Get-AttributeArgument
     }
 }
 
+function Test-AttributeArgument
+{
+    param
+    (
+        [Parameter(Position = 1)]
+        [string]
+        $ArgumentName,
+
+        [Parameter(Position = 2)]
+        $Value,
+
+        [Parameter(Mandatory = $true,
+                   ValueFromPipeline = $true)]
+        [System.Attribute]
+        $Attribute
+    )
+    process
+    {
+        if ( 'Value' -in $PSBoundParameters.get_Keys() )
+        {
+            return $Value -eq ($Attribute | Get-AttributeArgument $ArgumentName)
+        }
+        [bool]( $Attribute | Get-AttributeArgument $ArgumentName )
+    }
+}
+
 function Get-CustomAttributeArgument
 {
     param

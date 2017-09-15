@@ -262,7 +262,48 @@ function New-StructuredResourceArgs
             ? { $_ } |
             ? { $outputParams.Module = $_ }
 
+        $outputParams.__InvocationInfo = $InvocationInfo
+
         [pscustomobject]$outputParams |
             Add-StructuredGroupParameters $InvocationInfo -PassThru
+    }
+}
+
+function Assert-StructuredResourceArgs
+{
+    <#
+    .SYNOPSIS
+    Asserts that the arguments of a parameter object are valid for passing to Invoke-StructuredResource.
+    .DESCRIPTION
+    Assert-StructuredResourceArgs analyses the values of the properties of an object.  Assert-StructuredResourceArgs throws an exception if it detects that those properties would be invalid if passed as arguments to Invoke-StructuredResource.  Assert-StructuredResourceArgs does not throw exceptions for such invalid values if those values would cause failed parameter binding.
+	
+	If no invalid values are found, Assert-StructuredResourceArgs outputs InputObject to support chaining.
+	.PARAMETER InputObject
+	The parameter object to analyse.  If no invalid values are found, InputObject is output by Assert-StructuredResourceArgs.
+    #>
+    param
+    (
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        $InputObject
+    )
+    process
+    {
+        if
+        (
+            $InputObject.Mode -eq 'Set' -and
+            $InputObject.Ensure -eq 'Present'
+        )
+        {
+            if ( $null -eq $InputObject.__InvocationInfo )
+            {
+                throw '__InvocationInfo missing from arguments object.  Need [InvocationInfo] to perform constructor property check for Set Present.'
+            }
+
+            $InputObject.__InvocationInfo.MyCommand.Parameters.Values | 
+                Assert-ConstructorArgument $InputObject.__InvocationInfo.BoundParameters
+        }
+
+        $InputObject
     }
 }

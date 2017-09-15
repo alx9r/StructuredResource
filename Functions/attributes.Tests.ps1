@@ -5,15 +5,54 @@ InModuleScope StructuredResource {
 Describe Get-AttributeArgument {
     function f {
         param (
-            [Alias('y')]$x
+            [Parameter(Position=1)]$x
         )
     }
     $a = Get-Command f |
         Get-ParameterMetaData x | 
-        Get-ParameterAttribute Alias
+        Get-ParameterAttribute Parameter
     It 'returns argument' {
-        $r = $a | Get-AttributeArgument AliasNames
-        $r | Should be 'y'
+        $r = $a | Get-AttributeArgument Position
+        $r | Should -Be 1
+    }
+}
+
+Describe Test-AttributeArgument {
+    function f {
+        param (
+            [Parameter(position=1)]
+            $x
+        )
+    }
+    $p = Get-Command f |
+        Get-ParameterMetaData x
+    Context 'existence' {
+        It 'true' {
+            $r = $p | 
+                Get-ParameterAttribute Parameter |
+                Test-AttributeArgument Position
+            $r | Should -Be $true
+        }
+        It 'false' {
+            $r = $p |
+                Get-ParameterAttribute Parameter |
+                Test-AttributeArgument 'NotAnAttribute'
+            $r | Should -Be $false
+        }
+    }
+    Context 'value' {
+        It 'true' {
+            $r = $p |
+                Get-ParameterAttribute Parameter |
+                Test-AttributeArgument Position 1
+            $r | Should be $true
+        }
+        It 'false' {
+            $r = $p |
+                Get-ParameterAttribute Parameter |
+                Test-AttributeArgument Position 2
+            $r | Should be $false
+        }
     }
 }
 
