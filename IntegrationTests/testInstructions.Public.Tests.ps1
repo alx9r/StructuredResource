@@ -10,6 +10,8 @@ Describe 'Public API: Invoke-StructuredResourceTest' {
     It 'invoke' {
         $i = New-StructuredResourceTest TestStub2 StructuredResource @{
             Presence = 'Corrigible'
+            Corrigible = 'value'
+            Incorrigible = ''
         }
         $i | Invoke-StructuredResourceTest
     }

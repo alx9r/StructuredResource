@@ -391,13 +391,27 @@ function Get-Tests
     }
     'C.1' = @{
         Message = 'A resource can be set absent.'
-        Prerequisites = 'T035'
+        Prerequisites = 'T035','T036'
         Scriptblock = {
             $_ | Invoke-IntegrationTest {
                 param($CommandName,$Keys,$Hints,$Properties)
                 & $CommandName Set Absent @Keys
                 & $CommandName Test Absent @Keys | Assert-Value $true
             }
+        }
+    }
+    T036 = @{
+        Message = 'All arguments for key and property parameters are provided.'
+        Prerequisites = 'PB.3'
+        Scriptblock = {
+            $_ | 
+                Get-PublicResourceFunction |
+                Get-ParameterMetaData |
+                ? { 
+                    -not ($_ | Test-StructuredKnownParameter) -and
+                    ($_ | Test-ParameterKind -Not Common)
+                } |
+                Assert-NamedArgument $_.Arguments
         }
     }
     'C.2' = @{

@@ -92,6 +92,11 @@ Describe Invoke-TestStub2 {
                 $r = Invoke-TestStub2 Test Present -Presence Corrigible -Incorrigible ([string]::Empty)
                 $r | Should be $true
             }
+            It 'test false when set to non-empty' {
+                Invoke-TestStub2 Set Present -Presence Corrigible -Incorrigible 'value'
+                $r = Invoke-TestStub2 Test Present -Presence Corrigible -Incorrigible 'value'
+                $r | Should be $false
+            }
         }
     }
 }

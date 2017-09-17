@@ -41,8 +41,24 @@ function Invoke-TestStub2
             Incorrigible = 'Absent'
         }.$Presence
 
+        if ( $Mode -eq 'Test' )
+        {
+            if ( $null -ne $Corrigible -and 
+                 $testStub2.Property -ne $Corrigible )
+            {
+                return $false
+            }
+            if ( $null -ne $Incorrigible -and
+                 [string]::Empty -ne $Incorrigible )
+            {
+                return $false
+            }
+            return $_presence -eq $Ensure
+        }
+
         if ( $Mode -eq 'Test' -and
-             $null -eq $Corrigible )
+             $null -eq $Corrigible -and
+             $null -eq $Incorrigible )
         {
             return $_presence -eq $Ensure
         }
