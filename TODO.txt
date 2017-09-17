@@ -1,2 +1,1 @@
- - argument names passed to New-StructuredResourceTest should be tested for validity
- - argument names passed to New-StructuredResourceTest should be tested for omissions
+ - support and test multiple argument sets
