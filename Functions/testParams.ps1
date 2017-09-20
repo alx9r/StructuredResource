@@ -4,11 +4,11 @@ function New-TestParams
     param
     (
         [Parameter(position = 1,
-                   Mandatory = $true)]
+                   Mandatory)]
         $ResourceName,
 
         [Parameter(position = 2,
-                   Mandatory = $true)]
+                   Mandatory)]
         $ModuleName,
 
         [Parameter(position = 3)]

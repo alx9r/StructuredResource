@@ -4,7 +4,7 @@ function ConvertTo-DependencyGraph
     param
     (
         [Parameter(position = 1,
-                   Mandatory = $true)]
+                   Mandatory)]
         [hashtable]
         $Dependencies
     )
@@ -29,19 +29,24 @@ function Get-OrderedTestIds
     ConvertTo-DependencyGraph $Dependencies | Invoke-SortGraph
 }
 
-function Get-OrderedSteps
+function Get-OrderedTests
 {
     [CmdletBinding()]
     param
     (
-        [Parameter(position = 1)]
+        [Parameter(ValueFromPipeline,
+                   Mandatory)]
+        [TestParams]
+        $TestParams,
+
         [hashtable]
         $Tests = (Get-Tests)
     )
     Get-OrderedTestIds $Tests |
         % { 
-            $step = New-Object StructuredResourceTest -Property $Tests.get_Item($_)
-            $step.ID = $_
-            $step
+            $test = New-Object StructuredResourceTest -Property $Tests.get_Item($_)
+            $test.ID = $_
+            $test.Params = $TestParams
+            $test
         }
 }

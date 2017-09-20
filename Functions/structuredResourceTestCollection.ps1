@@ -37,20 +37,9 @@ function New-StructuredResourceTest
         [hashtable]
         $Arguments
     )
-    New-Object StructuredResourceTestCollection (New-TestParams @PSBoundParameters)
-}
-
-function Get-TestEnumerator
-{
-    [CmdletBinding()]
-    param
-    (
-        [StructuredResourceTestCollection]
-        $Enumerable
-    )
-    ,(
-        Get-OrderedSteps |
-            ? { $_.Scriptblock } |
-            % { $_.Params = $Enumerable.Params; $_ }
-    ).GetEnumerator()
+    process
+    {
+        New-Object TestParams -Property $PSBoundParameters |
+            Get-OrderedTests
+    }
 }
