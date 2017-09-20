@@ -35,4 +35,35 @@ Describe Invoke-StructuredResourceTest {
         }
     }
 }
+
+Describe Get-StructuredResourceTestKind {
+    It 'Integration' {
+        $r = New-Object StructuredResourceTest -Property @{ Scriptblock = {Invoke-IntegrationTest} } |
+            Get-StructuredResourceTestKind
+        $r | Should be 'Integration'
+    }
+    It 'Unit' {
+        $r = New-Object StructuredResourceTest |
+            Get-StructuredResourceTestKind
+        $r | Should be 'Unit'
+    }
+}
+
+Describe Test-StructuredResourceTestKind {
+    $in = New-Object StructuredResourceTest -Property @{ Scriptblock = {'some scriptblock'} }
+    Mock Get-StructuredResourceTestKind { [TestKind]::Integration } -Verifiable
+    It 'true' {
+        $r = $in | Test-StructuredResourceTestKind 'Integration'
+        $r | Should be $true
+    }
+    It 'false' {
+        $r = $in | Test-StructuredResourceTestKind 'Unit'
+        $r | Should be $false
+    }
+    It 'invokes commands' {
+        Assert-MockCalled Get-StructuredResourceTestKind 2 {
+            [string]{'some scriptblock'} -eq $InputObject.Scriptblock
+        }
+    }
+}
 }

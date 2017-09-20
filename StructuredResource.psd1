@@ -8,6 +8,7 @@ ScriptsToProcess = @(
     '.\dotNetTypes\mode.ps1'
     '.\dotNetTypes\NullSafeString.ps1'
     '.\dotNetTypes\structuredResourceAttribute.ps1'
+    '.\dotNetTypes\testKind.ps1'
 )
 
 DscResourcesToExport = '*'

@@ -15,6 +15,9 @@ function New-StructuredResourceTest
 	
 	.PARAMETER Arguments
 	A hashtable containing the arguments used to perform integration tests on the resource. 
+
+    .PARAMETER Kind
+    The kind of tests to include.  Omitting this parameter will include all kinds.
     #>
     [CmdletBinding()]
     param
@@ -35,11 +38,40 @@ function New-StructuredResourceTest
         [Parameter(Position = 3,
                    ValueFromPipelineByPropertyName)]
         [hashtable]
-        $Arguments
+        $Arguments,
+
+        [TestKind[]]
+        $Kind
     )
     process
     {
-        New-Object TestArgs -Property $PSBoundParameters |
+        if
+        (
+            -not $Arguments -and 
+            ( 
+                -not $Kind -or 
+                ($Kind -contains 'Integration')
+            )
+        )
+        {
+            throw 'Arguments must be provided for integration tests.  Provide a value for either the Kind or Arguments parameter.'
+        }
+
+        $p = [hashtable]$PSBoundParameters
+        $p.Remove('Kind')
+
+        if ( $Kind )
+        {
+            return New-Object TestArgs -Property $p |
+                Get-OrderedTests |
+                ? { 
+                    foreach ( $k in $Kind )
+                    {
+                        $_ | Test-StructuredResourceTestKind $k
+                    }
+                }
+        }
+        New-Object TestArgs -Property $p |
             Get-OrderedTests
     }
 }

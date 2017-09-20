@@ -2,7 +2,7 @@ Import-Module StructuredResource -Force
 
 Describe 'Public API: New-StructuredResourceTest' {
     It 'create instructions' {
-        New-StructuredResourceTest TestStub2 StructuredResource
+        New-StructuredResourceTest TestStub2 StructuredResource @{}
     }
 }
 
