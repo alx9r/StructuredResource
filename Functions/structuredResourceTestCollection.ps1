@@ -39,7 +39,7 @@ function New-StructuredResourceTest
     )
     process
     {
-        New-Object TestParams -Property $PSBoundParameters |
+        New-Object TestArgs -Property $PSBoundParameters |
             Get-OrderedTests
     }
 }

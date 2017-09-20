@@ -1,4 +1,4 @@
-class TestParams
+class TestArgs
 {
     [string]$ModuleName
     [string]$ResourceName

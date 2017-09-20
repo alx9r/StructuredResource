@@ -36,8 +36,8 @@ function Get-OrderedTests
     (
         [Parameter(ValueFromPipeline,
                    Mandatory)]
-        [TestParams]
-        $TestParams,
+        [TestArgs]
+        $TestArgs,
 
         [hashtable]
         $Tests = (Get-Tests)
@@ -46,7 +46,7 @@ function Get-OrderedTests
         % { 
             $test = New-Object StructuredResourceTest -Property $Tests.get_Item($_)
             $test.ID = $_
-            $test.Params = $TestParams
+            $test.Params = $TestArgs
             $test
         }
 }

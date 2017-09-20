@@ -3,7 +3,7 @@ class StructuredResourceTest
     [string]$ID
     [string[]]$Prerequisites
     [string]$Message
-    [TestParams]$Params
+    [TestArgs]$Params
     [scriptblock]$Scriptblock
 }
 

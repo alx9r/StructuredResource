@@ -40,14 +40,14 @@ Describe Get-OrderedTests {
         1 = @{ Message = 'm1' }
         2 = @{ Message = 'm2' }
     }
-    $a = New-Object TestParams -Property @{
+    $a = New-Object TestArgs -Property @{
         ModuleName = 'module_name'
         ResourceName = 'resource_name'
         Arguments = @{ arg = 'uments' }
     }
     Mock Get-OrderedTestIds { 2,1 } -Verifiable
     It 'returns ordered list of tests' {
-        $r = Get-OrderedTests -Tests $t -TestParams $a
+        $r = Get-OrderedTests -Tests $t -TestArgs $a
 
         $r.Count | Should be 2
         $r[0].ID | Should be 2

@@ -11,7 +11,7 @@ Describe New-StructuredResourceTest {
     }
     It 'invokes commands' {
         Assert-MockCalled Get-OrderedTests 1 {
-            $TestParams.ResourceName -eq 'resource_name'
+            $TestArgs.ResourceName -eq 'resource_name'
         }
     }
 }

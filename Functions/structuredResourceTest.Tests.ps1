@@ -15,7 +15,7 @@ Describe Invoke-StructuredResourceTest {
         )
     }
     $ts = New-Object StructuredResourceTest -Property @{
-        Params = New-Object TestParams -Property @{
+        Params = New-Object TestArgs -Property @{
             ModuleName = 'module_name'
             ResourceName = 'resource_name'
         }
