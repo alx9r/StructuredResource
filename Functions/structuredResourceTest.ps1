@@ -19,6 +19,6 @@ function Invoke-StructuredResourceTest
     )
     process
     {
-        $InputObject.Params | % $InputObject.Scriptblock
+        $InputObject.Arguments | % $InputObject.Scriptblock
     }
 }

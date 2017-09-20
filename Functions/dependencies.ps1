@@ -46,7 +46,7 @@ function Get-OrderedTests
         % { 
             $test = New-Object StructuredResourceTest -Property $Tests.get_Item($_)
             $test.ID = $_
-            $test.Params = $TestArgs
+            $test.Arguments = $TestArgs
             $test
         }
 }

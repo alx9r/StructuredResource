@@ -52,10 +52,10 @@ Describe Get-OrderedTests {
         $r.Count | Should be 2
         $r[0].ID | Should be 2
         $r[0].Message | Should be 'm2'
-        $r[0].Params.Arguments.arg | Should be 'uments'
+        $r[0].Arguments.Arguments.arg | Should be 'uments'
         $r[1].ID | Should be 1
         $r[1].Message | Should be 'm1'
-        $r[1].Params.Arguments.arg | Should be 'uments'
+        $r[1].Arguments.Arguments.arg | Should be 'uments'
     }
     It 'invokes commands' {
         Assert-MockCalled Get-OrderedTestIds 1 {
