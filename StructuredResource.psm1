@@ -1,5 +1,10 @@
 $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
 
+# load the metaprogramming files...
+"$moduleRoot\Functions\*.meta.ps1" |
+    Get-Item |
+    % { . $_.FullName }
+
 # load the type files...
 . "$moduleRoot\Functions\LoadTypes.ps1"
 

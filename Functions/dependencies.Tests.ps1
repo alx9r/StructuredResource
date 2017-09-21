@@ -2,19 +2,30 @@ Import-Module StructuredResource -Force
 
 InModuleScope StructuredResource {
 
-$dependencies = @{
+$prerequisites = @{
     1 = @{ Prerequisites = 2,4 }
     2 = @{ Prerequisites = 3 }
     3 = @{ Prerequisites = 4 }
 }
 Describe ConvertTo-PrerequisitesGraph {
     It 'returns simplified hashtable' {
-        $r = ConvertTo-PrerequisitesGraph $dependencies
+        $r = ConvertTo-PrerequisitesGraph $prerequisites
 
         $r.Keys.Count | Should be 3
         $r.get_Item(1) | Should be 2,4
         $r.get_Item(2) | Should be 3
         $r.get_Item(3) | Should be 4
+    }
+}
+
+Describe ConvertTo-DependentsGraph {
+    It 'returns simplified hashtable' {
+        $r = ConvertTo-DependentsGraph $prerequisites
+
+        $r.Keys.Count | Should be 3
+        $r.get_Item(2) | Should be 1
+        $r.get_Item(3) | Should be 2
+        $r.get_Item(4) | Should be 3,1
     }
 }
 
@@ -27,7 +38,7 @@ Describe Get-OrderedTestIds {
     }
     It 'invokes commands' {
         Assert-MockCalled ConvertTo-PrerequisitesGraph 1 {
-            $Dependencies.Name -eq 'input'
+            $Prerequisites.Name -eq 'input'
         }
         Assert-MockCalled Invoke-SortGraph 1 {
             $Edges.Name -eq 'dependency graph'

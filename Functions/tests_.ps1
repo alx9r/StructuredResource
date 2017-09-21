@@ -1,3 +1,28 @@
+function Get-TestIdKind
+{
+    param
+    (
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        [string]
+        $Id
+    )
+    process
+    {
+        if ( $Id -match '^T[0-9]{3}$' )
+        {
+            return [TestIdKind]::Test
+        }
+        if ( $Id -match '^[A-Z]{1,2}\.[0-9]+$' )
+        {
+            return [TestIdKind]::Guideline
+        }
+    }
+}
+
+Get-Command Get-TestIdKind | New-Tester | Invoke-Expression
+
+
 function Get-Tests
 {
 @{
