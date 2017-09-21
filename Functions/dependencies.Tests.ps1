@@ -7,9 +7,9 @@ $dependencies = @{
     2 = @{ Prerequisites = 3 }
     3 = @{ Prerequisites = 4 }
 }
-Describe ConvertTo-DependencyGraph {
+Describe ConvertTo-PrerequisitesGraph {
     It 'returns simplified hashtable' {
-        $r = ConvertTo-DependencyGraph $dependencies
+        $r = ConvertTo-PrerequisitesGraph $dependencies
 
         $r.Keys.Count | Should be 3
         $r.get_Item(1) | Should be 2,4
@@ -19,14 +19,14 @@ Describe ConvertTo-DependencyGraph {
 }
 
 Describe Get-OrderedTestIds {
-    Mock ConvertTo-DependencyGraph {@{Name='dependency graph'}}  -Verifiable
+    Mock ConvertTo-PrerequisitesGraph {@{Name='dependency graph'}}  -Verifiable
     Mock Invoke-SortGraph { 'sorted graph' } -Verifiable
     It 'returns results of Invoke-SortGraph' {
         $r = Get-OrderedTestIds @{name = 'input'}
         $r | Should be 'sorted graph'
     }
     It 'invokes commands' {
-        Assert-MockCalled ConvertTo-DependencyGraph 1 {
+        Assert-MockCalled ConvertTo-PrerequisitesGraph 1 {
             $Dependencies.Name -eq 'input'
         }
         Assert-MockCalled Invoke-SortGraph 1 {

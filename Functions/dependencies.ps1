@@ -1,4 +1,4 @@
-function ConvertTo-DependencyGraph
+function ConvertTo-PrerequisitesGraph
 {
     [CmdletBinding()]
     param
@@ -26,7 +26,7 @@ function Get-OrderedTestIds
         $Dependencies = $tests
     )
 
-    ConvertTo-DependencyGraph $Dependencies | Invoke-SortGraph
+    ConvertTo-PrerequisitesGraph $Dependencies | Invoke-SortGraph
 }
 
 function Get-OrderedTests
