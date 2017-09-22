@@ -59,6 +59,23 @@ Describe New-Tester {
             $r | Should -Not -BeNullOrEmpty
         }
     }
+    Context '-CommandName' {
+        It 'a function with the name results' {
+            $c | New-Tester -CommandName 'SomeOtherName' | Invoke-Expression
+
+            $r = Get-Item function:/SomeOtherName
+            $r | Should -Not -BeNullOrEmpty
+        }
+    }
+    Context '-NoValue' {
+        It 'the -Value parameter is omitted' {
+            $c | New-Tester -NoValue | Invoke-Expression
+
+            $r = Get-Command Test-Something |
+                Get-ParameterMetaData Value
+            $r | Should -BeNullOrEmpty
+        }
+    }
     Context 'behavior of resulting function' {
         $c | New-Tester | Invoke-Expression
         Context '-Value' {

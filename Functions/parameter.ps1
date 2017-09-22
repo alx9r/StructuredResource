@@ -1,23 +1,6 @@
-function Test-Parameter
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [string]
-        $ParameterName,
-        
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.FunctionInfo]
-        $FunctionInfo
-    )
-    process
-    {
-        [bool](Get-ParameterMetaData @PSBoundParameters)
-    }    
-}
+Get-Command Get-ParameterMetaData |
+    New-Tester -CommandName Test-Parameter -NoValue |
+    Invoke-Expression
 
 function Assert-Parameter
 {
@@ -105,29 +88,9 @@ function Get-ParameterAttribute
     }
 }
 
-function Test-ParameterAttribute
-{
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        $AttributeName,
-
-        [Parameter(Mandatory = $true,
-                   Position = 2)]
-        [AllowNull()]
-        $Value,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        [bool]($Value -eq ($ParameterInfo | Get-ParameterAttribute $AttributeName))
-    }
-}
+Get-Command Get-ParameterAttribute |
+    New-Tester |
+    Invoke-Expression
 
 function Assert-ParameterAttribute
 {
@@ -223,6 +186,29 @@ function Get-ParameterType
         }
     }
 }
+
+Get-Command Get-ParameterType |
+    New-Tester |
+    Invoke-Expression
+
+function Get-ParameterPosition
+{
+    param
+    (
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        [System.Management.Automation.ParameterMetadata]
+        $ParameterInfo
+    )
+    process
+    {
+        Get-ParameterAttribute Position
+    }
+}
+
+Get-Command Get-ParameterPosition |
+    New-Tester |
+    Invoke-Expression
 
 function Assert-ParameterPosition
 {

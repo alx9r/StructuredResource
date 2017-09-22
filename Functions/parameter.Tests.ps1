@@ -2,18 +2,6 @@ Import-Module StructuredResource -Force
 
 InModuleScope StructuredResource {
 
-Describe Test-Parameter {
-    function f { param($x) }
-    It 'true' {
-        $r = Get-Command f | Test-Parameter 'x'
-        $r | Should be $true
-    }
-    It 'false' {
-        $r = Get-Command f | Test-Parameter 'y'
-        $r | Should be $false
-    }
-}
-
 Describe Assert-Parameter {
     function f { param($x) }
     Context 'success' {
@@ -91,32 +79,6 @@ Describe Get-ParameterAttributeOther {
     It 'returns nothing for non-existent attribute' {
         $r = $p | Get-ParameterAttributeOther 'Non-existent'
         $r | Should beNullOrEmpty
-    }
-}
-
-Describe Test-ParameterAttribute {
-    function f {param($a)}
-    $p = Get-Command f | Get-ParameterMetaData 'a'    
-    Context 'true' {
-        Mock Get-ParameterAttribute { 'value' } -Verifiable
-        It 'returns true for match' {
-            $r = $p | Test-ParameterAttribute Position 'value'
-            $r | Should beOfType ([bool])
-            $r | Should be $true
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Get-ParameterAttribute 1 {
-                $AttributeName -eq 'Position' -and
-                $ParameterInfo.Name -eq 'a'
-            }
-        }
-    }
-    Context 'false' {
-        Mock Get-ParameterAttribute { 'other value' }
-        It 'returns false for mismatch' {
-            $r = $p | Test-ParameterAttribute Position 'value'
-            $r | Should be $false
-        }
     }
 }
 

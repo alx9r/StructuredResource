@@ -24,25 +24,40 @@ function New-Tester
 
         [Parameter(Position=1)]
         [scriptblock]
-        $EqualityTester = {$_.Actual -eq $_.Expected}
+        $EqualityTester = {$_.Actual -eq $_.Expected},
+
+        [string]
+        $CommandName,
+
+        [switch]
+        $NoValue
     )
     process
     {
         $getterName = $Getter.Name
-        $testerName = "Test-$($Getter.Noun)"
-        $getterParams = $Getter | 
-                Get-ParameterAst
+
+        $testerName = @{
+            $false = "Test-$($Getter.Noun)"
+            $true  = $CommandName
+        }.($PSBoundParameters.ContainsKey('CommandName'))
+
+        $getterParams = $Getter | Get-ParameterAst
         $getterParamNamesLiteral = ( $Getter | Get-ParameterMetaData | % { "'$($_.Name)'" }) -join ','
         $getterParamsText = ( $getterParams | Get-ParameterText ) -join ','
+
+        $valueParamsText = @{
+            $true = ''
+            $false = '[Parameter(Position = 100)]$Value'
+        }.([bool]$NoValue)
+
+        $paramsText = ($getterParamsText,$valueParamsText | ? {$_} ) -join ','
+
         @"
             function $testerName
             {
                 param
                 (
-                    $getterParamsText,
-
-                    [Parameter(Position = 100)]
-                    `$Value
+                    $paramsText
                 )
                 process
                 {
