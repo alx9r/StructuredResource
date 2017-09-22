@@ -5,6 +5,9 @@ class StructuredResourceTest
     [string]$Message
     [TestArgs]$Arguments
     [scriptblock]$Scriptblock
+    hidden [string]$_FullMessage = (Accessor $this {
+        get { "$($this.ID) - $($this.Message)" }
+    })
 }
 
 $splat = @{

@@ -57,6 +57,7 @@ Describe Get-OrderedTests {
         Arguments = @{ arg = 'uments' }
     }
     Mock Get-OrderedTestIds { 2,1 } -Verifiable
+    Mock Get-DependentGuideline { 'D' } -Verifiable
     It 'returns ordered list of tests' {
         $r = Get-OrderedTests -Tests $t -TestArgs $a
 
@@ -71,6 +72,27 @@ Describe Get-OrderedTests {
     It 'invokes commands' {
         Assert-MockCalled Get-OrderedTestIds 1 {
             $Dependencies.get_Item(1).Message -eq 'm1'
+        }
+    }
+}
+
+Describe Get-DependentGuideline {
+    $t = @{
+        'A' = @{ Prerequisites = '1' }
+        'B' = @{ Prerequisites = '1' }
+        '1' = @{ Prerequisites = '2' }
+    }
+    Mock Test-TestIdKind { $Id -match '[A-Z]' }
+    It 'returns guideline ID' {
+        $r = Get-DependentGuideline 2 -Tests $t
+
+        $r.Count | Should -Be 2
+        'A' | Should -BeIn $r
+        'B' | Should -BeIn $r
+    }
+    It 'invokes commands' {
+        Assert-MockCalled Test-TestIdKind 1 {
+            $Value -eq 'Guideline'
         }
     }
 }

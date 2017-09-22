@@ -47,7 +47,6 @@ Describe New-Tester {
     Context 'basics' {
         It 'returns a new tester string' {
             $r = $c | New-Tester
-            Write-Host $r
             $r | Should -BeOfType ([string])
         }
         It 'succeeds when interpreted as an expression' {

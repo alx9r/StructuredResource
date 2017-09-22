@@ -22,7 +22,6 @@ function Get-TestIdKind
 
 Get-Command Get-TestIdKind | New-Tester | Invoke-Expression
 
-
 function Get-Tests
 {
 @{

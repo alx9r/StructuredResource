@@ -20,7 +20,8 @@ function ConvertTo-DependentsGraph
     param
     (
         [Parameter(position = 1,
-                   Mandatory)]
+                   Mandatory,
+                   ValueFromPipeline)]
         [hashtable]
         $Prerequisites
     )
@@ -29,7 +30,7 @@ function ConvertTo-DependentsGraph
     {
         foreach ( $depKey in $Prerequisites.get_Item($prereqKey).Prerequisites )
         {
-            $output.$depKey = $output.$depKey,$prereqKey | ? {$null -ne $_}
+            $output.$depKey = @($output.$depKey)+@($prereqKey) | ? {$null -ne $_}
         }
     }
     return $output
@@ -39,9 +40,11 @@ function Get-OrderedTestIds
 {
     param
     (
-        [Parameter(position = 1)]
+        [Parameter(position = 1,
+                   Mandatory,
+                   ValueFromPipeline)]
         [hashtable]
-        $Dependencies = $tests
+        $Dependencies
     )
 
     ConvertTo-PrerequisitesGraph $Dependencies | Invoke-SortGraph
@@ -68,5 +71,54 @@ function Get-OrderedTests
                 $test.Arguments = $TestArgs
                 $test
             }
+    }
+}
+
+function Get-DependentGuideline
+{
+    param
+    (
+        [Parameter(Position = 1,
+                   Mandatory)]
+        [string]
+        $Id,
+
+        [hashtable]
+        $Tests = (Get-Tests)
+    )
+    Get-DependentGuidelineImpl $Id -Tests $Tests |
+        select -Unique
+}
+
+function Get-DependentGuidelineImpl
+{
+    param
+    (
+        [Parameter(Position = 1,
+                   Mandatory)]
+        [string]
+        $Id,
+
+        [hashtable]
+        $Tests,
+
+        [hashtable]
+        $Dependents
+    )
+    if ( -not $Dependents )
+    {
+        $Dependents = ConvertTo-DependentsGraph $Tests
+    }
+
+    foreach ( $dependent in $dependents.$Id )
+    {
+        if ( $dependent | Test-TestIdKind -Value 'Guideline' )
+        {
+            $dependent
+        }
+        else
+        {
+            Get-DependentGuidelineImpl $dependent -Tests $Tests -Dependents $Dependents
+        }
     }
 }
