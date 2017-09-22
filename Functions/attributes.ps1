@@ -18,31 +18,7 @@ function Get-AttributeArgument
     }
 }
 
-function Test-AttributeArgument
-{
-    param
-    (
-        [Parameter(Position = 1)]
-        [string]
-        $ArgumentName,
-
-        [Parameter(Position = 2)]
-        $Value,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Attribute]
-        $Attribute
-    )
-    process
-    {
-        if ( 'Value' -in $PSBoundParameters.get_Keys() )
-        {
-            return $Value -eq ($Attribute | Get-AttributeArgument $ArgumentName)
-        }
-        [bool]( $Attribute | Get-AttributeArgument $ArgumentName )
-    }
-}
+Get-Command Get-AttributeArgument | New-Tester | Invoke-Expression
 
 function Get-CustomAttributeArgument
 {
@@ -73,32 +49,6 @@ function Get-CustomAttributeArgument
     }
 }
 
-function Test-CustomAttributeArgument
-{
-    param
-    (
-        [Parameter(Position = 1)]
-        [string]
-        $ArgumentName,
-
-        [Parameter(Position = 2)]
-        $Value,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Reflection.CustomAttributeData]
-        $CustomAttributeData
-    )
-    process
-    {
-        if ( 'Value' -in $PSBoundParameters.get_Keys() )
-        {
-            return $Value -eq (
-                $CustomAttributeData | 
-                    Get-CustomAttributeArgument $ArgumentName -ValueOnly
-            )
-        }
-
-        [bool]( $CustomAttributeData | Get-CustomAttributeArgument $ArgumentName )
-    }
-}
+Get-Command Get-CustomAttributeArgument | 
+    New-Tester { $_.Expected -eq $_.Actual.TypedValue.Value } |
+    Invoke-Expression

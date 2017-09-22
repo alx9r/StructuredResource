@@ -17,45 +17,6 @@ Describe Get-AttributeArgument {
     }
 }
 
-Describe Test-AttributeArgument {
-    function f {
-        param (
-            [Parameter(position=1)]
-            $x
-        )
-    }
-    $p = Get-Command f |
-        Get-ParameterMetaData x
-    Context 'existence' {
-        It 'true' {
-            $r = $p | 
-                Get-ParameterAttribute Parameter |
-                Test-AttributeArgument Position
-            $r | Should -Be $true
-        }
-        It 'false' {
-            $r = $p |
-                Get-ParameterAttribute Parameter |
-                Test-AttributeArgument 'NotAnAttribute'
-            $r | Should -Be $false
-        }
-    }
-    Context 'value' {
-        It 'true' {
-            $r = $p |
-                Get-ParameterAttribute Parameter |
-                Test-AttributeArgument Position 1
-            $r | Should be $true
-        }
-        It 'false' {
-            $r = $p |
-                Get-ParameterAttribute Parameter |
-                Test-AttributeArgument Position 2
-            $r | Should be $false
-        }
-    }
-}
-
 [DscResource()]
 class c {
     [DscProperty(Key,Mandatory)]
@@ -87,37 +48,6 @@ Describe Get-CustomAttributeArgument {
         It 'returns value' {
             $r = $a | Get-CustomAttributeArgument 'Key' -ValueOnly
             $r | Should be $true
-        }
-    }
-}
-
-Describe Test-CustomAttributeArgument {
-    $a = [c] | Get-MemberProperty 'a' | Get-PropertyCustomAttribute 'DscProperty'
-    Context 'existence' {
-        It 'true' {
-            $r = $a | Test-CustomAttributeArgument 'Key'
-            $r | Should be $true
-        }
-        It 'false' {
-            $r = $a | Test-CustomAttributeArgument 'non-existent'
-            $r | Should be $false
-        }
-    }
-    Context 'value' {
-        Mock Get-CustomAttributeArgument { 'value' } -Verifiable
-        It 'true' {
-            $r = $a | Test-CustomAttributeArgument 'Key' 'value'
-            $r | Should be $true
-        }
-        It 'false' {
-            $r = $a | Test-CustomAttributeArgument 'Key' 'not value'
-            $r | Should be $false
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Get-CustomAttributeArgument 2 {
-                $ArgumentName -eq 'Key' -and
-                $CustomAttributeData.AttributeType.Name -eq 'DscPropertyAttribute'
-            }
         }
     }
 }

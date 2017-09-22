@@ -41,6 +41,7 @@ function New-Tester
                 (
                     $getterParamsText,
 
+                    [Parameter(Position = 100)]
                     `$Value
                 )
                 process
@@ -50,12 +51,16 @@ function New-Tester
                         ? { `$PSBoundParameters.ContainsKey(`$_) } |
                         % { `$splat.`$_ = `$PSBoundParameters.get_Item(`$_) }
 
-                    `$values = [pscustomobject]@{
-                        Actual = $getterName @splat
-                        Expected = `$Value
-                    }
+                    if ( `$PSBoundParameters.ContainsKey('Value') )
+                    {
+                        `$values = [pscustomobject]@{
+                            Actual = $getterName @splat
+                            Expected = `$Value
+                        }
 
-                     `$values | % {$EqualityTester}
+                        return `$values | % {$EqualityTester}
+                    }
+                    return [bool](($getterName @splat) -ne `$null)
                 }
             }
 "@

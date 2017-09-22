@@ -61,24 +61,42 @@ Describe New-Tester {
     }
     Context 'behavior of resulting function' {
         $c | New-Tester | Invoke-Expression
-        Mock Get-Something { 'something' } -Verifiable
-        It 'returns exactly one boolean object' {
-            $r = Test-Something -x 1 -y 2 -Value 'something'
-            $r.Count | Should -Be 1
-            $r | Should -BeOfType ([bool])
+        Context '-Value' {
+            Mock Get-Something { 'something' } -Verifiable
+            It 'returns exactly one boolean object' {
+                $r = Test-Something -x 1 -y 2 -Value 'something'
+                $r.Count | Should -Be 1
+                $r | Should -BeOfType ([bool])
+            }
+            It 'returns true' {
+                $r = Test-Something -x 1 -y 2 -Value 'something'
+                $r | Should be $true
+            }
+            It 'returns false' {
+                $r = Test-Something -x 1 -y 2 -Value 'something else'
+                $r | Should be $false
+            }
+            It 'invokes getter' {
+                Assert-MockCalled Get-Something 1 {
+                    $x -eq 1 -and
+                    $y -eq 2
+                }
+            }
         }
-        It 'returns true' {
-            $r = Test-Something -x 1 -y 2 -Value 'something'
-            $r | Should be $true
-        }
-        It 'returns false' {
-            $r = Test-Something -x 1 -y 2 -Value 'something else'
-            $r | Should be $false
-        }
-        It 'invokes getter' {
-            Assert-MockCalled Get-Something 1 {
-                $x -eq 1 -and
-                $y -eq 2
+        Context 'omit -Value' {
+            It 'returns true' {
+                Mock Get-Something { 1 }
+                $r = Test-Something
+                $r | Should -Be $true
+            }
+            It 'returns false for <n>' -TestCases @(
+                @{n='null';v=$null },
+                @{n='array of nulls';v=$null,$null }
+            ) {
+                param($n,$v)
+                Mock Get-Something { $v }
+                $r = Test-Something
+                $r | Should -Be $false
             }
         }
     }
