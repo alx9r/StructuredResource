@@ -34,8 +34,6 @@ function New-Tester
     )
     process
     {
-        $getterName = $Getter.Name
-
         $testerName = @{
             $false = "Test-$($Getter.Noun)"
             $true  = $CommandName
@@ -54,6 +52,7 @@ function New-Tester
         @"
             function $testerName
             {
+                $($Getter.ScriptBlock.Body.Paramblock.Extent.Text)
                 param
                 (
                     $paramsText
@@ -68,13 +67,13 @@ function New-Tester
                     if ( `$PSBoundParameters.ContainsKey('Value') )
                     {
                         `$values = [pscustomobject]@{
-                            Actual = $getterName @splat
+                            Actual = $($Getter.Name) @splat
                             Expected = `$Value
                         }
 
                         return `$values | % {$EqualityTester}
                     }
-                    return [bool](($getterName @splat) -ne `$null)
+                    return [bool](($($Getter.Name) @splat) -ne `$null)
                 }
             }
 "@
@@ -90,22 +89,27 @@ function New-Asserter
         [System.Management.Automation.FunctionInfo]
         $Tester,
 
-        [Parameter(Mandatory,
+        [Parameter(ParameterSetName = 'string',
+                   Mandatory,
                    Position = 1)]
         [string]
-        $Message
+        $Message,
+
+        [Parameter(ParameterSetName = 'scriptblock',
+                   Mandatory,
+                   Position = 1)]
+        [scriptblock]
+        $Scriptblock
     )
     process
     {
-        $testerName = $Tester.Name
-        $asserterName = "Assert-$($Tester.Noun)"
-
         $testerParamNamesLiteral = ( $Tester | Get-ParameterMetaData | % { "'$($_.Name)'" }) -join ','
         $testerParamsText = ($Tester | Get-ParameterAst | Get-ParameterText) -join ','
 
         @"
-            function $asserterName
+            function Assert-$($Tester.Noun)
             {
+                $($Tester.ScriptBlock.Ast.Body.ParamBlock.Attributes.Extent.Text)
                 param
                 (
                     $testerParamsText
@@ -117,11 +121,14 @@ function New-Asserter
                         ? { `$PSBoundParameters.ContainsKey(`$_) } |
                         % { `$splat.`$_ = `$PSBoundParameters.get_Item(`$_) }
 
-                    if ( $testerName @splat )
+                    if ( $($Tester.Name) @splat )
                     {
                         return
                     }
-                    throw "$Message"
+                    $(@{
+                        string = "throw `"$Message`""
+                        scriptblock = "throw [string](& {$Scriptblock})"
+                    }.($PSCmdlet.ParameterSetName))
                 }
             }
 "@

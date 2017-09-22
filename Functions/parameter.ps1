@@ -391,21 +391,21 @@ function Get-ParameterDefault
 
 function Test-ParameterDefault
 {
+    [CmdletBinding(DefaultParameterSetName='default_value')]
     param
     (
         [Parameter(ParameterSetName = 'default_value',
-                   Mandatory = $true,
                    Position = 1)]
         [AllowNull()]
         $Default,
 
         [Parameter(ParameterSetName = 'no_default_value',
-                   Mandatory = $true)]
+                   Mandatory)]
         [switch]
         $NoDefault,
                    
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
         [System.Management.Automation.Language.ParameterAst]
         $ParameterInfo
     )
@@ -415,45 +415,27 @@ function Test-ParameterDefault
         {
             return -not ($ParameterInfo | Test-ParameterHasDefault)
         }
-        $Default -eq ($ParameterInfo | Get-ParameterDefault)
+        if ( $PSBoundParameters.ContainsKey('Default') )
+        {
+            return $Default -eq ($ParameterInfo | Get-ParameterDefault)
+        }
+        return $ParameterInfo | Test-ParameterHasDefault
     }
 }
 
-function Assert-ParameterDefault
-{
-    param
-    (
-        [Parameter(ParameterSetName = 'default_value',
-                   Mandatory = $true,
-                   Position = 1)]
-        [AllowNull()]
-        $Default,
-
-        [Parameter(ParameterSetName = 'no_default_value',
-                   Mandatory = $true)]
-        [switch]
-        $NoDefault,
-                   
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.Language.ParameterAst]
-        $ParameterInfo
-    )
-    process
-    {
-        if ( Test-ParameterDefault @PSBoundParameters )
-        {
-            return
-        }
-
+# function Assert-ParameterDefault
+Get-Command Test-ParameterDefault |
+    New-Asserter {
         $actualDefault = $ParameterInfo | Get-ParameterDefault
-        if ( $PSCmdlet.ParameterSetName -eq 'default_value' )
-        {
-            throw "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has default value $actualDefault not default value $Default."
-        }
-        throw "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has default value $actualDefault.  Expected no default."
-    }
-}
+        @{
+            default_value = @{
+                $true =  "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has default value $actualDefault not default value $Default."
+                $false = "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has no default value."
+            }.($PSBoundParameters.ContainsKey('Default'))
+            no_default_value = "Parameter $($ParameterInfo.Name.VariablePath.UserPath) has default value $actualDefault.  Expected no default."
+        }.($PSCmdlet.ParameterSetName)
+    } |
+    Invoke-Expression
 
 function Test-ParameterKind
 {
@@ -463,11 +445,13 @@ function Test-ParameterKind
                    Mandatory = $true,
                    Position = 1)]
         [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
+        [string]
         $Kind,
 
         [Parameter(ParameterSetName = 'negative',
                    Position = 2)]
         [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
+        [string]
         $Not,
                    
         [Parameter(Mandatory = $true,
@@ -490,6 +474,17 @@ function Test-ParameterKind
         ( $PSCmdlet.ParameterSetName -eq 'negative' )
     }
 }
+
+# function Assert-ParameterKind
+Get-Command Test-ParameterKind |
+    New-Asserter {
+        if ( $PSCmdlet.ParameterSetName -eq 'negative' )
+        {
+            "Parameter $($ParameterInfo.Name) is not of kind $Not."
+        }
+        "Parameter $($ParameterInfo.Name) is of kind $Kind."
+    } |
+    Invoke-Expression
 
 function Select-Parameter
 {

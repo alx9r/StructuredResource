@@ -163,5 +163,13 @@ Describe New-Asserter {
             }
         }
     }
+    Context 'scriptblock' {
+        $c | New-Asserter { 'x: '+$x+' y: '+$y } | Invoke-Expression
+        Mock Test-Something { $false }
+        It 'converts the output of the scriptblock to a string and throws it' {
+            { Assert-Something -x 1 -y 2 } |
+                Should throw 'x: 1 y: 2'
+        }
+    }
 }
 }

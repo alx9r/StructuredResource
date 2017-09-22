@@ -277,6 +277,24 @@ Describe Test-ParameterDefault {
             $r | Should be $false
         }
     }
+    Context 'no arguments' {
+        $f = Get-Command f
+        It 'true' {
+            $p = $f | Get-ParameterAst 'a'
+            $r = $p | Test-ParameterDefault
+            $r | Should be $true
+        }
+        It 'true (default is $null)' {
+            $p = $f | Get-ParameterAst 'c'
+            $r = $p | Test-ParameterDefault
+            $r | Should be $true
+        }
+        It 'false' {
+            $p = $f | Get-ParameterAst 'b'
+            $r = $p | Test-ParameterDefault
+            $r | Should be $false
+        }
+    }
     Context '-NoDefault' {
         It 'true' {
             $r = Get-Command f | Get-ParameterAst 'b' |
@@ -309,31 +327,6 @@ Describe Test-ParameterDefault {
             $r = Get-Command f | Get-ParameterAst 'a' |
                 Test-ParameterDefault $null
             $r | Should be $false
-        }
-    }
-}
-
-Describe Assert-ParameterDefault {
-    function f {param($a)}
-    $p = Get-Command f | Get-ParameterAst
-    Context 'success' {
-        Mock Test-ParameterDefault { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-ParameterDefault 1
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Test-ParameterDefault 1 {
-                $ParameterInfo.Name.VariablePath.UserPath -eq 'a' -and
-                $Default -eq 1
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-ParameterDefault
-        It 'throws' {
-            { $p | Assert-ParameterDefault 1 } |
-                Should throw 'not default value'
         }
     }
 }
