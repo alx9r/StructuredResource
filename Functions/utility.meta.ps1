@@ -41,9 +41,8 @@ function New-Tester
             $true  = $CommandName
         }.($PSBoundParameters.ContainsKey('CommandName'))
 
-        $getterParams = $Getter | Get-ParameterAst
+        $getterParamsText = ( $Getter | Get-ParameterAst | Get-ParameterText ) -join ','
         $getterParamNamesLiteral = ( $Getter | Get-ParameterMetaData | % { "'$($_.Name)'" }) -join ','
-        $getterParamsText = ( $getterParams | Get-ParameterText ) -join ','
 
         $valueParamsText = @{
             $true = ''
@@ -76,6 +75,53 @@ function New-Tester
                         return `$values | % {$EqualityTester}
                     }
                     return [bool](($getterName @splat) -ne `$null)
+                }
+            }
+"@
+    }
+}
+
+function New-Asserter
+{
+    param
+    (
+        [parameter(Mandatory,
+                   ValueFromPipeline)]
+        [System.Management.Automation.FunctionInfo]
+        $Tester,
+
+        [Parameter(Mandatory,
+                   Position = 1)]
+        [string]
+        $Message
+    )
+    process
+    {
+        $testerName = $Tester.Name
+        $asserterName = "Assert-$($Tester.Noun)"
+
+        $testerParamNamesLiteral = ( $Tester | Get-ParameterMetaData | % { "'$($_.Name)'" }) -join ','
+        $testerParamsText = ($Tester | Get-ParameterAst | Get-ParameterText) -join ','
+
+        @"
+            function $asserterName
+            {
+                param
+                (
+                    $testerParamsText
+                )
+                process
+                {
+                    `$splat = @{}
+                    $testerParamNamesLiteral | 
+                        ? { `$PSBoundParameters.ContainsKey(`$_) } |
+                        % { `$splat.`$_ = `$PSBoundParameters.get_Item(`$_) }
+
+                    if ( $testerName @splat )
+                    {
+                        return
+                    }
+                    throw "$Message"
                 }
             }
 "@

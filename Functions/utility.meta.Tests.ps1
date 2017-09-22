@@ -118,4 +118,50 @@ Describe New-Tester {
         }
     }
 }
+Describe New-Asserter {
+    function Test-Something { param($x,$y) }
+    $c = Get-Command Test-Something
+    Context 'basics' {
+        $s = $c | New-Asserter 'fail'
+        It 'returns a new asserter string' {
+            $s | Should -BeOfType ([string])
+        }
+        It 'succeeds when interpreted as an expression' {
+            $s | Invoke-Expression
+        }
+        It 'a tester function results' {
+            $s | Invoke-Expression
+
+            $r = Get-Item function:/Assert-Something
+            $r | Should -Not -BeNullOrEmpty
+        }
+    }
+    Context 'behavior of resulting function' {
+        $c | New-Asserter 'x: $x y: $y' | Invoke-Expression
+        Context 'success' {
+            Mock Test-Something { $true } -Verifiable
+            It 'returns nothing' {
+                $r = Assert-Something -x 1 -y 2
+                $r | Should -BeNullOrEmpty
+            }
+            It 'invokes command' {
+                Assert-MockCalled Test-Something 1 {
+                    $x -eq 1 -and 
+                    $y -eq 2
+                }
+            }
+        }
+        Context 'failure' {
+            Mock Test-Something { $false }
+            It 'throws' {
+                { Assert-Something } |
+                    Should throw
+            }
+            It 'interpolates parameter values' {
+                { Assert-Something -x 1 -y 2 } |
+                    Should throw 'x: 1 y: 2'
+            }
+        }
+    }
+}
 }

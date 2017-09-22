@@ -2,30 +2,6 @@ Import-Module StructuredResource -Force
 
 InModuleScope StructuredResource {
 
-Describe Assert-Parameter {
-    function f { param($x) }
-    Context 'success' {
-        Mock Test-Parameter { $true } -Verifiable
-        It 'returns nothing' {
-            $r = Get-Command f | Assert-Parameter 'x'
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Test-Parameter 1 {
-                $ParameterName -eq 'x' -and
-                $FunctionInfo.Name -eq 'f'
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-Parameter
-        It 'throws' {
-            { Get-Command f | Assert-Parameter 'y' } |
-                Should throw 'does not have parameter'
-        }
-    }
-}
-
 Describe Get-ParameterAttributeProper {
     function f {
         param(
@@ -82,81 +58,19 @@ Describe Get-ParameterAttributeOther {
     }
 }
 
-Describe Assert-ParameterAttribute {
-    function f {param($a)}
-    $p = Get-Command f | Get-ParameterMetaData 'a'
-    Context 'success' {
-        Mock Test-ParameterAttribute { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-ParameterAttribute Position 'value'
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-ParameterAttribute 1 {
-                $ParameterInfo.Name -eq 'a' -and
-                $Value -eq 'value' -and
-                $AttributeName -eq 'Position'
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-ParameterAttribute
-        It 'throws' {
-            { $p | Assert-ParameterAttribute Position 'value' } |
-                Should throw 'not'
-        }
-    }
-}
-
-Describe Assert-ParameterMandatory {
-    function f {param($x)}
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    Context 'success' {
-        Mock Test-ParameterAttribute { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-ParameterMandatory
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-ParameterAttribute 1 {
-                $ParameterInfo.Name -eq 'x' -and 
-                $AttributeName -eq 'Mandatory' -and
-                $Value -eq $true
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-ParameterAttribute
-        It 'throws' {
-            { $p | Assert-ParameterMandatory } |
-                Should throw 'not mandatory'
-        }
-    }
-}
-
-Describe Assert-ParameterOptional {
-    function f {param($x)}
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    Context 'success' {
-        Mock Test-ParameterAttribute { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-ParameterOptional
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-ParameterAttribute 1 {
-                $ParameterInfo.Name -eq 'x' -and
-                $Value -eq $false -and
-                $AttributeName -eq 'Mandatory'
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-ParameterAttribute { $false }
-        It 'throws' {
-            { $p | Assert-ParameterOptional } |
-                Should throw 'not optional'
-        }
+Describe 'testing for mandatory parameter' {
+    function f {param($optional,[Parameter(Mandatory)]$mandatory) }
+    $f = Get-Command f
+    It 'returns <r> for <n> parameter whent testing for Mandatory $<v>' -TestCases @(
+        @{n='optional'; v=$false;r=$true}
+        @{n='optional'; v=$true; r=$false}
+        @{n='mandatory';v=$false;r=$false}
+        @{n='mandatory';v=$true; r=$true}
+    ) {
+        param($n,$v,$r)
+        $p = $f | Get-ParameterMetaData $n
+        $result = $p | Test-ParameterAttribute Mandatory $v
+        $result | Should -Be $r
     }
 }
 
@@ -189,32 +103,6 @@ Describe Get-ParameterType {
     }
 }
 
-Describe Assert-ParameterPosition {
-    function f { param($x) }
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    Context 'success' {
-        Mock Test-ParameterAttribute { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-ParameterPosition 1
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-ParameterAttribute 1 {
-                $ParameterInfo.Name -eq 'x' -and
-                $Value -eq 1 -and
-                $AttributeName -eq 'Position'
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-ParameterAttribute
-        It 'throws' {
-            { $p | Assert-ParameterPosition 1 } |
-                Should throw 'not position'
-        }
-    }    
-}
-
 Describe Test-ParameterPositional {
     function f { param([Parameter(Position=1)]$x,$y) }
     It 'true' {
@@ -226,30 +114,6 @@ Describe Test-ParameterPositional {
         $r = Get-Command f | Get-ParameterMetaData 'y' |
             Test-ParameterPositional
         $r | Should be $false
-    }
-}
-
-Describe Assert-ParameterPositional {
-    function f { param($x) }
-    $p = Get-Command f | Get-ParameterMetaData 'x'
-    Context 'success' {
-        Mock Test-ParameterPositional { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-ParameterPositional
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Test-ParameterPositional 1 {
-                $ParameterInfo.Name -eq 'x'
-            }
-        }
-    }
-    Context 'failure' {
-        Mock Test-ParameterPositional
-        It 'throws' {
-            { $p | Assert-ParameterPositional } |
-                Should throw 'not positional'
-        }
     }
 }
 

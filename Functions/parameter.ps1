@@ -1,31 +1,12 @@
+# function Test-Parameter
 Get-Command Get-ParameterMetaData |
     New-Tester -CommandName Test-Parameter -NoValue |
     Invoke-Expression
 
-function Assert-Parameter
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [string]
-        $ParameterName,
-        
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.FunctionInfo]
-        $FunctionInfo
-    )
-    process
-    {
-        if ( Test-Parameter @PSBoundParameters )
-        {
-            return
-        }
-        throw "Function $($FunctionInfo.Name) does not have parameter $ParameterName."
-    }
-}
+#function Assert-Parameter
+Get-Command Test-Parameter |
+    New-Asserter 'Function $($FunctionInfo.Name) does not have parameter $ParameterName.' |
+    Invoke-Expression
 
 function Get-ParameterAttributeProper
 {
@@ -88,78 +69,55 @@ function Get-ParameterAttribute
     }
 }
 
+# function Test-ParameterAttribute
 Get-Command Get-ParameterAttribute |
     New-Tester |
     Invoke-Expression
 
-function Assert-ParameterAttribute
+# function Assert-ParameterAttribute
+Get-Command Test-ParameterAttribute |
+    New-Asserter 'Parameter $($ParameterInfo.Name) attribute $AttributeName was $($ParameterInfo | Get-ParameterAttribute $AttributeName) not $Value.' |
+    Invoke-Expression
+
+function Test-ParameterMandatory
 {
     param
     (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        $AttributeName,
-
-        [Parameter(Mandatory = $true,
-                   Position = 2)]
-        [AllowNull()]
-        $Value,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
         [System.Management.Automation.ParameterMetadata]
         $ParameterInfo
     )
     process
     {
-        if ( Test-ParameterAttribute @PSBoundParameters )
-        {
-            return
-        }
-        $actualValue = $ParameterInfo | Get-ParameterAttribute  $AttributeName
-        throw "Parameter $($ParameterInfo.Name) attribute $AttributeName was $actualValue not $Value."
+        $ParameterInfo | Test-ParameterAttribute Mandatory $true
     }
 }
 
-function Assert-ParameterMandatory
+# function Assert-ParameterMandatory
+Get-Command Test-ParameterMandatory |
+    New-Asserter 'Parameter $($ParameterInfo.Name) is not mandatory.' |
+    Invoke-Expression
+
+function Test-ParameterOptional
 {
-    [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
         [System.Management.Automation.ParameterMetadata]
         $ParameterInfo
     )
     process
     {
-        if ( $ParameterInfo | Test-ParameterAttribute Mandatory $true )
-        {
-            return
-        }
-        throw "Parameter $($ParameterInfo.Name) is not mandatory."
+        $ParameterInfo | Test-ParameterAttribute Mandatory $false        
     }
 }
 
-function Assert-ParameterOptional
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        if ( $ParameterInfo | Test-ParameterAttribute Mandatory $false )
-        {
-            return
-        }
-        throw "Parameter $($ParameterInfo.Name) is not optional."
-    }
-}
+# function Assert-ParameterOptional
+Get-Command Test-ParameterOptional |
+    New-Asserter 'Parameter $($ParameterInfo.Name) is not optional.)' |
+    Invoke-Expression
 
 function Get-ParameterType
 {
@@ -187,8 +145,14 @@ function Get-ParameterType
     }
 }
 
+# function Test-ParameterType
 Get-Command Get-ParameterType |
     New-Tester |
+    Invoke-Expression
+
+# function Assert-ParameterType
+Get-Command Test-ParameterType |
+    New-Asserter 'Parameter $($Parameter.Name) is type $($ParameterInfo | Get-ParameterType) not $Value.' |
     Invoke-Expression
 
 function Get-ParameterPosition
@@ -202,39 +166,20 @@ function Get-ParameterPosition
     )
     process
     {
-        Get-ParameterAttribute Position
+        $ParameterInfo | Get-ParameterAttribute Position
     }
 }
 
+# function Test-ParameterPosition
 Get-Command Get-ParameterPosition |
     New-Tester |
     Invoke-Expression
 
-function Assert-ParameterPosition
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [int]
-        $Position,
+# function Assert-ParameterPosition
+Get-Command Test-ParameterPosition |
+    New-Asserter 'Parameter $($ParameterInfo.Name) has position $($ParameterInfo | Get-ParameterAttribute Position) not position $Value.' |
+    Invoke-Expression
 
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        if ( $ParameterInfo | Test-ParameterAttribute Position $Position )
-        {
-            return
-        }
-        $actualPosition = $ParameterInfo | Get-ParameterAttribute Position
-        throw "Parameter $($ParameterInfo.Name) has position $actualPosition not position $Position."
-    }
-}
 
 function Test-ParameterPositional
 {
@@ -252,25 +197,10 @@ function Test-ParameterPositional
     }
 }
 
-function Assert-ParameterPositional
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Management.Automation.ParameterMetadata]
-        $ParameterInfo
-    )
-    process
-    {
-        if ( $ParameterInfo | Test-ParameterPositional )
-        {
-            return
-        }
-        throw "Parameter $($ParameterInfo.Name) is not positional."
-    }
-}
+# function Assert-ParameterPositional
+Get-Command Test-ParameterPositional |
+    New-Asserter 'Parameter $($ParameterInfo.Name) is not positional.' |
+    Invoke-Expression
 
 Set-Alias Sort-ParametersByPosition Invoke-SortParametersByPosition
 function Invoke-SortParametersByPosition
