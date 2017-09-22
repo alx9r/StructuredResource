@@ -2,6 +2,25 @@ Import-Module StructuredResource -Force
 
 InModuleScope StructuredResource {
 
+Describe Get-CmdletBindingAttributeText {
+    Context '[FunctionInfo]' {
+        function f {
+            [CmdletBinding(HelpUri='uri')]
+            param()
+        }
+        It 'returns text' {
+            $r = Get-Command f | Get-CmdletBindingAttributeText
+            $r | Should -Be "[CmdletBinding(HelpUri='uri')]"
+        }
+    }
+    Context '[CmdletInfo]' {
+        It 'returns text' {
+            $r = Get-Command Out-Null | Get-CmdletBindingAttributeText
+            $r | Should -match '\[CmdletBinding\(.*\)\]'
+        }
+    }
+}
+
 Describe Get-ParameterText {
     function f { 
         param
@@ -38,6 +57,48 @@ Describe Get-ParameterText {
             [string]
             $y
 '@
+    }
+}
+
+Describe Get-ParamblockText {
+    Context '-FunctionInfo' {
+        function f { 
+            param
+            (
+                $x,
+                [Parameter(Mandatory,
+                           ValueFromPipeline,
+                           ValueFromPipelineByPropertyName,
+                           Position = 1)]
+                [AllowNull()]
+                [string]
+                $y
+            )
+        }
+        It 'returns text' {
+            $r = Get-Command f | Get-ParamblockText
+            $r | Should -Be @'
+$x,
+[Parameter(Mandatory,
+                           ValueFromPipeline,
+                           ValueFromPipelineByPropertyName,
+                           Position = 1)]
+                [AllowNull()]
+                [string]
+                $y
+'@
+        }
+    }
+    Context '-CmdletInfo' {
+        It 'returns text' {
+            $r = Get-Command Out-Null | Get-ParamblockText
+            $r | Should be @'
+
+    [Parameter(ValueFromPipeline=$true)]
+    [psobject]
+    ${InputObject}
+'@
+        }
     }
 }
 

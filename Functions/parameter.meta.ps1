@@ -9,7 +9,7 @@ function Get-ParameterMetaData
         
         [Parameter(Mandatory = $true,
                    ValueFromPipeline = $true)]
-        [System.Management.Automation.FunctionInfo]
+        [System.Management.Automation.CommandInfo]
         $FunctionInfo
     )
     process

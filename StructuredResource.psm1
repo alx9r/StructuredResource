@@ -34,3 +34,5 @@ Export-ModuleMember @(
     'New-StructuredResourceTest'
     'Invoke-StructuredResourceTest'
 )
+
+$ErrorActionPreference = 'Stop'

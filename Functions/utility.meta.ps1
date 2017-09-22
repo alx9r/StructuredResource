@@ -12,6 +12,52 @@ function Get-ParameterText
         $Parameter.Extent.Text
     }
 }
+function Get-ParamblockText
+{
+    [CmdletBinding(DefaultParameterSetName = 'FunctionInfo')]
+    param
+    (
+        [Parameter(ParameterSetName = 'CmdletInfo',
+                   ValueFromPipeline,
+                   Mandatory)]
+        [System.Management.Automation.CmdletInfo]
+        $CmdletInfo,
+
+        [Parameter(ParameterSetName = 'FunctionInfo',
+                   ValueFromPipeline,
+                   Mandatory)]
+        [System.Management.Automation.FunctionInfo]
+        $FunctionInfo
+    )
+    process
+    {
+        if ( $PSCmdlet.ParameterSetName -eq 'FunctionInfo' )
+        {
+            return ($FunctionInfo | Get-ParameterAst | Get-ParameterText) -join ",`r`n"
+        }
+
+        [System.Management.Automation.ProxyCommand]::GetParamBlock(
+            [System.Management.Automation.CommandMetadata]::new($CmdletInfo)
+        )
+    }
+}
+
+function Get-CmdletBindingAttributeText
+{
+    param
+    (
+        [Parameter(ValueFromPipeline,
+                   Mandatory)]
+        [System.Management.Automation.CommandInfo]
+        $CommandInfo
+    )
+    process
+    {
+        [System.Management.Automation.ProxyCommand]::GetCmdletBindingAttribute(
+            [System.Management.Automation.CommandMetadata]::new($CommandInfo)
+        )
+    }
+}
 
 function New-Tester
 {
@@ -19,7 +65,7 @@ function New-Tester
     (
         [parameter(Mandatory,
                    ValueFromPipeline)]
-        [System.Management.Automation.FunctionInfo]
+        [System.Management.Automation.CommandInfo]
         $Getter,
 
         [Parameter(Position=1)]
@@ -39,7 +85,6 @@ function New-Tester
             $true  = $CommandName
         }.($PSBoundParameters.ContainsKey('CommandName'))
 
-        $getterParamsText = ( $Getter | Get-ParameterAst | Get-ParameterText ) -join ','
         $getterParamNamesLiteral = ( $Getter | Get-ParameterMetaData | % { "'$($_.Name)'" }) -join ','
 
         $valueParamsText = @{
@@ -47,12 +92,12 @@ function New-Tester
             $false = '[Parameter(Position = 100)]$Value'
         }.([bool]$NoValue)
 
-        $paramsText = ($getterParamsText,$valueParamsText | ? {$_} ) -join ','
+        $paramsText = (($Getter | Get-ParamblockText),$valueParamsText | ? {$_} ) -join ','
 
         @"
             function $testerName
             {
-                $($Getter.ScriptBlock.Body.Paramblock.Extent.Text)
+                $($Getter | Get-CmdletBindingAttributeText)
                 param
                 (
                     $paramsText
@@ -86,7 +131,7 @@ function New-Asserter
     (
         [parameter(Mandatory,
                    ValueFromPipeline)]
-        [System.Management.Automation.FunctionInfo]
+        [System.Management.Automation.CommandInfo]
         $Tester,
 
         [Parameter(ParameterSetName = 'string',
@@ -104,15 +149,14 @@ function New-Asserter
     process
     {
         $testerParamNamesLiteral = ( $Tester | Get-ParameterMetaData | % { "'$($_.Name)'" }) -join ','
-        $testerParamsText = ($Tester | Get-ParameterAst | Get-ParameterText) -join ','
 
         @"
             function Assert-$($Tester.Noun)
             {
-                $($Tester.ScriptBlock.Ast.Body.ParamBlock.Attributes.Extent.Text)
+                $($Tester | Get-CmdletBindingAttributeText)
                 param
                 (
-                    $testerParamsText
+                    $($Tester | Get-ParamblockText)
                 )
                 process
                 {

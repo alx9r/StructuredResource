@@ -2,52 +2,6 @@ Import-Module StructuredResource -Force
 
 InModuleScope StructuredResource {
 
-Describe Assert-ModuleExists {
-    Mock Get-Module -Verifiable
-    Context 'success' {
-        Mock Get-Module -MockWith {'ModuleInfo'}
-        It 'returns nothing' {
-            $r = Assert-ModuleExists 'ModuleName'
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Get-Module 1 {
-                $ListAvailable -and
-                $Name -eq 'ModuleName'
-            }
-        }
-    }
-    Context 'Get-Module returns nothing' {
-        It 'throws' {
-            { Assert-ModuleExists 'ModuleName' } |
-                Should throw 'not found'
-        }
-    }
-}
-
-Describe Assert-ModuleImported {
-    Mock Get-Module -Verifiable
-    Context 'success' {
-        Mock Get-Module -MockWith {'ModuleInfo'}
-        It 'returns nothing' {
-            $r = Assert-ModuleImported 'ModuleName'
-            $r  | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Get-Module 1 {
-                -not $ListAvailable -and
-                $Name -eq 'ModuleName'
-            }
-        }
-    }
-    Context 'Get-Module returns nothing' {
-        It 'throws' {
-            { Assert-ModuleImported 'ModuleName' } |
-                Should throw 'not imported'
-        }
-    }
-}
-
 Describe Get-NestedModule {
     Mock Get-Module -Verifiable {
         New-Object psobject -Property @{
@@ -89,59 +43,6 @@ Describe Get-NestedModule {
     }
 }
 
-Describe Assert-NestedModule {
-    Mock Get-NestedModule -Verifiable
-    Context 'success' {
-        Mock Get-NestedModule -Verifiable { 'ModuleInfo' }
-        It 'returns nothing' {
-            $r = Assert-NestedModule 'NestedName' 'Name' 
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Get-NestedModule 1 {
-                $Name -eq 'Name' -and
-                $NestedName -eq 'NestedName'
-            }
-        }
-    }
-    Context 'Get-NestedModule returns nothing' {
-        It 'throws' {
-            { Assert-NestedModule 'Name' 'NestedName' } |
-                Should throw 'not found'
-        }
-    }
-}
-
-
-Describe Assert-DscResource {
-    Mock Get-DscResource -Verifiable
-    Context 'success' {
-        Mock Get-DscResource -MockWith { 'DscResourceInfo' }
-        It 'returns nothing' {
-            $r = Assert-DscResource 'ResourceName' 'ModuleName'
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes commands' {
-            Assert-MockCalled Get-DscResource 1 {
-                $Name -eq 'ResourceName' -and
-                $Module -eq 'ModuleName'
-            }
-        }
-    }
-    Context 'success, omit optional' {
-        Mock Get-DscResource -MockWith { 'DscResourceInfo' }
-        It 'returns nothing' {
-            Assert-DscResource 'ResourceName'
-        }
-    }
-    Context 'Get-DscResource returns nothing' {
-        It 'throws' {
-            { Assert-DscResource 'ResourceName' 'ModuleName' } |
-                Should throw 'not found'
-        }
-    }
-}
-
 Describe Get-PublicResourceFunctionCommandName {
     It 'returns correct name' {
         $r = Get-PublicResourceFunctionCommandName 'ResourceName'
@@ -173,29 +74,6 @@ Describe Get-PublicResourceFunction {
 
         { Get-PublicResourceFunction 'ResourceName' 'ModuleName' | g } |
             Should throw 'ResourceName,ModuleName'
-    }
-}
-
-Describe Assert-PublicResourceFunction {
-    Mock Get-PublicResourceFunction
-    Context 'success' {
-        Mock Get-PublicResourceFunction { 'function' } -Verifiable
-        It 'returns nothing' {
-            $r = Assert-PublicResourceFunction 'ResourceName' 'ModuleName'
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Get-PublicResourceFunction 1 {
-                $ResourceName -eq 'ResourceName' -and
-                $ModuleName -eq 'ModuleName'
-            }
-        }
-    }
-    Context 'Get-PublicResourceFunction returns nothing' {
-        It 'throws' {
-            { Assert-PublicResourceFunction 'ResourceName' 'ModuleName' } |
-                Should throw 'not found'
-        }
     }
 }
 }

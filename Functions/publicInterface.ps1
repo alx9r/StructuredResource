@@ -1,50 +1,48 @@
-function Assert-ModuleExists
+function Test-ModuleExists
 {
-    [CmdletBinding()]
     param
     (
         [Parameter(Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true,
-                   Mandatory = $true)]
+                   ValueFromPipeline,
+                   ValueFromPipelineByPropertyName,
+                   Mandatory)]
         [Alias('ModuleName')]
         [string]
         $Name
     )
     process
     {
-        if ( Get-Module $Name -ListAvailable )
-        {
-            return
-        }
-
-        throw "Module $Name not found."
+        return [bool](Get-Module $Name -ListAvailable)
     }
 }
 
-function Assert-ModuleImported
+# function Assert-ModuleExists
+Get-Command Test-ModuleExists |
+    New-Asserter 'Module $Name not found.' |
+    Invoke-Expression
+
+function Test-ModuleImported
 {
-    [CmdletBinding()]
     param
     (
         [Parameter(Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true,
-                   Mandatory = $true)]
+                   ValueFromPipeline,
+                   ValueFromPipelineByPropertyName,
+                   Mandatory)]
         [Alias('ModuleName')]
         [string]
         $Name
     )
     process
     {
-        if ( Get-Module $Name )
-        {
-            return
-        }
-        
-        throw "Module $Name not imported."
+        return [bool](Get-Module $Name)
     }
 }
+
+# function Assert-ModuleImported
+Get-Command Test-ModuleImported |
+    New-Asserter 'Module $Name not imported.' |
+    Invoke-Expression
 
 function Get-NestedModule
 {
@@ -92,72 +90,50 @@ function Get-NestedModule
     }
 }
 
-function Assert-NestedModule
+# function Test-NestedModule
+Get-Command Get-NestedModule |
+    New-Tester |
+    Invoke-Expression
+
+# function Assert-NestedModule
+Get-Command Test-NestedModule |
+    New-Asserter 'Nested module $NestedName not found module $Name.' |
+    Invoke-Expression
+
+function Test-DscResource
 {
-    [CmdletBinding()]
     param
     (
         [Parameter(Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true,
-                   Mandatory = $true)]
-        [Alias('ResourceName')]
-        [string]
-        $NestedName,
-
-        [Parameter(Position = 2,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true,
-                   Mandatory = $true)]
-        [Alias('ModuleName','ParentName')]
-        [string]
-        $Name
-    )
-    process
-    {
-        if ( Get-NestedModule @PSBoundParameters )
-        {
-            return
-        }
-
-        throw "Nested module $NestedName not found module $Name."
-    }
-}
-
-function Assert-DscResource
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true,
-                   Mandatory = $true)]
+                   ValueFromPipeline,
+                   ValueFromPipelineByPropertyName,
+                   Mandatory)]
         [Alias('ResourceName')]
         [string]
         $Name,
 
         [Parameter(Position = 2,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true)]
+                   ValueFromPipeline,
+                   ValueFromPipelineByPropertyName)]
         [Alias('ModuleName')]
         [string]
         $Module
     )
     process
     {
-        if ( Get-DscResource @PSBoundParameters )
-        {
-            return
-        }
-
-        if ( -not $Module )
-        {
-            throw "DSC Resource $Name not found."
-        }
-        throw "DSC Resource $Name not found in module $Module."
+        [bool](Get-DscResource @PSBoundParameters)
     }
 }
+
+# function Assert-DscResource
+Get-Command Test-DscResource |
+    New-Asserter {
+        @{
+            $true =  "DSC Resource $Name not found in module $Module."
+            $false = "DSC Resource $Name not found."
+        }.([bool]$Module)
+    }|
+    Invoke-Expression
 
 function Get-PublicResourceFunctionCommandName
 {
@@ -217,29 +193,12 @@ function Get-PublicResourceFunction
     }
 }
 
-function Assert-PublicResourceFunction
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Position = 1,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true,
-                   Mandatory = $true)]
-        [string]
-        $ResourceName,
+# function Test-PublicResourceFunction
+Get-Command Get-PublicResourceFunction |
+    New-Tester |
+    Invoke-Expression
 
-        [Parameter(Position = 2,
-                   ValueFromPipeline = $true,
-                   ValueFromPipelineByPropertyName = $true)]
-        [string]
-        $ModuleName
-    )
-    process
-    {
-        if ( -not (Get-PublicResourceFunction @PSBoundParameters) )
-        {
-            throw "Public resource function $(Get-PublicResourceFunctionCommandName $ResourceName) not found in module $ModuleName."
-        }
-    }    
-}
+# function Assert-PublicResourceFunction
+Get-Command Test-PublicResourceFunction |
+    New-Asserter {"Public resource function $(Get-PublicResourceFunctionCommandName $ResourceName) not found in module $ModuleName."} |
+    Invoke-Expression
