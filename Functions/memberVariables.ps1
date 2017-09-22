@@ -99,25 +99,10 @@ function Get-PropertyCustomAttribute
     }
 }
 
-function Test-PropertyCustomAttribute
-{
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   Position = 1)]
-        [string]
-        $AttributeName,
-
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Reflection.PropertyInfo]
-        $PropertyInfo
-    )
-    process
-    {
-        [bool](Get-PropertyCustomAttribute @PSBoundParameters)
-    }
-}
+# function Test-PropertyCustomAttribute
+Get-Command Get-PropertyCustomAttribute |
+    New-Tester |
+    Invoke-Expression
 
 function Assert-PropertyCustomAttribute
 {
@@ -177,25 +162,10 @@ function Test-DscPropertyRequired
     }
 }
 
-function Assert-DscPropertyRequired
-{
-    param
-    (
-        [Parameter(Mandatory = $true,
-                   ValueFromPipeline = $true)]
-        [System.Reflection.PropertyInfo]
-        $PropertyInfo
-    )
-    process
-    {
-        if ( $PropertyInfo | Test-DscPropertyRequired )
-        {
-            return
-        }
-
-        throw "Property $($PropertyInfo.Name) is not a required DSC property."
-    }
-}
+# function Assert-DscPropertyRequired
+Get-Command Test-DscPropertyRequired |
+    New-Asserter "Property $($PropertyInfo.Name) is not a required DSC property." |
+    Invoke-Expression
 
 function Get-PropertyType
 {
@@ -212,6 +182,16 @@ function Get-PropertyType
         $PropertyInfo.PropertyType
     }
 }
+
+# function Test-PropertyType
+Get-Command Get-PropertyType |
+    New-Tester |
+    Invoke-Expression
+
+# function Assert-PropertyType
+Get-Command Test-PropertyType |
+    New-Asserter {"Property $($PropertyInfo.Name) is of type $Value not $($PropertyInfo | Get-PropertyType)"} |
+    Invoke-Expression
 
 function Get-PropertyDefault
 {
@@ -233,41 +213,24 @@ function Get-PropertyDefault
     }
 }
 
-function Assert-PropertyDefault
-{
-    param
-    (
-        [Parameter(Position = 1,
-                   Mandatory = $true)]
-        [string]
-        $PropertyName,
+# function Test-PropertyDefault
+Get-Command Get-PropertyDefault |
+    New-Tester |
+    Invoke-Expression
 
-        [Parameter(Position = 2,
-                   Mandatory = $true)]
-        [AllowNull()]
-        $Value,
-
-        [Parameter(ValueFromPipeline = $true,
-                   Mandatory = $true)]
-        [System.Reflection.TypeInfo]
-        $TypeInfo
-    )
-    process
-    {
-        if ( -not ($TypeInfo | Get-MemberProperty $PropertyName) )
-        {
-            return
+# function Assert-PropertyDefault
+Get-Command Test-PropertyDefault |
+    New-Asserter {
+        function toString {
+            param([Parameter(ValueFromPipeline)]$x)
+            process {
+                @{
+                    $true = '$null'
+                    $false = $x
+                }.([bool]($null -eq $x))
+            }
         }
+        "Default value $($TypeInfo | Get-PropertyDefault $PropertyName | toString ) does not match expected value $($Value | toString) for property $PropertyName of [$TypeInfo]."
+    } |
+    Invoke-Expression
 
-        $actualValue = $TypeInfo | Get-PropertyDefault $PropertyName
-        if ( $actualValue -eq $Value )
-        {
-            return
-        }
-
-        $printValue = $Value
-        if ( $null -eq $Value ) { $printValue = '$null' }
-
-        throw "Default value $actualValue does not match expected value $printValue for property $PropertyName of [$TypeInfo]."
-    }
-}

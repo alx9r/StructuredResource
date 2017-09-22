@@ -92,18 +92,6 @@ Describe Get-PropertyCustomAttribute {
     }
 }
 
-Describe Test-PropertyCustomAttribute {
-    $p = [c] | Get-MemberProperty 'a'
-    It 'true' {
-        $r = $p | Test-PropertyCustomAttribute 'DscProperty'
-        $r | Should be $true
-    }
-    It 'false' {
-        $r = $p | Test-PropertyCustomAttribute 'non-existent'
-        $r | Should be $false
-    }
-}
-
 Describe Assert-PropertyCustomAttribute {
     $p = [c] | Get-MemberProperty 'a'
     Context 'present' {
@@ -164,29 +152,6 @@ Describe Test-DscPropertyRequired {
     }
 }
 
-Describe Assert-DscPropertyRequired {
-    $p = [c] | Get-MemberProperty 'a'
-    Context 'is required' {
-        Mock Test-DscPropertyRequired { $true } -Verifiable
-        It 'returns nothing' {
-            $r = $p | Assert-DscPropertyRequired
-            $r | Should beNullOrEmpty
-        }
-        It 'invokes command' {
-            Assert-MockCalled Test-DscPropertyRequired 1 {
-                $PropertyInfo.Name -eq 'a'
-            }
-        }
-    }
-    Context 'is not required' {
-        Mock Test-DscPropertyRequired { $false }
-        It 'throws' {
-            { $p | Assert-DscPropertyRequired } |
-                Should throw 'not a required'
-        }
-    }
-}
-
 Describe Get-PropertyType {
     class c { [string]$a }
     It 'returns type info' {
@@ -210,41 +175,6 @@ Describe Get-PropertyDefault {
         $r = [c] |
             Get-PropertyDefault 'b'
         $null -eq $r | Should be $true
-    }
-}
-
-Describe Assert-PropertyDefault {
-    class c { $a = 'default'; $b }
-    Context 'string' {
-        It 'returns nothing' {
-            $r = [c] | 
-                Assert-PropertyDefault 'a' 'default'
-
-            $r | Should beNullOrEmpty
-        }
-        It 'throws on string mismatch' {
-            { [c] | Assert-PropertyDefault 'a' 'other' } |
-                Should throw 'does not match'
-        }
-    }
-    Context 'null' {
-        It 'returns nothing' {
-            $r = [c] | 
-                Assert-PropertyDefault 'b' $null
-
-            $r | Should beNullOrEmpty
-        }
-        It 'throws on string mismatch' {
-            { [c] | Assert-PropertyDefault 'b' 'other' } |
-                Should throw 'does not match'
-        }
-    }
-    Context 'non-existent property' {
-        It 'returns nothing' {
-            $r = [c] |
-                Assert-PropertyDefault 'bogus' 'default'
-            $r | Should beNullOrEmpty
-        }
     }
 }
 }
