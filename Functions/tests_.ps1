@@ -400,7 +400,7 @@ function Get-Tests
     }
     'PR.21' = @{
         Message = "Each public resource parameter whose corresponding public resource property bear [DscProperty(Key)] bears [StructuredResource('Key')]"
-        Prerequisites = 'T002','T006'
+        Prerequisites = 'PR.15','PR.16'
         Scriptblock = {
             $function = $_ | Get-PublicResourceFunction
             $_ | 
@@ -561,8 +561,10 @@ function Get-Tests
                     }
                     catch
                     {
-                        throw [System.Exception]::new(
-                            ($property | ConvertTo-PsLiteralString),
+                        throw [System.Exception]::new(@"
+CommandName: $CommandName
+Property: $($property | ConvertTo-PsLiteralString)
+"@,
                             $_.Exception
                         )
                     }
@@ -596,8 +598,10 @@ function Get-Tests
                     }
                     catch
                     {
-                        throw [System.Exception]::new(
-                            ($property | ConvertTo-PsLiteralString),
+                        throw [System.Exception]::new(@"
+CommandName: $CommandName
+Property: $($property | ConvertTo-PsLiteralString)
+"@,
                             $_.Exception
                         )
                     }
