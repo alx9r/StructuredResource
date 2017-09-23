@@ -24,10 +24,18 @@ function Get-ModuleManifest
     )
     process
     {
-        $ModuleInfo | 
+        $output = $ModuleInfo |
             Get-ModuleManifestPath | 
             % { Get-Content $_ } | 
             Out-String | 
             Invoke-Expression
+        try{$output}
+        catch
+        {
+            throw [System.Exception]::new(
+                "module manifest for $($ModuleInfo.Name) at path $($ModuleInfo | Get-ModuleManifestPath)",
+                $_.Exception
+            )
+        }
     }
 }

@@ -75,8 +75,17 @@ function Get-Tests
         Prerequisites = 'T037'
         Scriptblock = {
             Get-Module $_.ModuleName |
-                Get-ModuleManfiest |
+                Get-ModuleManifest |
                 Assert-HashtableKey DscResourcesToExport
+        }
+    }
+    T039 = @{
+        Message = 'The module manifest DscResourcesToExport entry is *.'
+        Prerequisites = 'T038'
+        Scriptblock = {
+            Get-Module $_.ModuleName |
+                Get-ModuleManifest |
+                Assert-HashtableItem DscResourcesToExport '*'
         }
     }
     'PB.3' = @{
