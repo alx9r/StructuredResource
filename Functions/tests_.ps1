@@ -59,8 +59,25 @@ function Get-Tests
     }
     T005 = @{
         Message = 'Get resource using Get-DscResource.'
-        Prerequisites = 'T003'
+        Prerequisites = 'T004','T038'
         Scriptblock = { $_ | Assert-DscResource }
+    }
+    T037 = @{
+        Message = 'There is a module manifest.'
+        Scriptblock = {
+            Get-Module $_.ModuleName |
+                Get-ModuleManifestPath |
+                Assert-Path
+        }
+    }
+    T038 = @{
+        Message = 'The module manifest has a DscResourcesToExport entry.'
+        Prerequisites = 'T037'
+        Scriptblock = {
+            Get-Module $_.ModuleName |
+                Get-ModuleManfiest |
+                Assert-HashtableKey DscResourcesToExport
+        }
     }
     'PB.3' = @{
         Message = 'Each public resource has a corresponding public function.'
@@ -71,7 +88,7 @@ function Get-Tests
         Prerequisites = 'T006'
     }
     T006 = @{
-        Message = 'Get public resource function.'
+        Message = 'The public resource function exists.'
         Scriptblock = { $_ | Assert-PublicResourceFunction }
         Prerequisites = 'T003'
     }
@@ -105,7 +122,11 @@ function Get-Tests
     T012 = @{
         Message = 'Public resource class''s Ensure property has default value "Present"'
         Prerequisites = 'T001'
-        Scriptblock = { $_ | Get-NestedModuleType | Assert-PropertyDefault 'Ensure' 'Present' }
+        Scriptblock = { 
+            $_ | 
+                Get-NestedModuleType | 
+                ? { $_ | Test-MemberProperty 'Ensure' } |
+                Assert-PropertyDefault 'Ensure' 'Present' }
     }
     T034 = @{
         Message = 'Public resource function has parameters'
@@ -426,8 +447,9 @@ function Get-Tests
     }
     T036 = @{
         Message = 'All arguments for key and property parameters are provided.'
-        Prerequisites = 'PB.3'
+        Prerequisites = 'T034'
         Scriptblock = {
+            # IntegrationTest
             $_ | 
                 Get-PublicResourceFunction |
                 Get-ParameterMetaData |
@@ -576,7 +598,7 @@ function Get-Tests
     }
     'L.3' = @{
         Message = 'The Set and Test methods of the public resource class simply invoke the corresponding public function.'
-        Prerequisites = 'PB.3'
+        Prerequisites = 'PB.3','PB.2'
         Scriptblock = {
             $a = $_ | Get-NestedModule |
                     Get-ModuleAst |

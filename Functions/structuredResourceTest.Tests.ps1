@@ -20,18 +20,39 @@ Describe Invoke-StructuredResourceTest {
             ResourceName = 'resource_name'
         }
         Scriptblock = { $_ | f }
+        ID = 'ID'
+        Message = 'Message'
     }
-    Mock f { 
-        'result'
-    } -Verifiable
-    It 'returns output of scriptblock' {
+    Mock f { 'result' } -Verifiable
+    Context 'success' {
         $r = $ts | Invoke-StructuredResourceTest
-        $r | Should be 'result'
+        It 'returns results object' {
+            $r | Should -BeOfType ([StructuredResourceTestResult])
+        }
+        It 'populates fields' {
+            $r.Test | Should -Be $ts
+            $r.TestOutput | Should -Be 'result'
+        }
+        It 'invokes commands' {
+            Assert-MockCalled f 1 {
+                $ModuleName -eq 'module_name' -and
+                $ResourceName -eq 'resource_name'
+            }
+        }
     }
-    It 'invokes commands' {
-        Assert-MockCalled f 1 {
-            $ModuleName -eq 'module_name' -and
-            $ResourceName -eq 'resource_name'
+    Context 'failure' {
+        Mock f { throw 'mock threw' } -Verifiable
+        It 'throws' {
+            { $ts | Invoke-StructuredResourceTest } |
+                Should throw
+        }
+        try { $ts | Invoke-StructuredResourceTest }
+        catch { $e = $_.Exception }
+        It 'outer exception' {
+            $e | Should -Match 'ID - Message'
+        }
+        It 'inner exception' {
+            $e.InnerException | Should -Match 'mock threw'
         }
     }
 }

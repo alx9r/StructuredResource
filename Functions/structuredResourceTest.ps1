@@ -20,7 +20,22 @@ function Invoke-StructuredResourceTest
     )
     process
     {
-        $InputObject.Arguments | % $InputObject.Scriptblock
+        try
+        {
+            $testOutput = $InputObject.Arguments | % $InputObject.Scriptblock
+        }
+        catch
+        {
+            throw [System.Exception]::new(
+                $($InputObject.FullMessage),
+                $_.Exception
+            )
+        }
+
+        New-Object StructuredResourceTestResult -Property @{
+            TestOutput = $testOutput
+            Test = $InputObject
+        }
     }
 }
 
