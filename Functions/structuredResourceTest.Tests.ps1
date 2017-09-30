@@ -14,8 +14,8 @@ Describe Invoke-StructuredResourceTest {
 
         )
     }
-    $ts = New-Object StructuredResourceTest -Property @{
-        Arguments = New-Object TestArgs -Property @{
+    $ts = [StructuredResourceTest]@{
+        Arguments = [TestArgs]@{
             ModuleName = 'module_name'
             ResourceName = 'resource_name'
         }
@@ -59,7 +59,7 @@ Describe Invoke-StructuredResourceTest {
 
 Describe Get-StructuredResourceTestKind {
     It 'Integration' {
-        $r = New-Object StructuredResourceTest -Property @{ Scriptblock = {Invoke-IntegrationTest} } |
+        $r = [StructuredResourceTest]@{ Scriptblock = {Invoke-IntegrationTest} } |
             Get-StructuredResourceTestKind
         $r | Should be 'Integration'
     }

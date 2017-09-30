@@ -1,13 +1,32 @@
-class StructuredResourceTest
+class StructuredResourceTestBase
 {
-    [string]$ID
     [string[]]$Prerequisites
     [string]$Message
-    [TestArgs]$Arguments
     [scriptblock]$Scriptblock
+}
+class StructuredResourceTest : StructuredResourceTestBase
+{
+    [string]$ID
+    [TestArgs]$Arguments
     hidden [string]$_FullMessage = (Accessor $this {
         get { "$($this.ID) - $($this.Message)" }
     })
+
+    StructuredResourceTest(){}
+    StructuredResourceTest ([StructuredResourceTestBase]$b)
+    {
+        $this.Prerequisites = $b.Prerequisites
+        $this.Message = $b.Message
+        $this.Scriptblock = $b.Scriptblock
+    }
+    StructuredResourceTest ( [hashtable] $h )
+    {
+        $this.Prerequisites = $h.Prerequisites
+        $this.Message = $h.Message
+        $this.Scriptblock = $h.Scriptblock
+        $this.ID = $h.ID
+        $this.Arguments = $h.Arguments
+    }
 }
 
 $splat = @{
