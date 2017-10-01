@@ -13,14 +13,20 @@ Describe Get-TestIdKind {
         $r | Should -BeOfType ([TestIdKind])
         $r | Should -Be $k
     }
-    It 'null for unknown' {
-        $r = 'unknown' | Get-TestIdKind
+    It 'null for <n>' -TestCases @(
+        @{n='unknown';     v='unknown'}
+        @{n='null';        v=$null}
+        @{n='empty string';v=''}
+    ) {
+        param($n,$v)
+        $r = $v | Get-TestIdKind
         $r | Should -BeNullOrEmpty
     }
 }
 Describe Get-TestIdNumber {
     It '<s> is <n>' -TestCases @(
         @{s='C.1';  n=1 }
+        @{s='C.10'; n=10}
         @{s='T001'; n=1 }
         @{s='T';    n=0 }
     ) {
@@ -28,6 +34,15 @@ Describe Get-TestIdNumber {
         $r = $s | Get-TestIdNumber
         $r | Should -BeOfType ([int])
         $r | Should -Be $n
+    }
+    It '0 for <n>' -TestCases @(
+        @{n='unknown';     v='unknown'}
+        @{n='null';        v=$null}
+        @{n='empty string';v=''}
+    ) {
+        param($n,$v)
+        $r = $v | Get-TestIdNumber
+        $r | Should -Be 0
     }
 }
 Describe Get-GuidelineGroup {

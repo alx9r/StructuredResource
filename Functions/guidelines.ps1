@@ -49,7 +49,7 @@ function ConvertTo-GuidelinesDocument
         [Section]@{
             Title = $Title
             Text = $Text
-            Sections = $sections
+            Sections = [Section[]]$sections
         }
     }
 }

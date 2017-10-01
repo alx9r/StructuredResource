@@ -35,7 +35,29 @@ class Text
 
 class Section
 {
-    [string]$Title
+    hidden [string]$_Title = (Accessor $this {
+        get
+        set {
+            param($Title)
+            if ( ($null -eq $Title) -or ('' -eq $Title))
+            {
+                throw 'Title must not be null or empty.'
+            }
+            $this._Title = $Title
+        }
+    })
     [Text[]]$Text
     [Section[]]$Sections
+
+    Section([string]$title)
+    {
+        $this.Title = $title
+    }
+
+    Section([hashtable]$h)
+    {
+        $this.Title = $h.Title
+        $this.Text = $h.Text
+        $this.Sections = $h.Sections
+    }
 }

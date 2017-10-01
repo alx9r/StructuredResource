@@ -13,7 +13,7 @@ function ConvertTo-MdSection
     {
         [Text]::new($Section.Title,"Title$SectionDepth")
 
-        $Section.Text | % { [Text]$_ }
+        $Section.Text | ? {$_} | % { [Text]$_ }
 
         $Section.Sections | 
             ? {$_} |

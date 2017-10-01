@@ -19,13 +19,23 @@ class StructuredResourceTest : StructuredResourceTestBase
         get { $this.ID | Get-TestIdNumber }
     })
 
-    StructuredResourceTest(){}
-    StructuredResourceTest ([StructuredResourceTestBase]$b)
+    hidden Init([StructuredResourceTestBase]$b)
     {
         $this.Prerequisites = $b.Prerequisites
         $this.Message = $b.Message
         $this.Scriptblock = $b.Scriptblock
         $this.Explanation = $b.Explanation
+    }
+
+    StructuredResourceTest(){}
+    StructuredResourceTest ([StructuredResourceTestBase]$b)
+    {
+        $this.Init($b)
+    }
+    StructuredResourceTest ([StructuredResourceTestBase]$b,[string]$ID)
+    {
+        $this.Init($b)
+        $this.ID = $ID
     }
     StructuredResourceTest ( [hashtable] $h )
     {

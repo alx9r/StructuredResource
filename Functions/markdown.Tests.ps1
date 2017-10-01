@@ -23,6 +23,15 @@ Describe ConvertTo-MdSection {
             $r[1].Text | Should be 'text'
         }
     }
+    Context 'omit text' {
+        It 'outputs nothing' {
+            $r = [Section]@{
+                Title = 'Title'
+            } | ConvertTo-MdSection
+            $r.Count | Should be 1
+            $r.Text | Should be 'Title'
+        }
+    }
     Context 'nested' {
         $r = [Section]@{
             Title = 'outer title'
