@@ -3,6 +3,7 @@ class StructuredResourceTestBase
     [string[]]$Prerequisites
     [string]$Message
     [scriptblock]$Scriptblock
+    [string]$Explanation
 }
 class StructuredResourceTest : StructuredResourceTestBase
 {
@@ -11,6 +12,12 @@ class StructuredResourceTest : StructuredResourceTestBase
     hidden [string]$_FullMessage = (Accessor $this {
         get { "$($this.ID) - $($this.Message)" }
     })
+    hidden [string]$_GuidelineGroup = (Accessor $this {
+        get { $this.ID | Get-GuidelineGroup }
+    })
+    hidden [string]$_IdNumber = (Accessor $this {
+        get { $this.ID | Get-TestIdNumber }
+    })
 
     StructuredResourceTest(){}
     StructuredResourceTest ([StructuredResourceTestBase]$b)
@@ -18,12 +25,14 @@ class StructuredResourceTest : StructuredResourceTestBase
         $this.Prerequisites = $b.Prerequisites
         $this.Message = $b.Message
         $this.Scriptblock = $b.Scriptblock
+        $this.Explanation = $b.Explanation
     }
     StructuredResourceTest ( [hashtable] $h )
     {
         $this.Prerequisites = $h.Prerequisites
         $this.Message = $h.Message
         $this.Scriptblock = $h.Scriptblock
+        $this.Explanation = $h.Explanation
         $this.ID = $h.ID
         $this.Arguments = $h.Arguments
     }

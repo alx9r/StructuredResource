@@ -20,6 +20,41 @@ function Get-TestIdKind
     }
 }
 
+function Get-TestIdNumber
+{
+    param
+    (
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        $Id
+    )
+    process
+    {
+        [int]($Id |
+            Select-String '^[A-Z]{1,2}\.?([0-9])+$' |
+            % { $_.Matches.Captures.Groups[1].Value })
+    }
+}
+
+function Get-GuidelineGroup
+{
+    param
+    (
+        [Parameter(Mandatory,
+                   ValueFromPipeline)]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [string]
+        $Id
+    )
+    process
+    {
+        $Id | 
+            Select-String '^([A-Z]{1,2})\.[0-9]+$' |
+            % { $_.Matches.Captures.Groups[1].Value }
+    }
+}
+
 Get-Command Get-TestIdKind | New-Tester | Invoke-Expression
 
 function Get-Tests
