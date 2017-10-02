@@ -13,9 +13,24 @@ function Get-MemberProperty
     )
     process
     {
-        return $TypeInfo.GetMembers() | 
-            ? { $_.MemberType -eq 'Property' } |
-            ? { $_.Name -like $Filter }
+        foreach ( $property in (
+            $TypeInfo.GetMembers() | 
+                ? { $_.MemberType -eq 'Property' } |
+                ? { $_.Name -like $Filter }
+        ))
+        {
+            try
+            {
+                $property
+            }
+            catch
+            {
+                throw [System.Exception]::new(
+                    "Property $($property.Name) of type $($TypeInfo.Name)",
+                    $_.Exception
+                )
+            }
+        }
     }
 }
 

@@ -71,7 +71,7 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
 
 
 
-**public resource class** - the class with the `[DscResource()] object that is used to publish a resource.
+**public resource class** - the class with the `[DscResource()]` object that is used to publish a resource.
 
 
 
@@ -83,7 +83,7 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
 
 
 
-**public resource property** - a property of a public resource class.
+**public resource property** - a property of a public resource class bearing the `[DscProperty()]` attribute.
 ## A: Arguments
 ### A.1 All constructor properties are provided when invoking `Set Present`.
 **Reason**
@@ -402,7 +402,7 @@ This is to avert confusion that might result when bulk-binding the values of a p
 
 
 This is to help users understand what kind of object is expected for each parameter.
-### PR.10 Optional public resource parameters cannot be [string]
+### PR.10 Optional public resource parameters cannot be `[string]` (use `[NullsafeString]` instead)
 **Reason**
 
 

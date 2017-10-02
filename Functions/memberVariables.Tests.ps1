@@ -14,6 +14,10 @@ Describe Get-MemberProperty {
         $r.Count | Should be 1
         $r.Name | Should be 'a'
     }
+    It 'exception' {
+        Get-Command Get-MemberProperty |
+            Assert-PipelineException 'a' -Pipe ([c]) -Match 'property a','type c'
+    }
 }
 
 Describe Test-MemberProperty {

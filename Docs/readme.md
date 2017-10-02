@@ -32,9 +32,8 @@ Script     0.1.0      StructuredResource                  {Invoke-Structured...
 
 You should see some details about the StructuredResource module output by the `Get-Module` command as shown above.
 
-## Introductory Topics
+## Tutorial
 
-For an introduction to using StructuredResource to develop your own DSC resources, I recommend reading the following topics:
+For an introduction to using StructuredResource to develop your own DSC resources, I recommend following [the tutorial][].
 
-* [Tutorial]()
-* [Guidelines]()
+[the tutorial]: tutorial.md

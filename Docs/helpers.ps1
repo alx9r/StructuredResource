@@ -39,13 +39,13 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
 
 **resource instance** - an instance of a resource that can be created and removed using `Set Present` and `Set Absent`, respectively.
 
-**public resource class** - the class with the `[DscResource()] object that is used to publish a resource.
+**public resource class** - the class with the `[DscResource()]` object that is used to publish a resource.
 
 **public resource function** - a function that is invoked by `Set()` and `Test()` of a corresponding public resource class and is also exported as a public interface to the module.
 
 **public resource parameter** - a parameter of a public resource function.
 
-**public resource property** - a property of a public resource class.
+**public resource property** - a property of a public resource class bearing the `[DscProperty()]` attribute.
 '@
         SectionTitleLookup = @{
             PB = 'Publishing'

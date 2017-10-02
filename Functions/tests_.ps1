@@ -238,7 +238,7 @@ This rule was removed because a resource author could reasonably opt that an omi
     }
     T012 = [StructuredResourceTestBase]@{
         Message = 'Public resource class''s Ensure property has default value "Present"'
-        Prerequisites = 'T001'
+        Prerequisites = 'T001','T011'
         Scriptblock = { 
             $_ | 
                 Get-NestedModuleType | 
@@ -339,7 +339,7 @@ The name `Ensure` should only be used to specify whether a resource is present o
     }
     T024 = [StructuredResourceTestBase]@{
         Message = 'Public resource function Ensure parameter is a positional argument.'
-        Prerequisites = 'T021'
+        Prerequisites = 'T021','T014'
         Scriptblock = { $_ | Get-PublicResourceFunction | Get-ParameterMetaData 'Ensure' | Assert-ParameterPositional }
     }
     T025 = [StructuredResourceTestBase]@{
@@ -425,8 +425,8 @@ This is to help users understand what kind of object is expected for each parame
         }
     }
     'PR.10' = [StructuredResourceTestBase]@{
-        Message = 'Optional public resource parameters cannot be [string]'
-        Prerequisites = 'T006','T034'
+        Message = 'Optional public resource parameters cannot be `[string]` (use `[NullsafeString]` instead)'
+        Prerequisites = 'T006','T034','PR.18','PR.19'
         Explanation = @'
 **Reason**
 
@@ -495,12 +495,12 @@ This rule does not apply to the `Ensure` public resource property.
     }
     T029 = [StructuredResourceTestBase]@{
         Message = 'Optional public resource properties must be nullable.'
-        Prerequisites = 'T002'
+        Prerequisites = 'T002','T041'
         Scriptblock = {
             $_ |
                 Get-NestedModuleType | 
                 Get-MemberProperty |
-                ? { $_.Name -ne 'Ensure' }
+                ? { $_.Name -ne 'Ensure' } |
                 ? { -not ($_ | Test-DscPropertyRequired) } |
                 Get-PropertyType | 
                 Assert-NullableType
@@ -537,19 +537,41 @@ This is to support parity between the interfaces published by the public resourc
     }
     'PR.16' = [StructuredResourceTestBase]@{
         Message =  'Each public resource parameter has a corresponding public resource property.'
-        Prerequisites = 'T002','T006','T034'
+        Prerequisites = 'T041'
         Explanation = @'
 **Reason**
 
 This is to support parity between the interfaces published by the public resource class and public resource function.
 '@
+    }
+    T040 = [StructuredResourceTestBase]@{
+        Message = 'Each public resource parameter has a corresponding public resource property.'
+        Prerequisites = 'T002','T006','T034'
         Scriptblock = { 
             $type = $_ | Get-NestedModuleType
-            $_ | Get-PublicResourceFunction | 
+            $_ |
+                Get-PublicResourceFunction | 
                 Get-ParameterMetaData |
                 Select-Parameter -Not Common |
                 ? { $_.Name -ne 'Mode' } |
                 % { $type | Assert-MemberProperty $_.Name }        
+        }
+    }
+    T041 = [StructuredResourceTestBase]@{
+        Message = 'Each public resource property that corresponds to a public resource parameter bears the `[DscProperty()]` attribute.'
+        Prerequisites = 'T040'
+        Scriptblock = {
+            $type = $_ | Get-NestedModuleType
+            $_ |
+                Get-PublicResourceFunction |
+                Get-ParameterMetaData |
+                Select-Parameter -Not Common |
+                ? { $_.Name -ne 'Mode' } |
+                % { 
+                    $type | 
+                        Get-MemberProperty $_.Name |
+                        Assert-PropertyCustomAttribute DscProperty
+                }
         }
     }
     'PR.17' = [StructuredResourceTestBase]@{
@@ -963,7 +985,7 @@ Complexity is easier to test in functions than classes.  The least amount of com
             $a = $_ | Get-NestedModule |
                     Get-ModuleAst |
                     % { $_.EndBlock } |
-                    Get-StatementAst TestStub2
+                    Get-StatementAst $_.ResourceName
             'Set','Test' |
                 % { $a | Assert-ResourceClassMethodBody $_ }
         }

@@ -1,1 +1,3 @@
+ - test module manifest for RootModule
+ - test module manifest for RequiredModules
  - support and test multiple argument sets
