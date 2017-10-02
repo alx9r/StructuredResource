@@ -1,11 +1,11 @@
 # Getting Started with StructuredResource
 
 ## New to PowerShell or DSC?
-All of the StructuredResource documentation assumes that you have a working familiarity with PowerShell and DSC.  If you are new to PowerShell or DSC I recommend reviewing the getting started documentation at the [PowerShell](https://github.com/PowerShell/PowerShell) project.
+All of the StructuredResource documentation assumes that you have a working familiarity with PowerShell and DSC.  If you are new to PowerShell or DSC, I recommend reviewing the getting started documentation at the [PowerShell](https://github.com/PowerShell/PowerShell) project.
 
 ## Installing StructuredResource
 
-StructuredResource is a PowerShell module.  To install simply put the root folder (the one named "StructuredResource") in one of the `$PSModulePath` folders on your system.  For testing and development I recommend installing StructuredResource to the user modules folder (usually `$Env:UserProfile\Documents\WindowsPowerShell\Modules`). 
+StructuredResource is a PowerShell module.  To install simply put the root folder (the one named "StructuredResource") in one of the `$Env:PSModulePath` folders on your system.  For testing and development I recommend installing StructuredResource to the user modules folder (usually `$Env:UserProfile\Documents\WindowsPowerShell\Modules`). 
 
 ### Prerequisites
 

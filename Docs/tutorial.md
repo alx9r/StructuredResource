@@ -2,9 +2,46 @@
 
 In this tutorial we will use the StructuredResource module to implement a DSC resource that sets the content and attributes of text files.  The tutorial makes extensive use of the commands and automated tests included with StructuredResource to streamline implementation.
 
-You can follow along with this tutorial by first installing StructuredResource on your computer.  You can find [installation instructions here][].  
+You can follow along with this tutorial by first installing StructuredResource on your computer.  You can find [installation instructions here][].  The development of the DSC resource produced when this tutorial was written was captured in the [SrTutorial repository](https://github.com/alx9r/StTutorial).
 
 [installation instructions here]: readme.md
+
+The goal of this tutorial is to produce a DSC resource that can also be invoked from a PowerShell command.  The interfaces will look like the following:
+
+```
+PS C:\> Get-DscResource MyFile SrTutorial | % { $_; $_ | % Properties | Format-Table}
+
+ImplementedAs   Name                      ModuleName                     Version    Properties           
+-------------   ----                      ----------                     -------    ----------           
+PowerShell      MyFile                    SrTutorial                     0.1.0      {Path, Archive, Co...
+
+Name                 PropertyType     IsMandatory Values           
+----                 ------------     ----------- ------           
+Path                 [string]                True {}               
+Archive              [bool]                 False {}               
+Content              [NullsafeString]       False {}               
+DependsOn            [string[]]             False {}               
+Ensure               [string]               False {Absent, Present}
+Hidden               [bool]                 False {}               
+NoScrubData          [bool]                 False {}               
+NotContentIndexed    [bool]                 False {}               
+PsDscRunAsCredential [PSCredential]         False {}               
+ReadOnly             [bool]                 False {}               
+System               [bool]                 False {}               
+Temporary            [bool]                 False {}         
+
+PS C:\> Get-Help Invoke-MyFile
+
+NAME
+    Invoke-MyFile
+    
+SYNTAX
+    Invoke-MyFile [-Mode] {Set | Test} [[-Ensure] {Present | Absent}] -Path <string> [-Content 
+    <NullsafeString>] [-Archive <bool>] [-Hidden <bool>] [-NoScrubData <bool>] [-NotContentIndexed 
+    <bool>] [-ReadOnly <bool>] [-System <bool>] [-Temporary <bool>]  [<CommonParameters>]
+      
+```
+
 
 ## Part A: Setup
 ### A1. Create the Module
@@ -16,7 +53,7 @@ Our DSC resource will be in its own module called "SrTutorial".  Create the modu
 
 ### A2. Create the Tests
 
-We will be using the automated tests included  StructuredResource to drive our implementation of our resource.  Create the script file `structuredResource.Tests.ps1` in the `SrTutorial` folder.  Your folder structured should now look like this:
+We will be using the automated tests included  StructuredResource to drive implementation of our resource.  Create the script file `structuredResource.Tests.ps1` in the `SrTutorial` folder.  Your folder structured should now look like this:
 
 * `SrTutorial`
 	* `SrTutorial.psm1`
@@ -37,18 +74,14 @@ Describe 'MyFile' {
 }
 ```
 
-When this script file is invoked it creates tests using `New-StructuredResourceTest` and uses [Pester](https://github.com/pester/Pester) to run them.  Invoking `help New-StructuredResourceTest` and `help Invoke-StructuredResourceTest` at your PowerShell prompt outputs usage information about those commands.  Note the parameters `MyFile` and `SrTutorial` are our DSC resource and module names, respectively.  The DSC resource we will be creating is called `MyFile`.
+When this script file is invoked it creates tests using `New-StructuredResourceTest` and uses [Pester](https://github.com/pester/Pester) to run them.  Invoking `help New-StructuredResourceTest` and `help Invoke-StructuredResourceTest` at your PowerShell prompt outputs usage information about those commands.  Note the arguments `MyFile` and `SrTutorial` are the names of our DSC resource and module, respectively.  The DSC resource we will be creating is called `MyFile`.
 
 ## Part B: Unit Tests
 ### B1. Run the Tests
 
-We will be using Pester to run the automated tests throughout this tutorial.  To run the tests we set up in the previous step, open a PowerShell prompt in the `SrTutorial` folder and run `powershell.exe Invoke-Pester`:
+We will be using Pester to run the automated tests throughout this tutorial.  To run the tests we set up in the previous step, open a PowerShell prompt in the `SrTutorial` folder and run `powershell.exe Invoke-Pester`.
 
-```
-PS C:\...\SrTutorial> powershell.exe Invoke-Pester
-```
-
-As of PowerShell 5.1 it is important that you run each test run in a new instance of powershell.exe to avoid [the stale class problem](https://stackoverflow.com/a/42878789/1404637).  In other words, throughout this tutorial make sure invoke the tests using `powershell.exe Invoke-Pester` not merely `Invoke-Pester`.
+As of PowerShell 5.1 it is important that you run each test run in a new instance of powershell.exe to avoid [the stale class problem](https://stackoverflow.com/a/42878789/1404637).  Later versions of PowerShell might fix this problem.  In the meantime make sure you invoke the tests for this tutorial using `powershell.exe Invoke-Pester` not merely `Invoke-Pester`.
 
 The output from `Invoke-Pester` should start out something like this:
 
@@ -64,7 +97,7 @@ Executing script C:\Users\un1\Documents\WindowsPowerShell\Modules\SrTutorial\str
 ...
 ```
 
-The `[-]` is Pester's way of indicating the test has failed.  `T037` is the ID of the StructuredResource test that failed.  The next line contains error information about the failure.  The test are designed so that the first failing test gives you enough information to make an edit that takes you one step closer to a passing module.  In this case, `T037` failed because `SrTutorial.psd1` does not exist.
+The `[-]` is Pester's way of indicating the test has failed.  Failed tests usually appear in red text.  `T037` is the ID of the StructuredResource test that failed.  The next line contains error information about the failure.  The test are designed so that the first failing test provides you with information to make an edit that takes you one step closer to passing all tests.  In this case, `T037` failed because `SrTutorial.psd1` does not exist.
 
 ### B2. Edit, Test, and Repeat
 
@@ -83,11 +116,11 @@ Invoke `powershell.exe Invoke-Pester` again and see what fails next.  Then edit 
 
 Each DSC resource requires at least one key parameter.  In order to get unit tests passing for `MyFile` you'll need to implement the `$Path` key parameter for the resource.
 
-Note that you might see errors in your editor or output by PowerShell from time to time as you converge on a module that passes all the tests.  Heed those errors the same as those output by StructuredResource to get you back on the right track.
+Note that you might see errors in your editor or output by PowerShell from time to time as you converge on a module that passes all the tests.  Heed those errors the same as those output by StructuredResource to keep you on the right track.
 
 You will likely see multiple errors at any one time.  Pay most attention to the top-most errors as those are most likely to give you guidance about your next edit.
 
-If you get stuck, look at the `SrTutorial` repository's commit history up to the tag 'unit-tests-complete'. 
+If you get stuck, look for hints in the `SrTutorial` repository's commit history up to the tag `unit-tests-complete`. 
 
 Once you have all the unit tests passing, you will have a well-formed public resource class `[MyFile]` and a well-formed public resource function `Invoke-MyFile`.  These are the public interfaces for the `MyFile` DSC resource.
 
@@ -222,7 +255,7 @@ To wire those functions up to `Invoke-MyFile` we need to mention them in the pro
 
 ### D4: Test, Edit, Repeat
 
-Running `powershell.exe Invoke-Pester` reveals a problem: One of the flags we set during testing causes `Remove-Item` to fail with `PermissionDenied`.  To fix this, we implement our own `Remover` as follows:
+Running `powershell.exe Invoke-Pester` reveals another problem: One of the flags we set during testing causes `Remove-Item` to fail with `PermissionDenied`.  To fix this, we implement our own `Remover` as follows:
 
 ```PowerShell
 function Remove-File
@@ -232,6 +265,40 @@ function Remove-File
 }
 ```
 
-The permission denied error has cured but the tests reveal another problem: The file content is not being set successfully.  Setting a breakpoint and fiddling on the `Get-Content` line in `Test-MyFileProperty` reveals that the `Out-File`, `Get-Content` cycle adds newlines so the equality check fails.  To compensate for this quirk we introduce `Remove-TrailingNewlines` and use it to strip the extraneous characters before comparison.
+The permission denied error has cured but the tests reveal the last remaining problem: The file content is not being set successfully.  Setting a breakpoint and fiddling on the `Get-Content` line in `Test-MyFileProperty` reveals that the `Out-File`/`Get-Content` cycle adds newlines so the equality check fails.  To compensate for this quirk we introduce `Remove-TrailingNewlines` and use it to strip the extraneous characters before comparison.
 
-Now when we run `powershell.exe Invoke-Pester` all the tests pass and we can be reasonably sure that our `MyFile` DSC resource behaves as it should. 
+Now when we run `powershell.exe Invoke-Pester` all the tests pass and we can be reasonably sure that our `MyFile` DSC resource behaves as it should.
+
+Congratulations, you have just implemented a DSC resource that passes the whole StructuredResource test suite.
+
+## E: Try it Out
+
+The tests you ran in the previous module already put `Invoke-MyFile` through its paces.  You can try it out at the PowerShell command line:
+
+```PowerShell
+PS C:\> Invoke-MyFile Test Present -Path c:\temp\somefile.txt -Content 'content' -NotContentIndexed $true
+False
+
+PS C:\> Invoke-MyFile Set Present -Path c:\temp\somefile.txt -Content 'content' -NotContentIndexed $true
+
+PS C:\> Invoke-MyFile Test Present -Path c:\temp\somefile.txt -Content 'content' -NotContentIndexed $true
+True
+
+PS C:\> Get-Item c:\temp\somefile.txt | Select Name,Attributes
+
+Name                Attributes
+----                ----------
+somefile.txt NotContentIndexed
+```
+
+The class-based DSC resource is also available:
+
+```
+PS C:\> Get-DscResource MyFile SrTutorial
+
+ImplementedAs   Name                      ModuleName                     Version    Properties           
+-------------   ----                      ----------                     -------    ----------           
+PowerShell      MyFile                    SrTutorial                     0.1.0      {Path, Archive, Co...
+```
+
+DSC resource engines can use the `MyFile` resource.  `Invoke-MyFile` will be invoked by the resource's `Set()` and `Test()` methods. 
