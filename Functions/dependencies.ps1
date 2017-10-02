@@ -65,7 +65,7 @@ function Get-OrderedTests
     process
     {
         Get-OrderedTestIds $Tests |
-            % { 
+            % {
                 $test = [StructuredResourceTest]($Tests.$_)
                 $test.ID = $_
                 $test.Arguments = $TestArgs

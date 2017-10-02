@@ -32,7 +32,7 @@ Describe Get-ParameterAttributeProper {
 
 Describe Get-ParameterAttributeOther {
     function f {
-        param( 
+        param(
             [Parameter(Position = 1)]
             [AllowNull()]
             [ValidateSet('a')]
@@ -50,7 +50,7 @@ Describe Get-ParameterAttributeOther {
     }
     It 'returns another attribute selected' {
         $r = $p | Get-ParameterAttributeOther 'ValidateSet'
-        $r | Should beOfType ([ValidateSet])        
+        $r | Should beOfType ([ValidateSet])
     }
     It 'returns nothing for non-existent attribute' {
         $r = $p | Get-ParameterAttributeOther 'Non-existent'
@@ -77,7 +77,7 @@ Describe 'testing for mandatory parameter' {
 Describe Get-ParameterType {
     function f { param([Int32]$x,$y) }
     It 'returns exactly one type info object' {
-        $r = Get-Command f | Get-ParameterMetaData 'x' | 
+        $r = Get-Command f | Get-ParameterMetaData 'x' |
             Get-ParameterType
         $r.Count | Should be 1
         $r | Should beOfType ([System.Reflection.TypeInfo])
@@ -89,13 +89,13 @@ Describe Get-ParameterType {
         $r.FullName | Should be 'System.Object'
     }
     It 'rethrows on pipeline exception' {
-        function g { 
+        function g {
             param( [Parameter(ValueFromPipeline = $true)]$a )
             process { throw 'exception in g' }
         }
 
         {
-            Get-Command f | Get-ParameterMetaData 'y' | 
+            Get-Command f | Get-ParameterMetaData 'y' |
                 Get-ParameterType |
                 g
         } |

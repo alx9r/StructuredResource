@@ -4,7 +4,7 @@ InModuleScope StructuredResource {
 
 Describe Invoke-Scriptblock {
     Context 'no pipeline' {
-        $sb = { 
+        $sb = {
             param($pos1,$pos2,$named1,$named2)
             [pscustomobject]@{
                 pos1 = $pos1

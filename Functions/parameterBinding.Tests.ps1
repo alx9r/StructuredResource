@@ -19,13 +19,13 @@ Describe Assert-NamedArgument {
         }
         It 'is null' {
             { $p | Assert-NamedArgument @{ x=$null} } |
-                Should -Throw 'is null'            
+                Should -Throw 'is null'
         }
     }
 }
 
 Describe Assert-ConstructorArgument {
-    function f { 
+    function f {
         param(
             [StructuredResource('ConstructorProperty')]$x,
             [StructuredResource('ConstructorProperty')]$y,

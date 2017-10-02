@@ -5,7 +5,7 @@ function Get-HashtableKey
         [Parameter(Position = 1,
                    Mandatory)]
         $KeyName,
-        
+
         [Parameter(ValueFromPipeline,
                    Mandatory)]
         $Hashtable
@@ -41,7 +41,7 @@ function Get-HashtableItem
         [Parameter(Position = 1,
                    Mandatory)]
         $KeyName,
-        
+
         [Parameter(ValueFromPipeline,
                    Mandatory)]
         $Hashtable

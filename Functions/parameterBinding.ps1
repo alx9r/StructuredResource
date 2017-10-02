@@ -26,7 +26,7 @@ function Assert-NamedArgument
 
         try
         {
-            Invoke-Expression "[$($ParameterInfo.ParameterType.FullName)]`$Arguments.`$(`$ParameterInfo.Name)" | 
+            Invoke-Expression "[$($ParameterInfo.ParameterType.FullName)]`$Arguments.`$(`$ParameterInfo.Name)" |
                 Out-Null
         }
         catch
@@ -56,8 +56,8 @@ function Assert-ConstructorArgument
     process
     {
         if
-        ( 
-            $ParameterInfo | 
+        (
+            $ParameterInfo |
                 Get-ParameterAttribute StructuredResource |
                 ? {$null -ne $_} |
                 Test-AttributeArgument ParameterType ConstructorProperty

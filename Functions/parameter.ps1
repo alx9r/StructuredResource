@@ -110,7 +110,7 @@ function Test-ParameterOptional
     )
     process
     {
-        $ParameterInfo | Test-ParameterAttribute Mandatory $false        
+        $ParameterInfo | Test-ParameterAttribute Mandatory $false
     }
 }
 
@@ -223,7 +223,7 @@ function Invoke-SortParametersByPosition
     }
     end
     {
-        $accumulator | 
+        $accumulator |
             Sort-Object @{ Expression = { $_.Attributes.Position } }
     }
 }
@@ -403,7 +403,7 @@ function Test-ParameterDefault
                    Mandatory)]
         [switch]
         $NoDefault,
-                   
+
         [Parameter(Mandatory,
                    ValueFromPipeline)]
         [System.Management.Automation.Language.ParameterAst]
@@ -453,7 +453,7 @@ function Test-ParameterKind
         [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
         [string]
         $Not,
-                   
+
         [Parameter(Mandatory = $true,
                    ValueFromPipeline = $true)]
         [System.Management.Automation.ParameterMetadata]
@@ -499,7 +499,7 @@ function Select-Parameter
         [Parameter(ParameterSetName = 'negative')]
         [ValidateSet('MandatoryCommon','OptionalCommon','Common')]
         $Not,
-                   
+
         [Parameter(Mandatory = $true,
                    ValueFromPipeline = $true)]
         [System.Management.Automation.ParameterMetadata]

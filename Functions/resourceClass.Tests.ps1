@@ -162,7 +162,7 @@ Describe Assert-ResourceClassMethodBody {
         }
         Context 'failure throws' {
             It '"expected" message' {
-                { 
+                {
                     {
                         class R {
                             [bool] Test () {return $true}
@@ -171,10 +171,10 @@ Describe Assert-ResourceClassMethodBody {
                         Get-StatementAst R |
                         Assert-ResourceClassMethodBody Test
                 } |
-                    Should throw '[bool] Test () { return $this | Invoke-R Test }'                 
+                    Should throw '[bool] Test () { return $this | Invoke-R Test }'
             }
             It 'extra statement' {
-                { 
+                {
                     {
                         class R {
                             [bool] Test () { Out-Null; return  Invoke-R Test }
@@ -183,10 +183,10 @@ Describe Assert-ResourceClassMethodBody {
                         Get-StatementAst R |
                         Assert-ResourceClassMethodBody Test
                 } |
-                    Should throw 'exactly one statement'          
+                    Should throw 'exactly one statement'
             }
             It 'no this' {
-                { 
+                {
                     {
                         class R {
                             [bool] Test () { return  Invoke-R Test }
@@ -198,7 +198,7 @@ Describe Assert-ResourceClassMethodBody {
                     Should throw 'missing $this'
             }
             It 'no public resource function name' {
-                { 
+                {
                     {
                         class R {
                             [bool] Test () { return $this | Invoke-SomeWrongResource }
@@ -207,10 +207,10 @@ Describe Assert-ResourceClassMethodBody {
                         Get-StatementAst R |
                         Assert-ResourceClassMethodBody Test
                 } |
-                    Should throw 'missing call'            
+                    Should throw 'missing call'
             }
             It 'no mode parameter' {
-                { 
+                {
                     {
                         class R {
                             [bool] Test () { return $this | Invoke-R }
@@ -222,7 +222,7 @@ Describe Assert-ResourceClassMethodBody {
                     Should throw 'missing mode'
             }
             It 'wrong mode parameter' {
-                { 
+                {
                     {
                         class R {
                             [bool] Test () { return $this | Invoke-R Set }
@@ -250,7 +250,7 @@ Describe Assert-ResourceClassMethodBody {
         }
         Context 'failure throws' {
             It '"expected" message' {
-                { 
+                {
                     {
                         class R {
                             [void] Set () {}
@@ -259,10 +259,10 @@ Describe Assert-ResourceClassMethodBody {
                         Get-StatementAst R |
                         Assert-ResourceClassMethodBody Set
                 } |
-                    Should throw '[void] Set () { $this | Invoke-R Set }'                 
+                    Should throw '[void] Set () { $this | Invoke-R Set }'
             }
             It 'wrong mode parameter' {
-                { 
+                {
                     {
                         class R {
                             [void] Set () { $this | Invoke-R Test }

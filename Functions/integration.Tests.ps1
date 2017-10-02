@@ -43,7 +43,7 @@ Describe Invoke-IntegrationTest {
             }
             Assert-MockCalled Invoke-Scriptblock 1 {
                 [string]$Scriptblock -eq [string]{'scriptblock'} -and
-                $NamedArgs.CommandName -eq 'f' 
+                $NamedArgs.CommandName -eq 'f'
                 $NamedArgs.Keys -eq 'k' -and
                 $NamedArgs.Hints -eq 'h' -and
                 $NamedArgs.Properties -eq 'p'

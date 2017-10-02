@@ -35,7 +35,7 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
 
 **key** - a mandatory public resource parameter or property that uniquely identifies a resource instance.
 
-**property** - a property of a resource instance.  A property can be set and tested by passing a value to its corresponding public resource parameter.  A property cannot be created or removed from its resource instance. 
+**property** - a property of a resource instance.  A property can be set and tested by passing a value to its corresponding public resource parameter.  A property cannot be created or removed from its resource instance.
 
 **resource instance** - an instance of a resource that can be created and removed using `Set Present` and `Set Absent`, respectively.
 
@@ -57,7 +57,7 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
         }
     }
     Get-Tests |
-        %{ 
+        %{
             $_.GetEnumerator() |
                 % { [StructuredResourceTest]::new($_.Value,$_.Key) }
         } |

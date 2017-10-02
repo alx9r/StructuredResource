@@ -114,7 +114,7 @@ function Assert-NestedModuleInstance
         {
             return
         }
-        
+
         throw "Could not create object of type $NestedName from module $NestedName."
     }
 }
@@ -142,9 +142,9 @@ function Get-DscResourceAttribute
     {
         Get-NestedModule @PSBoundParameters |
             Get-TypeFromModule $ResourceName |
-            % CustomAttributes | 
+            % CustomAttributes |
             ? {$_.AttributeType.Name -eq 'DscResourceAttribute' }
-    }    
+    }
 }
 
 function Assert-DscResourceAttribute
@@ -224,7 +224,7 @@ function Assert-ResourceClassMethodBody
             throw "Missing mode parameter after function name $fn."+$expectation
         }
 
-        $actual = $pipelineElements[1].CommandElements[1].Value            
+        $actual = $pipelineElements[1].CommandElements[1].Value
         if ( $MethodName -ne $actual )
         {
             throw "Incorrect mode parameter after function name.  Expected $MethodName, found $actual."

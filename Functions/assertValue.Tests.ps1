@@ -4,7 +4,7 @@ InModuleScope StructuredResource {
 
 Describe Assert-Value {
     It 'returns nothing' {
-        $r = 'a' | Assert-Value 'a' 
+        $r = 'a' | Assert-Value 'a'
         $r | Should beNullOrEmpty
     }
     It 'throws' {

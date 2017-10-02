@@ -188,7 +188,7 @@ Describe New-StructuredArgumentGroup {
 }
 
 Describe New-StructuredArgs {
-    Mock New-StructuredArgumentGroup { 'return value' } -Verifiable    
+    Mock New-StructuredArgumentGroup { 'return value' } -Verifiable
     $r = Get-Command f | Get-ParameterMetaData |
         New-StructuredArgs $allParams
     It 'returns one hashtable' {
@@ -331,7 +331,7 @@ Describe 'use New-StructuredResourceArgs' {
         )
         process
         {
-            $params = $MyInvocation | 
+            $params = $MyInvocation |
                 New-StructuredResourceArgs @{
                     Tester = 'Test-SomeResource'
                     Curer = 'Add-SomeResource'
@@ -430,7 +430,7 @@ Describe 'use New-StructuredResourceArgs' {
             )
             process
             {
-                $MyInvocation | 
+                $MyInvocation |
                     New-StructuredResourceArgs @{
                         Tester = 'Test-SomeResource'
                         Curer = 'Add-SomeResource'

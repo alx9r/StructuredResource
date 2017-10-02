@@ -53,7 +53,7 @@ function Get-GuidelineGroup
     )
     process
     {
-        $Id | 
+        $Id |
             Select-String '^([A-Z]{1,2})\.[0-9]+$' |
             % { $_.Matches.Captures.Groups[1].Value }
     }
@@ -93,7 +93,7 @@ Related resources usually share an amount of utility code.  Publishing related r
 
 **Enforcement**
 
-Invoke `Get-DscResource` for each of the related public resources and confirm that the module name is the parent module. 
+Invoke `Get-DscResource` for each of the related public resources and confirm that the module name is the parent module.
 '@
     }
     T001 = [StructuredResourceTestBase]@{
@@ -239,9 +239,9 @@ This rule was removed because a resource author could reasonably opt that an omi
     T012 = [StructuredResourceTestBase]@{
         Message = 'Public resource class''s Ensure property has default value "Present"'
         Prerequisites = 'T001','T011'
-        Scriptblock = { 
-            $_ | 
-                Get-NestedModuleType | 
+        Scriptblock = {
+            $_ |
+                Get-NestedModuleType |
                 ? { $_ | Test-MemberProperty 'Ensure' } |
                 Assert-PropertyDefault 'Ensure' 'Present' }
     }
@@ -249,8 +249,8 @@ This rule was removed because a resource author could reasonably opt that an omi
         Message = 'Public resource function has parameters'
         Prerequisites = 'T006'
         Scriptblock = {
-            $r = $_ | 
-                Get-PublicResourceFunction | 
+            $r = $_ |
+                Get-PublicResourceFunction |
                 Get-ParameterMetaData |
                 measure |
                 % Count
@@ -299,11 +299,11 @@ The mode parameter is required to select between `Test` and `Set`.  It is of typ
     T019 = [StructuredResourceTestBase]@{
         Message = 'Public resource function Mode parameter is the first positional argument.'
         Prerequisites = 'T017'
-        Scriptblock = { 
-            $_ | Get-PublicResourceFunction | 
-                Get-ParameterMetaData | 
-                Select-OrderedParameters | 
-                Assert-ParameterOrdinality 'Mode' 0 
+        Scriptblock = {
+            $_ | Get-PublicResourceFunction |
+                Get-ParameterMetaData |
+                Select-OrderedParameters |
+                Assert-ParameterOrdinality 'Mode' 0
         }
     }
     T020 = [StructuredResourceTestBase]@{
@@ -370,9 +370,9 @@ No public resource parameter should have the `ValueFromPipeline` attribute set.
 
 **Reason**
 
-This is to improve parameter binding predictability.  With `ValueFromPipeline` set it is difficult to predict which, if any, parameter a pipeline value will bind to. 
+This is to improve parameter binding predictability.  With `ValueFromPipeline` set it is difficult to predict which, if any, parameter a pipeline value will bind to.
 '@
-        Scriptblock =  { 
+        Scriptblock =  {
             $_ |
                 Get-PublicResourceFunction |
                 Get-ParameterMetaData |
@@ -389,11 +389,11 @@ Each public resource parameter should have the `ValueFromPipelineByPropertyName`
 
 This is to support binding of bulk parameters using objects.  In particular, it supports passing the values of member variables of a `[DscResource()]` object as arguments to the function (e.g. `$this | Invoke-Resource Set`).
 '@
-        Scriptblock = { 
-            $_ | 
-                Get-PublicResourceFunction | 
-                Get-ParameterMetaData | 
-                Select-Parameter -Not Common | 
+        Scriptblock = {
+            $_ |
+                Get-PublicResourceFunction |
+                Get-ParameterMetaData |
+                Select-Parameter -Not Common |
                 Assert-ParameterAttribute ValueFromPipelineByPropertyName $true
         }
     }
@@ -415,9 +415,9 @@ This is to avert confusion that might result when bulk-binding the values of a p
 
 This is to help users understand what kind of object is expected for each parameter.
 '@
-        Scriptblock = { 
-            $_ | 
-                Get-PublicResourceFunction | 
+        Scriptblock = {
+            $_ |
+                Get-PublicResourceFunction |
                 Get-ParameterMetaData |
                 Select-Parameter -Not Common |
                 Get-ParameterType |
@@ -430,14 +430,14 @@ This is to help users understand what kind of object is expected for each parame
         Explanation = @'
 **Reason**
 
-This is to support compliance with PR.12 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead. 
+This is to support compliance with PR.12 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
 
 Because PR.12 does not apply to mandatory parameters, this rule also does not apply to mandatory parameters.
 '@
-        Scriptblock = { 
-            $_ | 
-                Get-PublicResourceFunction | 
-                Get-ParameterMetaData | 
+        Scriptblock = {
+            $_ |
+                Get-PublicResourceFunction |
+                Get-ParameterMetaData |
                 Select-Parameter -Not Common |
                 ? { $_ | Test-ParameterAttribute Mandatory $false } |
                 Get-ParameterType |
@@ -470,14 +470,14 @@ This rule does not apply to mandatory parameters because they can neither be nul
     T028 = [StructuredResourceTestBase]@{
         Message = 'Optional public resource parameters must be nullable.'
         Prerequisites = 'T006'
-        Scriptblock = { 
-            $_ | 
-                Get-PublicResourceFunction | 
-                Get-ParameterMetaData | 
+        Scriptblock = {
+            $_ |
+                Get-PublicResourceFunction |
+                Get-ParameterMetaData |
                 Select-Parameter -Not Common |
                 ? { $_.Name -ne 'Ensure' }
                 ? { $_ | Test-ParameterAttribute Mandatory $false } |
-                Get-ParameterType | 
+                Get-ParameterType |
                 Assert-NullableType }
     }
     'PR.13' = [StructuredResourceTestBase]@{
@@ -498,11 +498,11 @@ This rule does not apply to the `Ensure` public resource property.
         Prerequisites = 'T002','T041'
         Scriptblock = {
             $_ |
-                Get-NestedModuleType | 
+                Get-NestedModuleType |
                 Get-MemberProperty |
                 ? { $_.Name -ne 'Ensure' } |
                 ? { -not ($_ | Test-DscPropertyRequired) } |
-                Get-PropertyType | 
+                Get-PropertyType |
                 Assert-NullableType
         }
     }
@@ -512,13 +512,13 @@ This rule does not apply to the `Ensure` public resource property.
         Explanation = @'
 **Reason**
 
-This is to support compliance with PR.11.  Mandatory public resource parameters are not permitted to be `$null` because the meaning of `$null` is the same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates an error or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.  
+This is to support compliance with PR.11.  Mandatory public resource parameters are not permitted to be `$null` because the meaning of `$null` is the same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates an error or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.
 '@
-        Scriptblock = { 
+        Scriptblock = {
             $_ |
                 Get-PublicResourceFunction |
                 Get-ParameterMetaData |
-                Assert-ParameterAttribute 'AllowNull' $null    
+                Assert-ParameterAttribute 'AllowNull' $null
         }
     }
     'PR.15' = [StructuredResourceTestBase]@{
@@ -547,14 +547,14 @@ This is to support parity between the interfaces published by the public resourc
     T040 = [StructuredResourceTestBase]@{
         Message = 'Each public resource parameter has a corresponding public resource property.'
         Prerequisites = 'T002','T006','T034'
-        Scriptblock = { 
+        Scriptblock = {
             $type = $_ | Get-NestedModuleType
             $_ |
-                Get-PublicResourceFunction | 
+                Get-PublicResourceFunction |
                 Get-ParameterMetaData |
                 Select-Parameter -Not Common |
                 ? { $_.Name -ne 'Mode' } |
-                % { $type | Assert-MemberProperty $_.Name }        
+                % { $type | Assert-MemberProperty $_.Name }
         }
     }
     T041 = [StructuredResourceTestBase]@{
@@ -567,8 +567,8 @@ This is to support parity between the interfaces published by the public resourc
                 Get-ParameterMetaData |
                 Select-Parameter -Not Common |
                 ? { $_.Name -ne 'Mode' } |
-                % { 
-                    $type | 
+                % {
+                    $type |
                         Get-MemberProperty $_.Name |
                         Assert-PropertyCustomAttribute DscProperty
                 }
@@ -586,8 +586,8 @@ This is to ensure the same behavior whether the resource is invoked using the pu
             $function = $_ | Get-PublicResourceFunction
             $type = $_ | Get-NestedModuleType
             $type | Get-MemberProperty |
-                % { 
-                    $function | 
+                % {
+                    $function |
                         Get-ParameterAst $_.Name |
                         Assert-ParameterDefault ($type | Get-PropertyDefault $_.Name )
                 }
@@ -603,10 +603,10 @@ This is to ensure the same behavior whether the resource is invoked using the pu
 '@
         Scriptblock = {
             $function = $_ | Get-PublicResourceFunction
-            $_ | Get-NestedModuleType | 
+            $_ | Get-NestedModuleType |
                 Get-MemberProperty |
-                % { 
-                    $function | 
+                % {
+                    $function |
                         Get-ParameterMetaData $_.Name |
                         Get-ParameterType |
                         Assert-Type ($_ | Get-PropertyType)
@@ -623,16 +623,16 @@ This is to ensure the same behavior whether the resource is invoked using the pu
 '@
         Scriptblock = {
             $function = $_ | Get-PublicResourceFunction
-            $_ | Get-NestedModuleType | 
+            $_ | Get-NestedModuleType |
                 Get-MemberProperty |
                 % {
                     $assertion = @{
                         $true = 'Assert-ParameterMandatory'
                         $false = 'Assert-ParameterOptional'
                     }.([bool]($_ | Test-DscPropertyRequired))
-                    $function | 
+                    $function |
                         Get-ParameterMetaData $_.Name |
-                        & $assertion        
+                        & $assertion
                 }
         }
     }
@@ -654,11 +654,11 @@ This is to ensure that libraries interpreting public resource parameters are abl
 '@
         Scriptblock = {
             $function = $_ | Get-PublicResourceFunction
-            $_ | 
-                Get-NestedModuleType | 
+            $_ |
+                Get-NestedModuleType |
                 Get-MemberProperty |
                 ? {
-                    $_ | 
+                    $_ |
                         Get-PropertyCustomAttribute DscProperty |
                         Test-CustomAttributeArgument Key $true
                 } |
@@ -675,7 +675,7 @@ This is to ensure that libraries interpreting public resource parameters are abl
                             $_.Exception
                         )
                     }
-                }            
+                }
         }
     }
     T035 = [StructuredResourceTestBase]@{
@@ -754,10 +754,10 @@ Invoke the public resource function as follows:
         Prerequisites = 'T034'
         Scriptblock = {
             # IntegrationTest
-            $_ | 
+            $_ |
                 Get-PublicResourceFunction |
                 Get-ParameterMetaData |
-                ? { 
+                ? {
                     -not ($_ | Test-StructuredKnownParameter) -and
                     ($_ | Test-ParameterKind -Not Common)
                 } |
@@ -861,7 +861,7 @@ The following should probably also be tested:
  * `Set Absent` to reset
  * `Set Present`
  * `Set Absent`
- * `Test Present` and confirm the return value is `$false` 
+ * `Test Present` and confirm the return value is `$false`
 '@
     }
     T030 = [StructuredResourceTestBase]@{
@@ -894,7 +894,7 @@ The following should probably also be tested:
         Explanation = @'
 **Reason**
 
-If a property cannot be set after construction and a resource instance exists with a different property value, the DSC algorithm will never converge. 
+If a property cannot be set after construction and a resource instance exists with a different property value, the DSC algorithm will never converge.
 '@
     }
     T032 = [StructuredResourceTestBase]@{
@@ -970,7 +970,7 @@ Property: $($property | ConvertTo-PsLiteralString)
                         )
                     }
                 }
-            }            
+            }
         }
     }
     'L.3' = [StructuredResourceTestBase]@{
@@ -979,7 +979,7 @@ Property: $($property | ConvertTo-PsLiteralString)
         Explanation = @'
 **Reason**
 
-Complexity is easier to test in functions than classes.  The least amount of complexity that can be in the `Set()` and `Test()` methods of a public resource class is to simply invoke their corresponding public resource function. 
+Complexity is easier to test in functions than classes.  The least amount of complexity that can be in the `Set()` and `Test()` methods of a public resource class is to simply invoke their corresponding public resource function.
 '@
         Scriptblock = {
             $a = $_ | Get-NestedModule |
@@ -1000,7 +1000,7 @@ otherwise construction will fail.
 
 **Enforcement**
 
-This can be enforced by checking for missing constructor properties whenever `Set Present` is invoked. 
+This can be enforced by checking for missing constructor properties whenever `Set Present` is invoked.
 '@
     }
 }

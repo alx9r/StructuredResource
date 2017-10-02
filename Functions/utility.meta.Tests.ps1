@@ -22,7 +22,7 @@ Describe Get-CmdletBindingAttributeText {
 }
 
 Describe Get-ParameterText {
-    function f { 
+    function f {
         param
         (
             $x,
@@ -62,7 +62,7 @@ Describe Get-ParameterText {
 
 Describe Get-ParamblockText {
     Context '-FunctionInfo' {
-        function f { 
+        function f {
             param
             (
                 $x,
@@ -207,7 +207,7 @@ Describe New-Asserter {
             }
             It 'invokes command' {
                 Assert-MockCalled Test-Something 1 {
-                    $x -eq 1 -and 
+                    $x -eq 1 -and
                     $y -eq 2
                 }
             }

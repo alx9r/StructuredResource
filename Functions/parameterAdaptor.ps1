@@ -14,11 +14,11 @@ function Test-StructuredResourceAttributeParameter
     )
     process
     {
-        $GroupName -eq 
+        $GroupName -eq
             (
-                $ParameterInfo | 
-                    Get-ParameterAttribute StructuredResource | 
-                    ? {$null -ne $_} | 
+                $ParameterInfo |
+                    Get-ParameterAttribute StructuredResource |
+                    ? {$null -ne $_} |
                     Get-AttributeArgument ParameterType
             )
     }
@@ -51,12 +51,12 @@ function Test-StructuredPropertyParameter
     process
     {
         ( $ParameterInfo | Test-StructuredResourceAttributeParameter Property ) -or
-        ( 
+        (
             -not ($ParameterInfo | Get-ParameterAttribute StructuredResource) -and
             -not ($ParameterInfo | Test-StructuredKnownParameter) -and
             -not ($ParameterInfo | Test-ParameterKind Common )
         )
-    }    
+    }
 }
 
 function Test-StructuredGroupParameter
@@ -119,8 +119,8 @@ function New-StructuredArgumentGroup
     process
     {
         $arguments = $BoundParameters,$NamedArguments | ? {$null -ne $_}
-        if 
-        ( 
+        if
+        (
             ( $ParameterInfo | ? {$_ | Test-StructuredGroupParameter $GroupName } ) -and
             ( $ParameterInfo.Name -in $arguments.get_Keys() ) -and
             ( $null -ne $arguments.get_Item($ParameterInfo.Name) )
@@ -221,19 +221,19 @@ function New-StructuredResourceArgs
 	Creates a new arguments object for invoking a structured resource.
 	.DESCRIPTION
 	New-StructuredResourceArgs creates a new object whose properties are suitable for passing to Invoke-StructuredResource as arguments via the pipeline.  Common arguments are determined from InvocationInfo which is usually obtained from the body of a public resource function.  The following arguments are populated from InvocationInfo:
-	
+
 	 - Mode: the value for Mode that was passed to the public resource function
 	 - Ensure: the value for Ensure that was passed to the public resource function
 	 - Module: the containing module of the public resource function
 	 - Keys: a hashtable containing each of the public resource parameters bearing the [StructuredResource('Key')] attribute
 	 - Hints: a hashtable containing each of the public resource parameters bearing either the [StructuredResource('Hint')] or [StructuredResource('ContstructorProperty')] attributes.
 	 - Properties: a hashtable containing each of the public resource parameters other than Mode, Ensure, and those included in Keys or Hints.
-	 
+
 	Additional arguments can be included as properties of the object using InputArgs.
-	
+
 	.PARAMETER InputArgs
 	A hashtable containing user-specified arguments that are included as properties of the new object.
-	
+
 	.PARAMETER InvocationInfo
 	An InvocationInfo object containing the information from an invocation of a public resource function.  The Mode, Ensure, Module, Properties, Keys, and Hints properties of the new object are obtained from InvocationInfo.
     #>
@@ -276,7 +276,7 @@ function Assert-StructuredResourceArgs
     Asserts that the arguments of a parameter object are valid for passing to Invoke-StructuredResource.
     .DESCRIPTION
     Assert-StructuredResourceArgs analyses the values of the properties of an object.  Assert-StructuredResourceArgs throws an exception if it detects that those properties would be invalid if passed as arguments to Invoke-StructuredResource.  Assert-StructuredResourceArgs does not throw exceptions for such invalid values if those values would cause failed parameter binding.
-	
+
 	If no invalid values are found, Assert-StructuredResourceArgs outputs InputObject to support chaining.
 	.PARAMETER InputObject
 	The parameter object to analyse.  If no invalid values are found, InputObject is output by Assert-StructuredResourceArgs.
@@ -300,7 +300,7 @@ function Assert-StructuredResourceArgs
                 throw '__InvocationInfo missing from arguments object.  Need [InvocationInfo] to perform constructor property check for Set Present.'
             }
 
-            $InputObject.__InvocationInfo.MyCommand.Parameters.Values | 
+            $InputObject.__InvocationInfo.MyCommand.Parameters.Values |
                 Assert-ConstructorArgument $InputObject.__InvocationInfo.BoundParameters
         }
 

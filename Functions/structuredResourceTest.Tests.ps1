@@ -3,7 +3,7 @@ Import-Module StructuredResource -Force
 InModuleScope StructuredResource {
 
 Describe Invoke-StructuredResourceTest {
-    function f { 
+    function f {
         param
         (
             [Parameter(ValueFromPipelineByPropertyName = $true)]

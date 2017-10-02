@@ -63,7 +63,7 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
 
 
 
-**property** - a property of a resource instance.  A property can be set and tested by passing a value to its corresponding public resource parameter.  A property cannot be created or removed from its resource instance. 
+**property** - a property of a resource instance.  A property can be set and tested by passing a value to its corresponding public resource parameter.  A property cannot be created or removed from its resource instance.
 
 
 
@@ -100,7 +100,7 @@ otherwise construction will fail.
 
 
 
-This can be enforced by checking for missing constructor properties whenever `Set Present` is invoked. 
+This can be enforced by checking for missing constructor properties whenever `Set Present` is invoked.
 ## C: Contract
 ### C.1 A resource can be set absent.
 **Reason**
@@ -223,13 +223,13 @@ The following should probably also be tested:
 
  * `Set Absent`
 
- * `Test Present` and confirm the return value is `$false` 
+ * `Test Present` and confirm the return value is `$false`
 ### C.6 Properties can be set after construction.
 **Reason**
 
 
 
-If a property cannot be set after construction and a resource instance exists with a different property value, the DSC algorithm will never converge. 
+If a property cannot be set after construction and a resource instance exists with a different property value, the DSC algorithm will never converge.
 ### C.7 A property can be set on construction.
 **Reason**
 
@@ -281,13 +281,13 @@ Related resources usually share an amount of utility code.  Publishing related r
 
 
 
-Invoke `Get-DscResource` for each of the related public resources and confirm that the module name is the parent module. 
+Invoke `Get-DscResource` for each of the related public resources and confirm that the module name is the parent module.
 ### L.3 The Set and Test methods of the public resource class simply invoke the corresponding public function.
 **Reason**
 
 
 
-Complexity is easier to test in functions than classes.  The least amount of complexity that can be in the `Set()` and `Test()` methods of a public resource class is to simply invoke their corresponding public resource function. 
+Complexity is easier to test in functions than classes.  The least amount of complexity that can be in the `Set()` and `Test()` methods of a public resource class is to simply invoke their corresponding public resource function.
 ## PB: Publishing
 ### PB.1 Each resource is published using a class with a `[DscResource()]` attribute.
 This is as opposed to using MOF files to publish resources.
@@ -379,7 +379,7 @@ No public resource parameter should have the `ValueFromPipeline` attribute set.
 
 
 
-This is to improve parameter binding predictability.  With `ValueFromPipeline` set it is difficult to predict which, if any, parameter a pipeline value will bind to. 
+This is to improve parameter binding predictability.  With `ValueFromPipeline` set it is difficult to predict which, if any, parameter a pipeline value will bind to.
 ### PR.7 Public resource parameters bind to pipeline object property values.
 Each public resource parameter should have the `ValueFromPipelineByPropertyName` attribute set.
 
@@ -407,7 +407,7 @@ This is to help users understand what kind of object is expected for each parame
 
 
 
-This is to support compliance with PR.12 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead. 
+This is to support compliance with PR.12 when a user omits a `[string]`.  Per PowerShell/PowerShell#4616, passing `$null` to a `[string]` parameter unconditionally causes conversion to `[string]::empty`.  This silently converts the meaning from "don't change" to "clear value" which is incorrect.  PowerShell only performs such a silent conversion from `$null` for `[string]`s.  To avoid this problem and still use static-typing you can use `[NullsafeString]` instead.
 
 
 
@@ -455,7 +455,7 @@ This rule does not apply to the `Ensure` public resource property.
 
 
 
-This is to support compliance with PR.11.  Mandatory public resource parameters are not permitted to be `$null` because the meaning of `$null` is the same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates an error or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.  
+This is to support compliance with PR.11.  Mandatory public resource parameters are not permitted to be `$null` because the meaning of `$null` is the same as omission per PR.11.  `[AllowNull()]` does not affect non-mandatory parameters.  Therefore, `[AllowNull()]` on public resource parameters either indicates an error or is unnecessary.  Always omitting `[AllowNull()]` avoids errors with no downside.
 ### PR.15 Each public resource property has a corresponding public resource parameter.
 **Reason**
 

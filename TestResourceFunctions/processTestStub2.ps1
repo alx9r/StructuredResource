@@ -43,7 +43,7 @@ function Invoke-TestStub2
 
         if ( $Mode -eq 'Test' )
         {
-            if ( $null -ne $Corrigible -and 
+            if ( $null -ne $Corrigible -and
                  $testStub2.Property -ne $Corrigible )
             {
                 return $false
@@ -64,7 +64,7 @@ function Invoke-TestStub2
         }
         if ( $Mode -eq 'Test' )
         {
-            return ( $_presence -eq $Ensure ) -and 
+            return ( $_presence -eq $Ensure ) -and
                    ( $testStub2.Property -eq $Corrigible )
         }
 
@@ -72,7 +72,7 @@ function Invoke-TestStub2
             Corrigible = $Ensure
             Incorrigible = 'Absent'
         }.$Presence
-        
+
         if ($null -ne $Corrigible)
         {
             $testStub2.Property = $Corrigible.Value
@@ -80,7 +80,7 @@ function Invoke-TestStub2
     }
 }
 
-function Reset-TestStub2 { 
+function Reset-TestStub2 {
     $testStub2.Presence = 'Absent'
     $testStub2.Property = [string]::Empty
 }

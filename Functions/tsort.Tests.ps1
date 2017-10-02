@@ -56,7 +56,7 @@ Describe Get-StartIds {
 Describe ConvertTo-MutableEdges {
     It 'returns a hashtable of queues' {
         $r = ConvertTo-MutableEdges $edges1
-        
+
         $r.Keys.Count | Should be $edges1.Keys.Count
         $r.get_Item(11).GetType() | Should be 'System.Collections.Stack'
     }

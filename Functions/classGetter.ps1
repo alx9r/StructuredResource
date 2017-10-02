@@ -15,10 +15,10 @@ function Get-TypeFromModule
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
         [psmoduleinfo]
-        $ModuleInfo  
+        $ModuleInfo
     )
     process
-    {       
+    {
         & ($ModuleInfo | Import-Module -PassThru).NewBoundScriptBlock(
             [scriptblock]::Create("[$Name]")
         )
@@ -43,7 +43,7 @@ function New-ObjectFromModule
                    ValueFromPipelineByPropertyName = $true,
                    Mandatory = $true)]
         [psmoduleinfo]
-        $ModuleInfo  
+        $ModuleInfo
     )
     process
     {

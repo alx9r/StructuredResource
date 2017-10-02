@@ -32,7 +32,7 @@ Describe Get-NestedModule {
     }
     Context 'exception' {
         It 'rethrows on pipeline exception' {
-            function g { 
+            function g {
                 param( [Parameter(ValueFromPipeline = $true)]$a )
                 process { throw 'exception in g' }
             }
@@ -67,7 +67,7 @@ Describe Get-PublicResourceFunction {
         }
     }
     It 'rethrows on pipeline exception' {
-        function g { 
+        function g {
             param( [Parameter(ValueFromPipeline = $true)]$a )
             process { throw 'exception in g' }
         }

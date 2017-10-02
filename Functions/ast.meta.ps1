@@ -6,7 +6,7 @@ function Get-ParameterAst
         [Parameter(Position = 1)]
         [string]
         $ParameterName,
-        
+
         [Parameter(Mandatory = $true,
                    ValueFromPipeline = $true)]
         [System.Management.Automation.FunctionInfo]

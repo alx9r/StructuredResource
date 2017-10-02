@@ -10,7 +10,7 @@ Describe Get-ModuleAst {
     {
         $testName,$module = $values
         Context $testName {
-            $r = $module | 
+            $r = $module |
                 Get-ModuleAst
             It 'returns one object' {
                 $r | measure | % Count | Should be 1

@@ -13,7 +13,7 @@ Describe Get-HashtableKey {
         $r | Should -BeNullOrEmpty
     }
     It 'exception' {
-        Get-Command Get-HashtableKey | 
+        Get-Command Get-HashtableKey |
             Assert-PipelineException x -Pipe $h -Match 'x'
     }
 }

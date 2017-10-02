@@ -12,7 +12,7 @@ Describe StructuredResourceAttribute {
             $y
         )
     }
-    $f = Get-Command f 
+    $f = Get-Command f
     Context 'ParameterType' {
         It 'takes value Hint' {
             $r = $f |

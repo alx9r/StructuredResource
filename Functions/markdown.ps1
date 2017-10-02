@@ -15,7 +15,7 @@ function ConvertTo-MdSection
 
         $Section.Text | ? {$_} | % { [Text]$_ }
 
-        $Section.Sections | 
+        $Section.Sections |
             ? {$_} |
             ConvertTo-MdSection ($SectionDepth+1)
     }

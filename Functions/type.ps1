@@ -43,7 +43,7 @@ function Assert-Type
         $_expected = $Expected,$not | ? {$_}
 
         if
-        ( 
+        (
             ( $Actual | Test-Type $_expected ) -xor
             ( $PSCmdlet.ParameterSetName -eq 'negative' )
         )
@@ -128,7 +128,7 @@ function Test-NullableType
         {
             return $true
         }
-        if 
+        if
         (
             $TypeInfo.IsGenericType -and
             $TypeInfo.GetGenericTypeDefinition().Name -eq 'Nullable`1'

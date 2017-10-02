@@ -60,7 +60,7 @@ Describe Assert-MemberProperty {
         Mock Test-MemberProperty -Verifiable
         It 'throws' {
             { [c] | Assert-MemberProperty 'a' } |
-                Should throw 'a not found'            
+                Should throw 'a not found'
         }
         It '-Not returns nothing' {
             $r = [c] | Assert-MemberProperty -Not 'a'
@@ -159,8 +159,8 @@ Describe Test-DscPropertyRequired {
 Describe Get-PropertyType {
     class c { [string]$a }
     It 'returns type info' {
-        $r = [c] | 
-            Get-MemberProperty | 
+        $r = [c] |
+            Get-MemberProperty |
             Get-PropertyType
         $r.Count | Should be 1
         $r.Name | Should be 'string'

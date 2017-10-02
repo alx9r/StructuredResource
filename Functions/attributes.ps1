@@ -49,6 +49,6 @@ function Get-CustomAttributeArgument
     }
 }
 
-Get-Command Get-CustomAttributeArgument | 
+Get-Command Get-CustomAttributeArgument |
     New-Tester { $_.Expected -eq $_.Actual.TypedValue.Value } |
     Invoke-Expression

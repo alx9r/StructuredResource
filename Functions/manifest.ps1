@@ -25,9 +25,9 @@ function Get-ModuleManifest
     process
     {
         $output = $ModuleInfo |
-            Get-ModuleManifestPath | 
-            % { Get-Content $_ } | 
-            Out-String | 
+            Get-ModuleManifestPath |
+            % { Get-Content $_ } |
+            Out-String |
             Invoke-Expression
         try{$output}
         catch

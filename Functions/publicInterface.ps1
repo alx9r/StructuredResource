@@ -188,7 +188,7 @@ function Get-PublicResourceFunction
             throw New-Object System.Exception (
                 "ResourceName,ModuleName: $ResourceName,$ModuleName",
                 $_.Exception
-            )            
+            )
         }
     }
 }

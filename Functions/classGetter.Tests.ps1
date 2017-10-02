@@ -13,7 +13,7 @@ Describe Get-TypeFromModule {
             $r | Should beOfType ([System.Reflection.TypeInfo])
         }
         It 'invokes commands' {
-            Assert-MockCalled Import-Module 1 { 
+            Assert-MockCalled Import-Module 1 {
                 $PassThru -and $ModuleInfo
             }
             Assert-MockCalled Remove-Module 1 { $moduleInfo }
@@ -31,11 +31,11 @@ Describe New-ObjectFromModule{
             $r.GetType().Name | Should be 'a7f58a92'
         }
         It 'invokes commands' {
-            Assert-MockCalled Import-Module 1 { 
+            Assert-MockCalled Import-Module 1 {
                 $PassThru -and $ModuleInfo
             }
             Assert-MockCalled Remove-Module 1 { $moduleInfo }
         }
     }
-}    
+}
 }

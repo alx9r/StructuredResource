@@ -14,7 +14,7 @@ function Get-MemberProperty
     process
     {
         foreach ( $property in (
-            $TypeInfo.GetMembers() | 
+            $TypeInfo.GetMembers() |
                 ? { $_.MemberType -eq 'Property' } |
                 ? { $_.Name -like $Filter }
         ))
@@ -46,7 +46,7 @@ function Test-MemberProperty
         [Parameter(ValueFromPipeline = $true,
                    Mandatory = $true)]
         [System.Reflection.TypeInfo]
-        $TypeInfo    
+        $TypeInfo
     )
     process
     {
@@ -71,20 +71,20 @@ function Assert-MemberProperty
         [Parameter(ValueFromPipeline = $true,
                    Mandatory = $true)]
         [System.Reflection.TypeInfo]
-        $TypeInfo    
+        $TypeInfo
     )
     process
     {
         $_propertyName = $PropertyName,$Not | ? {$_}
         if
-        ( 
+        (
             ( $TypeInfo | Test-MemberProperty $_propertyName ) -xor
             ( $PSCmdlet.ParameterSetName -eq 'negative' )
         )
         {
             return
         }
-        
+
         if ( $PSCmdlet.ParameterSetName -eq 'affirmative' )
         {
             throw "Property $_propertyName not found on type $($TypeInfo.Name)."
@@ -142,7 +142,7 @@ function Assert-PropertyCustomAttribute
     {
         $_attributeName = $AttributeName,$Not | ? {$_}
         if
-        ( 
+        (
             ( $PropertyInfo | Test-PropertyCustomAttribute $_attributeName ) -xor
             ( $PSCmdlet.ParameterSetName -eq 'negative' )
         )

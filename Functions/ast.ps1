@@ -9,7 +9,7 @@ function Get-ModuleAst
     )
     process
     {
-        $d = & { 
+        $d = & {
             if ( $Module.Definition )
             {
                 return $Module.Definition
@@ -31,7 +31,7 @@ function Get-ModuleAst
         {
             return [scriptblock]::Create($d).Ast
         }
-        
+
         throw "Definition for module $($Module.Name) not found."
     }
 }

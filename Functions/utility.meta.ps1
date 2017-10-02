@@ -105,7 +105,7 @@ function New-Tester
                 process
                 {
                     `$splat = @{}
-                    $getterParamNamesLiteral | 
+                    $getterParamNamesLiteral |
                         ? { `$PSBoundParameters.ContainsKey(`$_) } |
                         % { `$splat.`$_ = `$PSBoundParameters.get_Item(`$_) }
 
@@ -161,7 +161,7 @@ function New-Asserter
                 process
                 {
                     `$splat = @{}
-                    $testerParamNamesLiteral | 
+                    $testerParamNamesLiteral |
                         ? { `$PSBoundParameters.ContainsKey(`$_) } |
                         % { `$splat.`$_ = `$PSBoundParameters.get_Item(`$_) }
 

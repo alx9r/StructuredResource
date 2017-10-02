@@ -47,7 +47,7 @@ function Assert-PipelineException
             & $invoker | % { throw 'downstream' }
         }
         catch
-        { 
+        {
             $threw = $true
             $e = $_.Exception
         }

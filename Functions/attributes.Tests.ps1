@@ -9,7 +9,7 @@ Describe Get-AttributeArgument {
         )
     }
     $a = Get-Command f |
-        Get-ParameterMetaData x | 
+        Get-ParameterMetaData x |
         Get-ParameterAttribute Parameter
     It 'returns argument' {
         $r = $a | Get-AttributeArgument Position
