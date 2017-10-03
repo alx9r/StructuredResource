@@ -110,9 +110,9 @@ Your folder structure should now look like this:
 	* `SrTutorial.psd1`
 	* `structuredResource.Tests.ps1`
 
-Invoke `powershell.exe Invoke-Pester` again and see what fails next.  Then edit to try to fix the error.  Repeat the test-edit-test cycle until all of the unit tests are passing.  If you are wondering about the terminology used by the tests, the definitions section of [the guidelines][] might help you.
+Invoke `powershell.exe Invoke-Pester` again and see what fails next.  Then edit to try to fix the error.  Repeat the test-edit-test cycle until all of the unit tests are passing.  If you are wondering about the terminology used by the tests, [the definitions section of the guidelines][] might help you.
 
-[the guidelines]: guidelines.md
+[the definitions section of the guidelines]: guidelines.md#definitions
 
 Each DSC resource requires at least one key parameter.  In order to get unit tests passing for `MyFile` you'll need to implement the `$Path` key parameter for the resource.
 
