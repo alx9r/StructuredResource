@@ -224,12 +224,6 @@ function Get-PropertyDefault
     )
     process
     {
-        Write-Host "TypeInfo"
-        Write-Host $TypeInfo
-
-        Write-Host "DeclaredConstructors"
-        Write-Host $TypeInfo.DeclaredConstructors
-
         $TypeInfo.GetConstructors()[0].Invoke($null).$PropertyName
     }
 }
