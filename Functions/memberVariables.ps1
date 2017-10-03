@@ -230,7 +230,7 @@ function Get-PropertyDefault
         Write-Host "DeclaredConstructors"
         Write-Host $TypeInfo.DeclaredConstructors
 
-        $TypeInfo.DeclaredConstructors[0].Invoke($null).$PropertyName
+        $TypeInfo.GetConstructors()[0].Invoke($null).$PropertyName
     }
 }
 
