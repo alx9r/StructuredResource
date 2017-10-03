@@ -64,5 +64,5 @@ These guidelines shall be interpreted according to the doctrine of [_lex special
         ConvertTo-GuidelinesDocument @splat |
         ConvertTo-MdSection |
         ConvertTo-MdText |
-        % {$_.Split([System.Environment]::NewLine)}#,[System.StringSplitOptions]::RemoveEmptyEntries)}
+        % {$_.Split([System.Environment]::NewLine)}
 }
