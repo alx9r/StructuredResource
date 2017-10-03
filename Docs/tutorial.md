@@ -2,7 +2,7 @@
 
 In this tutorial we will use the StructuredResource module to implement a DSC resource that sets the content and attributes of text files.  The tutorial makes extensive use of the commands and automated tests included with StructuredResource to streamline implementation.
 
-You can follow along with this tutorial by first installing StructuredResource on your computer.  You can find [installation instructions here][].  The development of the DSC resource produced when this tutorial was written was captured in the [SrTutorial repository](https://github.com/alx9r/StTutorial).
+You can follow along with this tutorial by first installing StructuredResource on your computer.  You can find [installation instructions here][].  The development of the DSC resource produced when this tutorial was written was captured in the [SrTutorial repository](https://github.com/alx9r/SrTutorial).
 
 [installation instructions here]: readme.md
 
@@ -120,7 +120,7 @@ Note that you might see errors in your editor or output by PowerShell from time 
 
 You will likely see multiple errors at any one time.  Pay most attention to the top-most errors as those are most likely to give you guidance about your next edit.
 
-If you get stuck, look for hints in the `SrTutorial` repository's commit history up to the tag `unit-tests-complete`. 
+If you get stuck, look for hints in [the `SrTutorial` repository's commit history up to the tag `unit-tests-complete`](https://github.com/alx9r/SrTutorial/commits/unit-tests-complete). 
 
 Once you have all the unit tests passing, you will have a well-formed public resource class `[MyFile]` and a well-formed public resource function `Invoke-MyFile`.  These are the public interfaces for the `MyFile` DSC resource.
 
@@ -273,7 +273,7 @@ Congratulations, you have just implemented a DSC resource that passes the whole 
 
 ## E: Try it Out
 
-The tests you ran in the previous module already put `Invoke-MyFile` through its paces.  You can try it out at the PowerShell command line:
+The tests you ran in the previous steps already put `Invoke-MyFile` through its paces.  You can try it out at the PowerShell command line:
 
 ```PowerShell
 PS C:\> Invoke-MyFile Test Present -Path c:\temp\somefile.txt -Content 'content' -NotContentIndexed $true
