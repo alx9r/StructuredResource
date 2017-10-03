@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/c4o1e8ci9p6vqj0k?svg=true&passingText=master%20-%20OK)](https://ci.appveyor.com/project/alx9r/structuredresource/branch/master)
+
 # StructuredResource
 
 StructuredResource is a PowerShell module that streamlines the development and maintenance of robust and consistent DSC resources.
